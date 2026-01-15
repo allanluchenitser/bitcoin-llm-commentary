@@ -1,0 +1,19 @@
+{
+  "name": "bitcoin-llm-commentary",
+  "version": "1.0.0",
+  "description": "bit coin pricing and llm commentary",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/allanluchenitser/bitcoin-llm-commentary.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/allanluchenitser/bitcoin-llm-commentary/issues"
+  },
+  "homepage": "https://github.com/allanluchenitser/bitcoin-llm-commentary#readme"
+}
