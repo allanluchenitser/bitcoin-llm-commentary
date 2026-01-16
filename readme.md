@@ -2,38 +2,49 @@ Greetings prospective employer or collaborator!
 
 Introducing:
 
-**Bitcoin live price and LLM summary project**
+### Bitcoin live price and LLM summary project
 
-Fetches real-time trading info from public crypto feeds then AI writes up summaries of what's been happening.
+Fetches real-time trading info from public crypto feeds then AI writes up text summaries of what's been happening.
 
 Summaries are either periodical or triggered real-time by interesting trading activity.
 
-Results are displayed on a web dashboard that updates in real-time.
+Results are displayed on a web dashboard that updates in real-time
 
+**Application stack**
+PERN
+Postgres, Express, React, Nodejs
 
+**Front End**
+S3 + Cloudfront for React UI and SSL.
+Pretty standard.
 
-**Tech stack**
+**Two App Containers**
+* One which ingests price data via websockets from crypto exchanges.
 
-"ERN" for now. Database TBD (if any).
+* Another for general backend API plus Server-Sent Events (SSE) to push updates to the React front end.
 
-**Infrastructure**
+**Two Database Containers**
 
-S3 for the front end. EC2 + docker on the backend. Caddy or Nginx as reverse proxy.
+* Postgres for storing price data and summaries.
+* Redis for pub/sub between the two app containers.
 
-If I catch some traffic I'll consider further AWS resources. Lambda, ECS.. whatever is appropriate. High class problem.
+**Lambda Functions**
+These will call LLM APIs to generate text summaries when triggered by the price ingestion app. Probably OpenAI GPT-4 or similar.
 
-Purposely not using Vercel, Supabase so that the project evolves along side my AWS skills.
+**Implementation**
+For now, I'm going to start this project by hosting containers on a single EC2 instance using Docker Compose.
 
-**General idea**
+I intend to migrate capabilities onto specialized AWS services later, piece by piece.
 
-* Websockets ingress price data.
+**Reasoning of Architecture Choices**
+* S3 + Cloudfront is standard for hosting React apps with SSL. Easy, cheap, handles certificates automatically.
 
-* SSE fan out to web clients.
+* Crypto feed ingress container is a well defined role. It should scale independently if needed.
 
-* LLM calls to OpenAI API.
+* Web api host container is also a well defined role. Likewise above, should scale independently if needed.
 
-* Pub/sub via Redis or maybe just inside nodejs
+* AWS Lambda is nice for api key storage and infrequent, short lived tasks like an LLM call. I think it's nice to separate entirely here.
 
-* React front end, probably with Next.js (yea it's overkill)
+* Postgres container was a maybe. I suppose I could install it directly on the EC2 instance, but we'll go for portability here.
 
-Cool? Ok cool.
+* Redis container was also a maybe. Could have opted to install directly on the EC2 instance, but again portability / rollback advantage.
