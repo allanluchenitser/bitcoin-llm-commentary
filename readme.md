@@ -2,11 +2,7 @@ Greetings prospective employer or collaborator! Introducing:
 
 ### Bitcoin live price and LLM summary project
 
-Fetches real-time trading info from public crypto feeds then AI writes up text summaries of what's been happening.
-
-Summaries are either periodical or triggered real-time by interesting trading activity.
-
-Results are displayed on a web dashboard that updates in real-time
+Fetches real-time trading info from public crypto feeds then AI writes up text summaries of what's been happening. Summaries are either periodical or triggered real-time by interesting trading activity. Results are displayed on a web dashboard that updates in real-time
 
 ####  Application stack
 PERN
@@ -32,9 +28,7 @@ Pretty standard.
 These will call LLM APIs to generate text summaries when triggered by the price ingestion app. Probably OpenAI GPT-4 or similar.
 
 ####  Implementation
-For now, I'm going to start this project by hosting containers on a single EC2 instance using Docker Compose.
-
-I intend to migrate capabilities onto specialized AWS services later, piece by piece.
+For now, I'm going to start this project by hosting containers on a single EC2 instance using Docker Compose. I intend to migrate capabilities onto specialized AWS services later, piece by piece.
 
 ####  Reasoning of Architecture Choices
 * S3 + Cloudfront is standard for hosting React apps with SSL. Easy, cheap, handles certificates automatically.
