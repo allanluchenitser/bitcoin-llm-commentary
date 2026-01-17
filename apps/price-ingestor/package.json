@@ -1,0 +1,19 @@
+{
+  "name": "price-ingestor",
+  "version": "1.0.0",
+  "description": "take price data from an exchange api and ingest into a db",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/allanluchenitser/bitcoin-llm-commentary.git"
+  },
+  "author": "Allan Luchenitser",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/allanluchenitser/bitcoin-llm-commentary/issues"
+  },
+  "homepage": "https://github.com/allanluchenitser/bitcoin-llm-commentary#readme"
+}

@@ -42,3 +42,10 @@ For now, I'm going to start this project by hosting containers on a single EC2 i
 * Postgres container was a maybe. I suppose I could install it directly on the EC2 instance, but we'll go for portability here.
 
 * Redis container was also a maybe. Could have opted to install directly on the EC2 instance, but again portability / rollback advantage.
+
+#### Use of AI for coding
+I'll mostly be using AI for brainstorming high level architecture, crash course explanations of unfamiliar tech, and generating boilerplate code snippets.
+
+I'm not going whole hog agentic AI code-assistant here.
+
+
