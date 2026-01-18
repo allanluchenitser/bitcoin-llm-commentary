@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "take price data from an exchange api and ingest into a db",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,5 +16,13 @@
   "bugs": {
     "url": "https://github.com/allanluchenitser/bitcoin-llm-commentary/issues"
   },
-  "homepage": "https://github.com/allanluchenitser/bitcoin-llm-commentary#readme"
+  "homepage": "https://github.com/allanluchenitser/bitcoin-llm-commentary#readme",
+  "devDependencies": {
+    "@types/node": "^25.0.9",
+    "@types/ws": "^8.18.1",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "ws": "^8.19.0"
+  }
 }
