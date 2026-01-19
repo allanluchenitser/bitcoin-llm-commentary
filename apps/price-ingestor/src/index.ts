@@ -1,86 +1,72 @@
 import WebSocket from "ws";
 
+import {
+  SubRequest,
+
+  SubAcknowledgement,
+  isSubAcknowledgement,
+
+  UpdateResponse,
+  isUpdateResponse,
+
+  KrakenMessage
+} from "./types-and-guards.js";
+
 /*
   Kraken WebSocket API v2 documentation:
   https://docs.kraken.com/api/docs/guides/global-intro
   https://docs.kraken.com/api/docs/websocket-v2/ticker
 */
 
-interface SubscriptionRequest {
-  method: "subscribe";
-  params: {
-    channel: string;
-    symbol: string[];
-    eventTrigger?: string;
-  };
-}
-
-interface SubscriptionAcknowledgement {
-  method: "subscribe";
-  result: {
-    channel: "ticker";
-    symbol: string;
-  };
-}
-
-interface TickerData {
-  symbol: string;
-  bid: number;
-  bid_qty: number;
-  ask: number;
-  ask_qty: number;
-  last: number;
-  volume: number;
-  vwap: number;
-  low: number;
-  high: number;
-  change: number;
-  change_pct: number;
-}
-
-interface UpdateResponse {
-  channel: "ticker";
-  type: "snapshot" | "update";
-  data: TickerData[];
-}
-
-type KrakenMessage =
-  | SubscriptionAcknowledgement
-  | UpdateResponse
+/* ------ WebSocket Code Begins ------ */
 
 const URL: string = "wss://ws.kraken.com/v2";
 const ws: WebSocket = new WebSocket(URL);
 
 ws.on("open", () => {
   // subscribe to Kraken ticker channel
-  const msg: SubscriptionRequest = {
+  const msg: SubRequest = {
     method: "subscribe",
     params: {
       channel: "ticker",
       symbol: ["BTC/USD", "ETH/USD"],
-      eventTrigger: "bbo"
+      event_trigger: "bbo"
     }
   };
 
   ws.send(JSON.stringify(msg));
-  console.log("opened + subscribed to Kraken ticker channel");
+  console.log("opened websocket to Kraken ticker. send subscription request.");
 });
 
-ws.on("message", (kmsg: KrakenMessage) => {
-  // subscription acknowledgement
-  if ("method" in kmsg && kmsg.method === "subscribe") {
-    const text = `Subscription to ${kmsg.result.channel} for ${kmsg.result.symbol} acknowledged`
-    console.log(text);
+ws.on("message", (kmsg: WebSocket.RawData) => {
+  let json: unknown;
+  try {
+    json = JSON.parse(kmsg.toString());
+  }
+  catch (e) {
+    console.error("Failed to parse message:", kmsg.toString());
+    return;
   }
 
-  // ticker update
-  else if ("channel" in kmsg && kmsg.channel === "ticker" && kmsg.type === "update") {
-    const ticker = kmsg.data[0];
-    const text = `Ticker Update - Symbol: ${ticker.symbol}, Last Price: ${ticker.last}, Bid: ${ticker.bid}, Ask: ${ticker.ask}, Volume: ${ticker.volume}`;
+  if (isSubAcknowledgement(json)) {
+    const text = `Subscription to ${json.result.channel} for ${json.result.symbol} acknowledged`;
     console.log(text);
+    console.log(json);
+  }
+  else if (isUpdateResponse(json)) {
+    const ticker = json.data[0];
+
+    const map = {
+      update: "Ticker Update",
+      snapshot: "Ticker Snapshot"
+    };
+
+    const text = `${map[json.type]} - Symbol: ${ticker.symbol}, Last Price: ${ticker.last}, Bid: ${ticker.bid}, Ask: ${ticker.ask}, Volume: ${ticker.volume}`;
+    console.log(text);
+    console.log(ticker);
   }
   else {
-    console.warn("Received unknown message:", kmsg);
+    console.warn("Received unknown message:", json);
   }
 });
 
