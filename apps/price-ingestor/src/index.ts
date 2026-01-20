@@ -12,6 +12,13 @@ import {
   KrakenMessage
 } from "./types-and-guards.js";
 
+import { color } from "@blc/color-logger";
+color.warn("Using @blc/color-logger package");
+color.debug("Debug logging is enabled");
+color.error("This is an error message");
+color.info("This is an info message");
+
+// process.exit(0);
 /*
   Kraken WebSocket API v2 documentation:
   https://docs.kraken.com/api/docs/guides/global-intro

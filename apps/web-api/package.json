@@ -1,19 +1,14 @@
 {
-  "name": "web-api",
+  "name": "@blc/web-api",
   "version": "1.0.0",
-  "description": "SSE realtime price updates and general web api features",
+  "description": "Web API for bitcoin llm commentary",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "author": "Your Name",
+  "dependencies": {
+    "express": "^4.18.2"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/allanluchenitser/bitcoin-llm-commentary.git"
-  },
-  "author": "Allan Luchenitser",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/allanluchenitser/bitcoin-llm-commentary/issues"
-  },
-  "homepage": "https://github.com/allanluchenitser/bitcoin-llm-commentary#readme"
+  "devDependencies": {
+    "nodemon": "^2.0.22",
+    "@types/express": "^4.17.17"
+  }
 }

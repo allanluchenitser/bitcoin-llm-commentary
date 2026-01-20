@@ -1,4 +1,12 @@
 {
-  "name": "repo",
-  "private": true
+  "name": "bitcoin-llm-commentary-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "devDependencies": {
+    "@types/node": "^25.0.9",
+    "typescript": "^5.9.3"
+  }
 }

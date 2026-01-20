@@ -1,7 +1,6 @@
 {
-  "name": "price-ingestor",
+  "name": "@blc/price-ingestor",
   "version": "1.0.0",
-  "description": "take price data from an exchange api and ingest into a db",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -15,17 +14,12 @@
   },
   "author": "Allan Luchenitser",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/allanluchenitser/bitcoin-llm-commentary/issues"
-  },
-  "homepage": "https://github.com/allanluchenitser/bitcoin-llm-commentary#readme",
+
   "dependencies": {
     "ws": "^8.19.0"
   },
   "devDependencies": {
-    "@types/node": "^25.0.9",
     "@types/ws": "^8.18.1",
-    "typescript": "^5.9.3",
-    "@local/color-logger": "file:../../packages/color-logger"
+    "@blc/color-logger": "0.0.0"
   }
 }

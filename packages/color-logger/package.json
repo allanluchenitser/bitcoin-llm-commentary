@@ -1,5 +1,5 @@
 {
-  "name": "@local/logger",
+  "name": "@blc/color-logger",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,5 @@
     "clean": "rm -rf dist"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "@types/node": "^20.5.6"
   }
 }
