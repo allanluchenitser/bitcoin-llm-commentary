@@ -27,7 +27,7 @@ bitcoin-llm-commentary/
 }
 ```
 
-####  Application stack
+###  Application stack
 PERN: Postgres, Express, React, Nodejs
 
 ####  Front End
@@ -65,7 +65,7 @@ For now, I'm going to start this project by hosting containers on a single EC2 i
 
 * Redis container was also a maybe. Could have opted to install directly on the EC2 instance, but again portability / rollback advantage.
 
-#### Use of AI for coding
+### Use of AI for coding
 I'll mostly be using AI for brainstorming high level architecture, crash course explanations of unfamiliar tech, and generating boilerplate code snippets.
 
 I'm not going whole hog agentic AI code-assistant here.
