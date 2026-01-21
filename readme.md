@@ -2,10 +2,12 @@ Greetings prospective employer or collaborator!
 
 ### Bitcoin live price and LLM summary project
 
-Fetches real-time trading info from public crypto feeds then AI writes up text summaries of what's been happening. Summaries are either periodical or triggered real-time by interesting trading activity. Results are displayed on a web dashboard that updates in real-time
+Fetches real-time trading info from public crypto feeds then AI writes up text summaries of what's been happening. Summaries are either periodical or triggered real-time by interesting trading activity. Results are displayed on a web dashboard that updates in real-time.
+
+*Major tooling (for now) are docker-compose and npm native workspaces for monorepo structure.*
 
 ```
-# workspaces structure
+# workspaces structure (using native npm workspaces)
 
 bitcoin-llm-commentary/
 ├── apps/
@@ -79,7 +81,7 @@ For now, I'm going to start this project by hosting containers on a single EC2 i
               |         |   [🐳 Signal worker] -> [AWS Lambda LLM]
               |         |
               |         v
-              |   [🐳 Web API SSE] -> [React UI]
+              |   [🐳 Web API, SSE] -> [React UI]
               |
               v
         [🐳 Postgres]
