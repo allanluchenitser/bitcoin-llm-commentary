@@ -34,11 +34,13 @@ PERN: Postgres, Express, React, Nodejs
 S3 + Cloudfront for React UI and SSL.
 Pretty standard.
 
-####  Two App Containers
+####  Three App Containers
 
 * One which ingests price data via websockets from crypto exchanges.
 
 * Another for general backend API plus Server-Sent Events (SSE) to push updates to the React front end.
+
+* A signal worker container which listens for "interesting" price movements via Redis pub/sub and triggers AWS Lambda functions to call LLM APIs for text summaries.
 
 ####  Two Database Containers
 
@@ -52,7 +54,7 @@ These will call LLM APIs to generate text summaries when triggered by the price 
 ###  Implementation Notes
 For now, I'm going to start this project by hosting containers on a single EC2 instance using Docker Compose. I intend to migrate capabilities onto specialized AWS services later, piece by piece.
 
-####  Reasoning of Architecture Choices
+####  Reasoning of Resource Choices
 * S3 + Cloudfront is standard for hosting React apps with SSL. Easy, cheap, handles certificates automatically.
 
 * Crypto feed ingress container is a well defined role. It should scale independently if needed.
@@ -64,6 +66,25 @@ For now, I'm going to start this project by hosting containers on a single EC2 i
 * Postgres container was a maybe. I suppose I could install it directly on the EC2 instance, but we'll go for portability here.
 
 * Redis container was also a maybe. Could have opted to install directly on the EC2 instance, but again portability / rollback advantage.
+
+#### Current Flow Diagram
+
+```
+[Kraken api] -> [🐳 Price Ingestor]
+                        |
+                        v
+               __[🐳 Redis Pub/Sub]___
+              |         |            |
+              |         |            v
+              |         |   [🐳 Signal worker] -> [AWS Lambda LLM]
+              |         |
+              |         v
+              |   [🐳 Web API SSE] -> [React UI]
+              |
+              v
+        [🐳 Postgres]
+```
+
 
 ### Use of AI for coding
 I'll mostly be using AI for brainstorming high level architecture, crash course explanations of unfamiliar tech, and generating boilerplate code snippets.
