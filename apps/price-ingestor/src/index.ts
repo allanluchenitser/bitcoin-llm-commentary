@@ -2,23 +2,11 @@ import WebSocket from "ws";
 
 import {
   SubRequest,
-
-  SubAcknowledgement,
   isSubAcknowledgement,
-
-  UpdateResponse,
-  isUpdateResponse,
-
-  KrakenMessage
+  isUpdateResponse
 } from "./types-and-guards.js";
 
 import { color } from "@blc/color-logger";
-color.warn("Using @blc/color-logger package");
-color.debug("Debug logging is enabled");
-color.error("This is an error message");
-color.info("This is an info message");
-
-// process.exit(0);
 /*
   Kraken WebSocket API v2 documentation:
   https://docs.kraken.com/api/docs/guides/global-intro
@@ -30,8 +18,53 @@ color.info("This is an info message");
 const URL: string = "wss://ws.kraken.com/v2";
 const ws: WebSocket = new WebSocket(URL);
 
+// Track latest ticker per symbol + last message type for that symbol
+type TickerLike = {
+  symbol: string;
+  bid?: number;
+  ask?: number;
+  last?: number;
+  volume?: number;
+  timestamp?: string;
+};
+
+const latestBySymbol = new Map<string, { ticker: TickerLike; lastType: "snapshot" | "update" }>();
+
+/* ------ print per-second to prevent console overload ------ */
+
+let updatesPerSec = 0;
+let snapshotsPerSec = 0;
+let unknownPerSec = 0;
+
+setInterval(() => {
+  const parts: string[] = [];
+  for (const [symbol, v] of latestBySymbol.entries()) {
+    const t = v.ticker;
+    parts.push(
+      `${symbol} (${v.lastType}) \
+      last=${t.last ?? "?"} \
+      bid=${t.bid ?? "?"} \
+      ask=${t.ask ?? "?"} \
+      vol=${t.volume ?? "?"}`
+    );
+  }
+
+  color.info(
+    `[ticker] update=${updatesPerSec}/s \
+    snapshot=${snapshotsPerSec}/s \
+    unknown=${unknownPerSec}/s`
+  )
+
+  if (parts.length > 0) {
+    console.log(parts.join('\n') + '\n');
+  }
+
+  updatesPerSec = 0;
+  snapshotsPerSec = 0;
+  unknownPerSec = 0;
+}, 1000);
+
 ws.on("open", () => {
-  // subscribe to Kraken ticker channel
   const msg: SubRequest = {
     method: "subscribe",
     params: {
@@ -42,39 +75,43 @@ ws.on("open", () => {
   };
 
   ws.send(JSON.stringify(msg));
-  console.log("opened websocket to Kraken ticker. send subscription request.");
+  console.log("Opened websocket to Kraken ticker. Subscription request sent.");
 });
 
 ws.on("message", (kmsg: WebSocket.RawData) => {
   let json: unknown;
   try {
     json = JSON.parse(kmsg.toString());
-  }
-  catch (e) {
+  } catch {
     console.error("Failed to parse message:", kmsg.toString());
     return;
   }
 
   if (isSubAcknowledgement(json)) {
-    const text = `Subscription to ${json.result.channel} for ${json.result.symbol} acknowledged`;
-    console.log(text);
-    console.log(json);
+    color.warn(
+      `Subscription to ${json.result.channel} for \
+      ${Array.isArray(json.result.symbol) ? json.result.symbol.join(", ") : json.result.symbol} \
+      acknowledged`
+    );
+    return;
   }
-  else if (isUpdateResponse(json)) {
-    const ticker = json.data[0];
 
-    const map = {
-      update: "Ticker Update",
-      snapshot: "Ticker Snapshot"
-    };
+  if (isUpdateResponse(json)) {
+    const ticker = json.data[0] as TickerLike;
 
-    const text = `${map[json.type]} - Symbol: ${ticker.symbol}, Last Price: ${ticker.last}, Bid: ${ticker.bid}, Ask: ${ticker.ask}, Volume: ${ticker.volume}`;
-    console.log(text);
-    console.log(ticker);
+    if (json.type === "snapshot") snapshotsPerSec += 1;
+    else if (json.type === "update") updatesPerSec += 1;
+    else unknownPerSec += 1;
+
+    latestBySymbol.set(
+      ticker.symbol,
+      { ticker, lastType: json.type }
+    );
+
+    return;
   }
-  else {
-    console.warn("Received unknown message:", json);
-  }
+
+  unknownPerSec += 1;
 });
 
 ws.on("error", (error: Error) => {
