@@ -2,7 +2,7 @@ Greetings prospective employer or collaborator!
 
 ### Bitcoin live price and LLM summary project
 
-Fetches real-time trading info from public crypto feeds then AI writes up text summaries of what's been happening. Summaries are either periodical or triggered real-time by interesting trading activity. Results are displayed on a web dashboard that updates in real-time.
+Grabs price and volume from public crypto feeds then AI writes up text summaries of what's been happening.
 
 *Major tooling (for now) are docker-compose and npm native workspaces for monorepo structure.*
 
@@ -38,11 +38,11 @@ Pretty standard.
 
 ####  Three App Containers
 
-* One which ingests price data via websockets from crypto exchanges.
+* Price ingestor. Ingests price data via websockets from crypto exchanges. Send to Redis & Postgres.
 
-* Another for general backend API plus Server-Sent Events (SSE) to push updates to the React front end.
+* Web server API using REST and SSE
 
-* A signal worker container which listens for "interesting" price movements via Redis pub/sub and triggers AWS Lambda functions to call LLM APIs for text summaries.
+* Worker container that monitors price movements via Redis pub/sub and triggers AWS Lambda to call LLM for text summaries.
 
 ####  Two Database Containers
 
@@ -54,20 +54,20 @@ Pretty standard.
 These will call LLM APIs to generate text summaries when triggered by the price ingestion app. Probably OpenAI GPT-4 or similar.
 
 ###  Implementation Notes
-For now, I'm going to start this project by hosting containers on a single EC2 instance using Docker Compose. I intend to migrate capabilities onto specialized AWS services later, piece by piece.
+I'm starting this project by hosting containers on a single EC2 instance using Docker Compose. I intend to migrate capabilities onto specialized AWS services later, piece by piece.
 
 ####  Reasoning of Resource Choices
-* S3 + Cloudfront is standard for hosting React apps with SSL. Easy, cheap, handles certificates automatically.
+* S3 + Cloudfront is standard for hosting React apps with SSL.
 
-* Crypto feed ingress container is a well defined role. It should scale independently if needed.
+* Crypto feed ingress container is a well defined role.
 
-* Web api host container is also a well defined role. Likewise above, should scale independently if needed.
+* Web api host container is a well defined role.
 
-* AWS Lambda is nice for api key storage and infrequent, short lived tasks like an LLM call. I think it's nice to separate entirely here.
+* AWS Lambda is nice for api key storage and infrequent, short lived tasks like an LLM call.
 
-* Postgres container was a maybe. I suppose I could install it directly on the EC2 instance, but we'll go for portability here.
+* Since we're doing containers: Postgres is a typical dependency container.
 
-* Redis container was also a maybe. Could have opted to install directly on the EC2 instance, but again portability / rollback advantage.
+* Redis is also a typical dependency container.
 
 #### Current Flow Diagram
 
