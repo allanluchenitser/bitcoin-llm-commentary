@@ -20,15 +20,29 @@ const ws: WebSocket = new WebSocket(URL);
 
 // Track latest ticker per symbol + last message type for that symbol
 type TickerLike = {
-  symbol: string;
-  bid?: number;
   ask?: number;
+  ask_qty?: number;
+
+  bid?: number;
+  bid_qty?: number;
+
+  change?: number;
+  change_pct?: number;
+
+  high?: number;
   last?: number;
+  low?: number;
+
+  symbol: string;
+
   volume?: number;
-  timestamp?: string;
+  vwap?: number;
 };
 
-const latestBySymbol = new Map<string, { ticker: TickerLike; lastType: "snapshot" | "update" }>();
+const latestBySymbol = new Map<
+  string,
+  { ticker: TickerLike; lastType: "snapshot" | "update" }
+>();
 
 /* ------ print per-second to prevent console overload ------ */
 
