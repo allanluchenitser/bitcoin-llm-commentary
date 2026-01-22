@@ -34,38 +34,37 @@ PERN: Postgres, Express, React, Nodejs
 
 ####  Front End
 S3 + Cloudfront for React UI and SSL.
-Pretty standard.
 
 ####  Three App Containers
 
-* Price ingestor. Ingests price data via websockets from crypto exchanges. Send to Redis & Postgres.
+* Price ingestor. Ingests price data via websockets from crypto exchanges.
 
-* Web server API using REST and SSE
+* Web server API using REST and SSE.
 
-* Worker container that monitors price movements via Redis pub/sub and triggers AWS Lambda to call LLM for text summaries.
+* Worker container that calls the LLM.
 
 ####  Two Database Containers
 
 * Postgres for storing price data and summaries.
 
-* Redis for pub/sub between the two app containers.
+* Redis for pub/sub.
 
 ####  Lambda Functions
-These will call LLM APIs to generate text summaries when triggered by the price ingestion app. Probably OpenAI GPT-4 or similar.
+These will call an LLM API to generate text summaries when triggered by the price ingestion app.
 
 ###  Implementation Notes
-I'm starting this project by hosting containers on a single EC2 instance using Docker Compose. I intend to migrate capabilities onto specialized AWS services later, piece by piece.
+Starting with a single EC2 instance and Docker Compose. I'll break it out to other AWS services in phase 2.
 
 ####  Reasoning of Resource Choices
 * S3 + Cloudfront is standard for hosting React apps with SSL.
 
-* Crypto feed ingress container is a well defined role.
+* Crypto feed ingress-container is a well defined role.
 
-* Web api host container is a well defined role.
+* Web api host-container is a well defined role.
 
 * AWS Lambda is nice for api key storage and infrequent, short lived tasks like an LLM call.
 
-* Since we're doing containers: Postgres is a typical dependency container.
+* Postgres is a typical dependency container.
 
 * Redis is also a typical dependency container.
 
