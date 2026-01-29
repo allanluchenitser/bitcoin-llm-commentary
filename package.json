@@ -4,6 +4,7 @@
   "scripts": {
     "deps:up": "docker compose --env-file ./infra/.env.local -f ./infra/docker-compose.yml up -d",
     "deps:down": "docker compose --env-file ./infra/.env.local -f ./infra/docker-compose.yml down",
+    "deps:stop": "docker compose --env-file ./infra/.env.local -f ./infra/docker-compose.yml stop",
     "deps:logs": "docker compose --env-file ./infra/.env.local -f ./infra/docker-compose.yml logs -f --tail=200",
     "deps:ps": "docker compose --env-file ./infra/.env.local -f ./infra/docker-compose.yml ps",
     "deps:reset": "docker compose --env-file ./infra/.env.local -f ./infra/docker-compose.yml down -v && docker compose --env-file ./infra/.env.local -f ./infra/docker-compose.yml up -d",

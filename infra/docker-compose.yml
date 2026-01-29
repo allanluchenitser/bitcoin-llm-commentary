@@ -1,9 +1,10 @@
+name: blc-compose
 services:
   redis:
     image: redis:8-alpine
     container_name: blc-redis
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     volumes:
       - ${INFRA_ROOT}/database/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro

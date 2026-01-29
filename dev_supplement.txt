@@ -1,0 +1,13 @@
+notes for local development
+
+# run a workspace
+npm run <script> -w <workspace-name-or-path>
+npm run <script> -workspace <workspace-name-or-path>
+
+# run all workspaces
+npm run <script> -ws
+npm run <script> --workspaces
+
+# run containers
+npm run deps:up
+npm run deps:down
