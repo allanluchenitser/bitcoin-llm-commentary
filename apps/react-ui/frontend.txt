@@ -1,0 +1,5 @@
+# scaffold via workspaces root (not apps/react-ui)
+npm create vite@latest apps/react-ui -- --template react-ts
+
+# run via workspaces root
+npm run -w @blc/react-ui dev
