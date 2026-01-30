@@ -1,0 +1,67 @@
+services:
+  web-api:
+    build:
+      context: ..
+      dockerfile: apps/web-api/Dockerfile
+    container_name: blc-web-api
+    env_file:
+      - .env.local
+    environment:
+      SERVICE_NAME: web-api
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+      PORT: ${WEB_API_PORT}
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${WEB_API_PORT}:${WEB_API_PORT}"
+    volumes:
+      - ../apps/web-api:/app
+      - /app/node_modules
+    command: npm run dev
+    restart: unless-stopped
+
+  price-ingestor:
+    build:
+      context: ..
+      dockerfile: apps/price-ingestor/Dockerfile
+    container_name: blc-price-ingestor
+    env_file:
+      - .env.local
+    environment:
+      SERVICE_NAME: price-ingestor
+      REDIS_HOST: redis
+      PORT: ${PRICE_INGESTOR_PORT}
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../apps/price-ingestor:/app
+      - /app/node_modules
+    command: npm run dev
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: ..
+      dockerfile: apps/worker/Dockerfile
+    container_name: blc-worker
+    env_file:
+      - .env.local
+    environment:
+      SERVICE_NAME: worker
+      REDIS_HOST: redis
+      POSTGRES_HOST: postgres
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ../apps/worker:/app
+      - /app/node_modules
+    command: npm run dev
+    restart: unless-stopped
