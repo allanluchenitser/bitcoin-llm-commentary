@@ -9,11 +9,11 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
 
-    "declaration": true,
     "sourceMap": true,
 
     "resolveJsonModule": true,
+    "declarationMap": true,
 
-    "noImplicitAny": false,
+    "noImplicitAny": false
   }
 }

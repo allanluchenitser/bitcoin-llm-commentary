@@ -1,7 +1,6 @@
 {
   "name": "@blc/price-ingestor",
   "version": "1.0.0",
-  "main": "index.js",
   "type": "module",
   "scripts": {
     "dev": "tsc && node ./dist/index.js",
@@ -15,12 +14,12 @@
   "author": "Allan Luchenitser",
   "license": "ISC",
   "dependencies": {
+    "@blc/env": "^0.0.0",
     "@blc/redis-client": "^0.0.0",
-    "dotenv": "^17.2.3",
+    "@blc/color-logger": "0.0.0",
     "ws": "^8.19.0"
   },
   "devDependencies": {
-    "@blc/color-logger": "0.0.0",
     "@types/ws": "^8.18.1"
   }
 }

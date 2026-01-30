@@ -1,5 +1,4 @@
-import dotenv from "dotenv";
-dotenv.config({ path: new URL("../../infra/.env.local", import.meta.url) });
+import '@blc/env';
 
 import WebSocket from "ws";
 import { color } from "@blc/color-logger";

@@ -1,6 +1,7 @@
 {
   "name": "bitcoin-llm-commentary-monorepo",
   "private": true,
+
   "scripts": {
     "compose:base": "docker compose --env-file ./infra/.env.local -f ./infra/compose.base.yml",
     "compose:apps": "docker compose --env-file ./infra/.env.local -f ./infra/compose.base.yml -f ./infra/compose.apps.yml",
@@ -22,7 +23,9 @@
     "pg:psql": "docker exec -it blc-postgres psql -U blc -d blc",
     "redis:cli": "docker exec -it blc-redis redis-cli"
   },
+
   "workspaces": ["packages/*", "apps/*"],
+
   "devDependencies": {
     "@types/node": "^25.0.9",
     "typescript": "^5.9.3"
