@@ -8,6 +8,10 @@ npm run <script> -workspace <workspace-name-or-path>
 npm run <script> -ws
 npm run <script> --workspaces
 
-# run containers
-npm run deps:up
-npm run deps:down
+# run containers, dependencies only for local dev
+npm run base:up
+npm run base:down
+
+# run containers for everything
+npm run apps:up
+npm run apps:down
