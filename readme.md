@@ -77,13 +77,13 @@ Starting with a single EC2 instance and Docker Compose. I'll break it out to oth
                __[🐳 Redis Pub/Sub]___
               |         |            |
               |         |            v
-              |         |   [🐳 Signal worker] -> [AWS Lambda LLM]
+              |         |   [🐳 LLM Lambda worker] -> [AWS Lambda LLM]
               |         |
               |         v
               |   [🐳 Web API, SSE] -> [React UI]
               |
               v
-        [🐳 Postgres]
+        [🐳 Postgres worker] -> [🐳 Postgres]
 ```
 
 * If pub/sub looks good, I might later include redis streams for reliable message delivery.

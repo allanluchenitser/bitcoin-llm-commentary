@@ -24,7 +24,7 @@
     "redis:cli": "docker exec -it blc-redis redis-cli"
   },
 
-  "workspaces": ["packages/*", "apps/*"],
+  "workspaces": ["packages/*", "apps/*", "workers/*"],
 
   "devDependencies": {
     "@types/node": "^25.0.9",
