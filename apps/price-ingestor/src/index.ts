@@ -1,8 +1,8 @@
-import WebSocket from "ws";
 import dotenv from "dotenv";
-import { color } from "@blc/color-logger";
-
 dotenv.config({ path: new URL("../../infra/.env.local", import.meta.url) });
+
+import WebSocket from "ws";
+import { color } from "@blc/color-logger";
 
 import {
   SubRequest,
@@ -10,7 +10,7 @@ import {
   isUpdateResponse
 } from "./types-and-guards.js";
 
-import { createRedisClient } from "./redis/client.js";
+import { createRedisClient, type RedisClient } from "@blc/redis-client";
 import { publishSnapshot, publishUpdate, storeLatestSnapshot } from "./redis/publisher.js";
 
 /*
@@ -22,8 +22,13 @@ import { publishSnapshot, publishUpdate, storeLatestSnapshot } from "./redis/pub
 const url: string = "wss://ws.kraken.com/v2";
 const ws: WebSocket = new WebSocket(url);
 
-const redis = createRedisClient();
-await redis.connect();
+const redis: RedisClient = createRedisClient();
+try {
+  await redis.connect();
+} catch (err) {
+  color.error(`[redis] failed to connect: ${String(err)}`);
+  process.exit(1);
+}
 
 type TickerLike = {
   ask?: number;
@@ -49,6 +54,8 @@ let updatesPerSec = 0;
 let snapshotsPerSec = 0;
 let unknownPerSec = 0;
 
+let snapshotFlushInFlight = false;
+
 // Your existing per-second console summarizer stays as-is
 setInterval(() => {
   const parts: string[] = [];
@@ -72,23 +79,30 @@ setInterval(() => {
 
 // Coalesce snapshots to Redis once per second (store + publish)
 setInterval(async () => {
-  const ts = Date.now();
+  if (snapshotFlushInFlight) return;
+  snapshotFlushInFlight = true;
 
-  for (const [symbol, v] of latestBySymbol.entries()) {
-    const snapshotEvent = {
-      source: "kraken" as const,
-      symbol,
-      type: "snapshot" as const,
-      ts_ms: ts,
-      data: v.ticker as unknown as Record<string, unknown>
-    };
+  try {
+    const ts = Date.now();
 
-    try {
-      await storeLatestSnapshot(redis, symbol, snapshotEvent, { ttlSeconds: 120 });
-      await publishSnapshot(redis, snapshotEvent);
-    } catch (err) {
-      color.error(`[redis] snapshot store/publish failed for ${symbol}: ${String(err)}`);
+    for (const [symbol, v] of latestBySymbol.entries()) {
+      const snapshotEvent = {
+        source: "kraken" as const,
+        symbol,
+        type: "snapshot" as const,
+        ts_ms: ts,
+        data: v.ticker as unknown as Record<string, unknown>
+      };
+
+      try {
+        await storeLatestSnapshot(redis, symbol, snapshotEvent, { ttlSeconds: 120 });
+        await publishSnapshot(redis, snapshotEvent);
+      } catch (err) {
+        color.error(`[redis] snapshot store/publish failed for ${symbol}: ${String(err)}`);
+      }
     }
+  } finally {
+    snapshotFlushInFlight = false;
   }
 }, 1000);
 
@@ -120,9 +134,15 @@ ws.on("message", async (kmsg: WebSocket.RawData) => {
   if (isUpdateResponse(json)) {
     const ticker = json.data[0] as TickerLike;
 
-    if (json.type === "snapshot") snapshotsPerSec += 1;
-    else if (json.type === "update") updatesPerSec += 1;
-    else unknownPerSec += 1;
+    if (json.type === "snapshot") {
+      snapshotsPerSec += 1;
+    }
+    else if (json.type === "update") {
+      updatesPerSec += 1;
+    }
+    else {
+      unknownPerSec += 1;
+    }
 
     latestBySymbol.set(ticker.symbol, { ticker, lastType: json.type });
 
@@ -147,7 +167,7 @@ ws.on("message", async (kmsg: WebSocket.RawData) => {
   unknownPerSec += 1;
 });
 
-process.on("SIGINT", async () => {
+async function shutdown() {
   try {
     ws.close();
   } catch {
@@ -159,6 +179,9 @@ process.on("SIGINT", async () => {
     // ignore
   }
   process.exit(0);
-});
+}
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
 
 

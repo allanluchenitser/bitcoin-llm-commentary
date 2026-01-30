@@ -1,5 +1,5 @@
-import type { RedisClientType } from "redis";
-import { TOPIC_TICKER_SNAPSHOT, TOPIC_TICKER_UPDATE, latestKey } from "./topics.js";
+import type { RedisClient } from "@blc/redis-client";
+import { CHANNEL_TICKER_SNAPSHOT, CHANNEL_TICKER_UPDATE, latestKey } from "./channels.js";
 
 export type TickerEvent = {
   source: "kraken";
@@ -9,16 +9,16 @@ export type TickerEvent = {
   data: Record<string, unknown>;
 };
 
-export async function publishUpdate(redis: RedisClientType, event: TickerEvent) {
-  await redis.publish(TOPIC_TICKER_UPDATE, JSON.stringify(event));
+export async function publishUpdate(redis: RedisClient, event: TickerEvent) {
+  await redis.publish(CHANNEL_TICKER_UPDATE, JSON.stringify(event));
 }
 
-export async function publishSnapshot(redis: RedisClientType, event: TickerEvent) {
-  await redis.publish(TOPIC_TICKER_SNAPSHOT, JSON.stringify(event));
+export async function publishSnapshot(redis: RedisClient, event: TickerEvent) {
+  await redis.publish(CHANNEL_TICKER_SNAPSHOT, JSON.stringify(event));
 }
 
 export async function storeLatestSnapshot(
-  redis: RedisClientType,
+  redis: RedisClient,
   symbol: string,
   snapshot: Record<string, unknown>,
   opts?: { ttlSeconds?: number }
@@ -27,7 +27,7 @@ export async function storeLatestSnapshot(
   const payload = JSON.stringify(snapshot);
 
   if (opts?.ttlSeconds) {
-    await redis.setEx(key, opts.ttlSeconds, payload);
+    await redis.set(key, payload, { EX: opts.ttlSeconds });
   } else {
     await redis.set(key, payload);
   }
