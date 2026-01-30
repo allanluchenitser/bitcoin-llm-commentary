@@ -1,4 +1,8 @@
 import WebSocket from "ws";
+import dotenv from "dotenv";
+import { color } from "@blc/color-logger";
+
+dotenv.config({ path: new URL("../../infra/.env.local", import.meta.url) });
 
 import {
   SubRequest,
@@ -6,35 +10,32 @@ import {
   isUpdateResponse
 } from "./types-and-guards.js";
 
-import { color } from "@blc/color-logger";
+import { createRedisClient } from "./redis/client.js";
+import { publishSnapshot, publishUpdate, storeLatestSnapshot } from "./redis/publisher.js";
+
 /*
   Kraken WebSocket API v2 documentation:
   https://docs.kraken.com/api/docs/guides/global-intro
   https://docs.kraken.com/api/docs/websocket-v2/ticker
 */
 
-/* ------ WebSocket Code Begins ------ */
+const url: string = "wss://ws.kraken.com/v2";
+const ws: WebSocket = new WebSocket(url);
 
-const URL: string = "wss://ws.kraken.com/v2";
-const ws: WebSocket = new WebSocket(URL);
+const redis = createRedisClient();
+await redis.connect();
 
-// Track latest ticker per symbol + last message type for that symbol
 type TickerLike = {
   ask?: number;
   ask_qty?: number;
-
   bid?: number;
   bid_qty?: number;
-
   change?: number;
   change_pct?: number;
-
   high?: number;
   last?: number;
   low?: number;
-
   symbol: string;
-
   volume?: number;
   vwap?: number;
 };
@@ -44,38 +45,51 @@ const latestBySymbol = new Map<
   { ticker: TickerLike; lastType: "snapshot" | "update" }
 >();
 
-/* ------ print per-second to prevent console overload ------ */
-
 let updatesPerSec = 0;
 let snapshotsPerSec = 0;
 let unknownPerSec = 0;
 
+// Your existing per-second console summarizer stays as-is
 setInterval(() => {
   const parts: string[] = [];
   for (const [symbol, v] of latestBySymbol.entries()) {
     const t = v.ticker;
     parts.push(
-      `${symbol} (${v.lastType}) \
-      last=${t.last ?? "?"} \
-      bid=${t.bid ?? "?"} \
-      ask=${t.ask ?? "?"} \
-      vol=${t.volume ?? "?"}`
+      `${symbol} (${v.lastType}) last=${t.last ?? "?"} bid=${t.bid ?? "?"} ask=${t.ask ?? "?"}`
     );
   }
 
   color.info(
-    `[ticker] update=${updatesPerSec}/s \
-    snapshot=${snapshotsPerSec}/s \
-    unknown=${unknownPerSec}/s`
-  )
+    `[ticker] update=${updatesPerSec}/s snapshot=${snapshotsPerSec}/s unknown=${unknownPerSec}/s`
+  );
 
-  if (parts.length > 0) {
-    console.log(parts.join('\n') + '\n');
-  }
+  if (parts.length > 0) console.log(parts.join("\n") + "\n");
 
   updatesPerSec = 0;
   snapshotsPerSec = 0;
   unknownPerSec = 0;
+}, 1000);
+
+// Coalesce snapshots to Redis once per second (store + publish)
+setInterval(async () => {
+  const ts = Date.now();
+
+  for (const [symbol, v] of latestBySymbol.entries()) {
+    const snapshotEvent = {
+      source: "kraken" as const,
+      symbol,
+      type: "snapshot" as const,
+      ts_ms: ts,
+      data: v.ticker as unknown as Record<string, unknown>
+    };
+
+    try {
+      await storeLatestSnapshot(redis, symbol, snapshotEvent, { ttlSeconds: 120 });
+      await publishSnapshot(redis, snapshotEvent);
+    } catch (err) {
+      color.error(`[redis] snapshot store/publish failed for ${symbol}: ${String(err)}`);
+    }
+  }
 }, 1000);
 
 ws.on("open", () => {
@@ -92,7 +106,7 @@ ws.on("open", () => {
   console.log("Opened websocket to Kraken ticker. Subscription request sent.");
 });
 
-ws.on("message", (kmsg: WebSocket.RawData) => {
+ws.on("message", async (kmsg: WebSocket.RawData) => {
   let json: unknown;
   try {
     json = JSON.parse(kmsg.toString());
@@ -101,14 +115,7 @@ ws.on("message", (kmsg: WebSocket.RawData) => {
     return;
   }
 
-  if (isSubAcknowledgement(json)) {
-    color.warn(
-      `Subscription to ${json.result.channel} for \
-      ${Array.isArray(json.result.symbol) ? json.result.symbol.join(", ") : json.result.symbol} \
-      acknowledged`
-    );
-    return;
-  }
+  if (isSubAcknowledgement(json)) return;
 
   if (isUpdateResponse(json)) {
     const ticker = json.data[0] as TickerLike;
@@ -117,10 +124,22 @@ ws.on("message", (kmsg: WebSocket.RawData) => {
     else if (json.type === "update") updatesPerSec += 1;
     else unknownPerSec += 1;
 
-    latestBySymbol.set(
-      ticker.symbol,
-      { ticker, lastType: json.type }
-    );
+    latestBySymbol.set(ticker.symbol, { ticker, lastType: json.type });
+
+    // publish every update event
+    const updateEvent = {
+      source: "kraken" as const,
+      symbol: ticker.symbol,
+      type: "update" as const,
+      ts_ms: Date.now(),
+      data: ticker as unknown as Record<string, unknown>
+    };
+
+    try {
+      await publishUpdate(redis, updateEvent);
+    } catch (err) {
+      color.error(`[redis] update publish failed for ${ticker.symbol}: ${String(err)}`);
+    }
 
     return;
   }
@@ -128,12 +147,18 @@ ws.on("message", (kmsg: WebSocket.RawData) => {
   unknownPerSec += 1;
 });
 
-ws.on("error", (error: Error) => {
-  console.error("WebSocket error:", error);
-});
-
-ws.on("close", () => {
-  console.log("WebSocket connection closed");
+process.on("SIGINT", async () => {
+  try {
+    ws.close();
+  } catch {
+    // ignore
+  }
+  try {
+    await redis.quit();
+  } catch {
+    // ignore
+  }
+  process.exit(0);
 });
 
 
