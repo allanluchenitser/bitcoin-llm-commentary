@@ -86,6 +86,7 @@ Starting with a single EC2 instance and Docker Compose. I'll break it out to oth
         [🐳 Postgres]
 ```
 
+* If pub/sub looks good, I might later include redis streams for reliable message delivery.
 
 ### Use of AI for coding
 I'll mostly be using AI for brainstorming high level architecture, crash course explanations of unfamiliar tech, and generating boilerplate code snippets.
