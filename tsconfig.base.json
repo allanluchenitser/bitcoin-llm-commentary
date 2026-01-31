@@ -12,7 +12,6 @@
     "sourceMap": true,
 
     "resolveJsonModule": true,
-    "declarationMap": true,
 
     "noImplicitAny": false
   }
