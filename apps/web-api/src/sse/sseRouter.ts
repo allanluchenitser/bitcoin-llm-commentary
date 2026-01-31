@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { Router } from "express";
 import { randomUUID } from "node:crypto";
-import type { SseHub } from "./hub.js";
+import type { SseHub } from "./sseHub.js";
 
 export function createSseRouter(hub: SseHub) {
   const router = Router();

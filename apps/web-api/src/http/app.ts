@@ -1,6 +1,6 @@
 import express from "express";
-import type { SseHub } from "../sse/hub.js";
-import { createSseRouter } from "../sse/routes.js";
+import type { SseHub } from "../sse/sseHub.js";
+import { createSseRouter } from "../sse/sseRouter.js";
 
 export function createApp(deps: { sseHub: SseHub }) {
   const app = express();

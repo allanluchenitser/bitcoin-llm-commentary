@@ -4,8 +4,8 @@ import { color } from "@blc/color-logger";
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
 
 import { createApp } from "./http/app.js";
-import { SseHub } from "./sse/hub.js";
-import { startRedisToSseFanout } from "./redis/subscriber.js";
+import { SseHub } from "./sse/sseHub.js";
+import { subRedisFanOutSSE } from "./redis/subscriber.js";
 
 const port = Number(process.env.PORT ?? 3000);
 
@@ -13,7 +13,7 @@ const redis: RedisClient = createRedisClient();
 await redis.connect();
 
 const sseHub = new SseHub();
-const stopFanout = await startRedisToSseFanout(redis, sseHub);
+const stopFanout = await subRedisFanOutSSE(redis, sseHub);
 
 // optional: keep SSE connections alive through proxies
 const heartbeatTimer = setInterval(() => sseHub.heartbeat(), 15_000).unref();

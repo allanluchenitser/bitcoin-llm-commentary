@@ -29,7 +29,7 @@ export class SseHub {
   }
 
   broadcast(event: string, data: unknown) {
-    const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`; //
+    const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
     for (const c of this.clients.values()) {
       c.res.write(payload);
     }
