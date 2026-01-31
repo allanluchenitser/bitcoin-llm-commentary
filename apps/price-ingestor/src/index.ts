@@ -24,6 +24,7 @@ const ws: WebSocket = new WebSocket(url);
 const redis: RedisClient = createRedisClient();
 try {
   await redis.connect();
+  color.success("[redis] connected");
 } catch (err) {
   color.error(`[redis] failed to connect: ${String(err)}`);
   process.exit(1);

@@ -24,6 +24,6 @@ export const color = {
   error: (msg: string, ...args: unknown[]) =>
     console.error(`${c("[x]", "red")} ${msg}`, ...args),
 
-  debug: (msg: string, ...args: unknown[]) =>
+  success: (msg: string, ...args: unknown[]) =>
     console.log(`${c("[d]", "green")} ${msg}`, ...args),
 };
