@@ -43,11 +43,13 @@ S3 + Cloudfront for React UI and SSL.
 
 * Worker container that calls the LLM.
 
-####  Two Database Containers
+####  Three Database Containers
+
+* Redis for pub/sub.
 
 * Postgres for storing price data and summaries.
 
-* Redis for pub/sub.
+* Worker that calls sends to Postgres.
 
 ####  Lambda Functions
 These will call an LLM API to generate text summaries when triggered by the price ingestion app.
@@ -58,15 +60,15 @@ Starting with a single EC2 instance and Docker Compose. I'll break it out to oth
 ####  Reasoning of Resource Choices
 * S3 + Cloudfront is standard for hosting React apps with SSL.
 
-* Crypto feed ingress-container is a well defined role.
+* Crypto feed ingress-container is a well defined role and is the primary event publisher.
 
-* Web api host-container is a well defined role.
+* Web api host-container is a well defined role and is the primary event consumer and client interface.
 
-* AWS Lambda is nice for api key storage and infrequent, short lived tasks like an LLM call.
+* AWS Lambda scales nice for a short lived task like an LLM call.
 
 * Postgres is a typical dependency container.
 
-* Redis is also a typical dependency container.
+* Redis is also a typical dependency container for pub/sub.
 
 #### Current Flow Diagram
 
