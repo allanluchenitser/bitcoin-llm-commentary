@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "Web API for bitcoin llm commentary",
   "main": "index.js",
+  "type": "module",
+
   "author": "Your Name",
   "dependencies": {
     "express": "^4.18.2"
