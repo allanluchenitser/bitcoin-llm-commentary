@@ -1,5 +1,5 @@
 import type { RedisClient } from "@blc/redis-client";
-import { CHANNEL_TICKER_UPDATE, CHANNEL_TICKER_SNAPSHOT } from "../../price-ingestor/src/redis/channels.js";
+import { CHANNEL_TICKER_UPDATE, CHANNEL_TICKER_SNAPSHOT } from "@blc/pubsub-contracts";
 import type { SseHub } from "../sse/hub.js";
 
 export async function startRedisToSseFanout(redis: RedisClient, hub: SseHub) {

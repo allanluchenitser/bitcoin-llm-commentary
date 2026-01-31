@@ -5,6 +5,18 @@ type Client = {
   res: Response;
 };
 
+/*
+  SSE Protocol Reference:
+
+  \n\n means end of message in SSE
+  comment lines start with ":"
+
+  id:	Event ID for reconnection
+  data:	Payload (required for useful events)
+  retry:	Client retry delay (ms)
+  event:	Event name (optional)
+*/
+
 export class SseHub {
   private clients = new Map<string, Client>();
 
@@ -17,14 +29,13 @@ export class SseHub {
   }
 
   broadcast(event: string, data: unknown) {
-    const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+    const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`; //
     for (const c of this.clients.values()) {
       c.res.write(payload);
     }
   }
 
   heartbeat(comment = "keepalive") {
-    // comment lines start with ":" in SSE
     const payload = `: ${comment}\n\n`;
     for (const c of this.clients.values()) {
       c.res.write(payload);

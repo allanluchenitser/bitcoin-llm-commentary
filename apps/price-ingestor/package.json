@@ -14,9 +14,10 @@
   "author": "Allan Luchenitser",
   "license": "ISC",
   "dependencies": {
-    "@blc/env": "^0.0.0",
-    "@blc/redis-client": "^0.0.0",
     "@blc/color-logger": "0.0.0",
+    "@blc/env": "^0.0.0",
+    "@blc/pubsub-contracts": "^0.0.0",
+    "@blc/redis-client": "^0.0.0",
     "ws": "^8.19.0"
   },
   "devDependencies": {

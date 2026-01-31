@@ -1,5 +1,5 @@
 import type { RedisClient } from "@blc/redis-client";
-import { CHANNEL_TICKER_SNAPSHOT, CHANNEL_TICKER_UPDATE, latestKey } from "./channels.js";
+import { CHANNEL_TICKER_SNAPSHOT, CHANNEL_TICKER_UPDATE, latestKey } from "@blc/pubsub-contracts";
 
 export type TickerEvent = {
   source: "kraken";
