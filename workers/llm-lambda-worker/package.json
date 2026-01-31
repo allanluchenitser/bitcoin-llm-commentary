@@ -1,0 +1,5 @@
+{
+  "name": "@blc/llm-lambda-worker",
+  "version": "1.0.0",
+  "description": "LLM Lambda Worker for subscribing to Redis events and sending to LLMs"
+}
