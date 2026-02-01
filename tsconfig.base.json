@@ -8,11 +8,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-
     "sourceMap": true,
-
     "resolveJsonModule": true,
-
-    "noImplicitAny": false
   }
 }

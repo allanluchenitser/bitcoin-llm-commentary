@@ -5,7 +5,7 @@ import { createRedisClient, type RedisClient } from "@blc/redis-client";
 
 import { createApp } from "./http/app.js";
 import { SseHub } from "./sse/sseHub.js";
-import { subRedisFanOutSSE } from "./redis/subscriber.js";
+import { subRedisFanOutSSE } from "./redis/subscriberBroadcaster.js";
 
 const port = Number(process.env.PORT ?? 3000);
 
