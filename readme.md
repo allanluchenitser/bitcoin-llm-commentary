@@ -98,10 +98,10 @@ Starting with a single EC2 instance and Docker Compose. I'll break it out to oth
 
 * If pub/sub looks good, I might later include redis streams for reliable message delivery.
 
-### Use of AI for coding
-I'll mostly be using AI for brainstorming high level architecture, crash course explanations of unfamiliar tech, and generating boilerplate code snippets.
+### Use of AI
+Using AI for brainstorming high level architecture, crash course explanations of unfamiliar tech, and generating boilerplate code snippets.
 
-I'm not going whole hog agentic AI code-assistant here.
+I dislike using AI for typing readmes, etc. since it gives everything a flat feeling imo.
 
 
 
