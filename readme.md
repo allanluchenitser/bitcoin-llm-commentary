@@ -10,7 +10,7 @@ Grabs price and volume from public crypto feeds then AI writes up text summaries
 
 *Major tooling (for now) are docker-compose and npm native workspaces for monorepo structure.*
 
-```
+```text
 # workspaces structure (using native npm workspaces)
 
 bitcoin-llm-commentary/
@@ -18,14 +18,18 @@ bitcoin-llm-commentary/
 │   ├── price-ingestor/
 │   ├── react-ui/
 │   └── web-api/
-└── packages/
-    └── color-logger/
+├── packages/
+│   └── ... (stuff)
+└── workers/
+    ├── llm-lambda-worker/
+    └── postgres-worker/
 
 # root package.json for some dev dependencies (example)
 
 "workspaces": [
   "packages/*",
-  "apps/*"
+  "apps/*",
+  "workers/*"
 ],
 "devDependencies": {
   "@types/node": "^25.0.9",
