@@ -1,33 +1,34 @@
 {
   "name": "bitcoin-llm-commentary-monorepo",
   "private": true,
-
   "scripts": {
     "compose:base": "docker compose --env-file ./infra/.env.local -f ./infra/compose.base.yml",
     "compose:apps": "docker compose --env-file ./infra/.env.local -f ./infra/compose.base.yml -f ./infra/compose.apps.yml",
-
     "base:up": "npm run -s compose:base -- up -d",
     "base:down": "npm run -s compose:base -- down",
     "base:stop": "npm run -s compose:base -- stop",
     "base:logs": "npm run -s compose:base -- logs -f --tail=200",
     "base:ps": "npm run -s compose:base -- ps",
     "base:reset": "npm run -s compose:base -- down -v && npm run -s compose:base -- up -d",
-
     "apps:up": "npm run -s compose:apps -- up -d",
     "apps:down": "npm run -s compose:apps -- down",
     "apps:stop": "npm run -s compose:apps -- stop",
     "apps:logs": "npm run -s compose:apps -- logs -f --tail=200",
     "apps:ps": "npm run -s compose:apps -- ps",
     "apps:reset": "npm run -s compose:apps -- down -v && npm run -s compose:apps -- up -d",
-
     "pg:psql": "docker exec -it blc-postgres psql -U blc -d blc",
     "redis:cli": "docker exec -it blc-redis redis-cli"
   },
-
-  "workspaces": ["packages/*", "apps/*", "workers/*"],
-
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "workers/*"
+  ],
   "devDependencies": {
     "@types/node": "^25.0.9",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "react-router-dom": "^7.13.0"
   }
 }
