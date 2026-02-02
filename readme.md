@@ -1,4 +1,8 @@
-Greetings prospective employer or collaborator!
+Portfolio project demonstrating a full stack, multi-container application with LLM integration. Proof of concept inside a single EC2 for cost efficiency.
+- _**App**: React, Node.js, TypeScript_
+- _**Protocols**: WebSockets, SSE, REST_
+- _**Data**: PostgreSQL, Redis (cache, pubsub)_
+- _**Infra**: EC2, Docker Compose, S3/CloudFront, Lambda_
 
 ### Bitcoin live price and LLM summary project
 
@@ -94,4 +98,6 @@ Starting with a single EC2 instance and Docker Compose. I'll break it out to oth
 I'll mostly be using AI for brainstorming high level architecture, crash course explanations of unfamiliar tech, and generating boilerplate code snippets.
 
 I'm not going whole hog agentic AI code-assistant here.
+
+
 
