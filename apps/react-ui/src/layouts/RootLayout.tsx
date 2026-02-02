@@ -1,12 +1,13 @@
-import { Outlet } from 'react-router-dom';
 import NavBar from '@/shared-components/NavBar'
+import { Outlet } from 'react-router-dom';
 
-import s from './RootLayout.module.scss'
 const RootLayout: React.FC = () => {
   return (
     <>
       <NavBar />
-      <main className={s.rootLayout}><Outlet /></main>
+      <main className="container mx-auto px-4">
+        <Outlet />
+      </main>
     </>
   )
 };

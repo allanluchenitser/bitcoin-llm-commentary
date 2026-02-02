@@ -1,6 +1,4 @@
-import s from './BotSummary.module.scss';
-
-const BotSummary: React.FC = () => <div className={s.botSummary}>
+const BotSummary: React.FC = () => <div className="my-4 p-4 border rounded">
   <h2>BotSummary component</h2>
 </div>
 
