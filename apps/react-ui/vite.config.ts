@@ -10,4 +10,12 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  server: {
+    proxy: {
+      '/api/v1.0/randomnumber': {
+        target: 'https://www.randomnumberapi.com',
+        changeOrigin: true,
+      },
+    },
+  }
 })

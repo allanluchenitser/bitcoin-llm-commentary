@@ -4,7 +4,12 @@ export default function SandBox() {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    console.log("side effect ran");
+    async function fetchRandomNumber() {
+      const json = await fetch("/api/v1.0/randomnumber?min=1&max=100&count=1");
+      const data = await json.json();
+      setCount(data[0]);
+    }
+    fetchRandomNumber();
   }, []);
 
   return (
