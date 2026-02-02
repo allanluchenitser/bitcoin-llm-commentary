@@ -9,6 +9,9 @@ const NavBar: React.FC = () => (
       <NavLink to="/about" className={({ isActive }) => isActive ? 'underline' : ''}>
         About
       </NavLink>
+      <NavLink to="/sandbox" className={({ isActive }) => isActive ? 'underline' : ''}>
+        Sandbox
+      </NavLink>
     </div>
   </nav>
 )

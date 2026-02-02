@@ -1,8 +1,10 @@
 import { createBrowserRouter } from "react-router-dom";
 
+import RootLayout from "./layouts/RootLayout";
+
 import AboutPage from "@/pages/about/AboutPage";
 import DashboardPage from "@/pages/dashboard/DashboardPage";
-import RootLayout from "./layouts/RootLayout";
+import SandBox from "./pages/sandbox/SandBox";
 
 export const router = createBrowserRouter([
   {
@@ -17,6 +19,10 @@ export const router = createBrowserRouter([
         path: "about",
         element: <AboutPage />
       },
+      {
+        path: "sandbox",
+        element: <SandBox />
+      }
     ]
   }
 ]);
