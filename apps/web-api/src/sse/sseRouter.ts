@@ -19,7 +19,9 @@ export function createSseRouter(hub: SseHub) {
     hub.addClient(id, res);
 
     // initial message (optional)
-    res.write(`event: ready\ndata: ${JSON.stringify({ id })}\n\n`);
+    res.write(
+      `event: ready\ndata: ${JSON.stringify({ id, message: "connected to ticker SSE stream" })}\n\n`
+    );
 
     req.on("close", () => {
       hub.removeClient(id);

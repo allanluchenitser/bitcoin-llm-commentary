@@ -1,8 +1,14 @@
-import s from './RootLayout.module.scss'
 import { Outlet } from 'react-router-dom';
+import NavBar from '@/shared-components/NavBar'
 
+import s from './RootLayout.module.scss'
 const RootLayout: React.FC = () => {
-  return <main className={s.rootLayout}><Outlet /></main>;
+  return (
+    <>
+      <NavBar />
+      <main className={s.rootLayout}><Outlet /></main>
+    </>
+  )
 };
 
 export default RootLayout;
