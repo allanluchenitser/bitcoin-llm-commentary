@@ -5,8 +5,6 @@
     "compose:base": "docker compose --env-file ./infra/.env.local -f ./infra/compose.base.yml",
     "compose:apps": "docker compose --env-file ./infra/.env.local -f ./infra/compose.base.yml -f ./infra/compose.apps.yml",
 
-    "dev:all": "npm run dev -w workers/price-ingestor -w apps/react-ui -w apps/web-api --if-present --parallel",
-
     "base:up": "npm run -s compose:base -- up -d",
     "base:down": "npm run -s compose:base -- down",
     "base:stop": "npm run -s compose:base -- stop",
