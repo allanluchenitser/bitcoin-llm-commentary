@@ -1,3 +1,4 @@
+import type WebSocket from "ws";
 import type { RedisClient } from "@blc/redis-client";
 
 export type ShutdownDeps = {

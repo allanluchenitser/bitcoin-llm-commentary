@@ -11,6 +11,10 @@ import {
 
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
 import { publishSnapshot, publishUpdate, storeLatestSnapshot } from "./redis/publisher.js";
+import { registerShutdownHandlers } from "./lifecycle/shutdown.js";
+
+import { type TickerLike, type LatestBySymbol } from "./ws/cryptoClient.js";
+import { type FrequencyMetrics, setTickerUpdateInterval } from "./intervals/intervals.js";
 
 /*
   Kraken WebSocket API v2 documentation:
@@ -30,55 +34,22 @@ try {
   process.exit(1);
 }
 
-type TickerLike = {
-  ask?: number;
-  ask_qty?: number;
-  bid?: number;
-  bid_qty?: number;
-  change?: number;
-  change_pct?: number;
-  high?: number;
-  last?: number;
-  low?: number;
-  symbol: string;
-  volume?: number;
-  vwap?: number;
+
+const latestBySymbol: LatestBySymbol = new Map();
+
+const frequencyMetrics: FrequencyMetrics = {
+  updatesPerSec: 0,
+  snapshotsPerSec: 0,
+  unknownPerSec: 0
 };
-
-const latestBySymbol = new Map<
-  string,
-  { ticker: TickerLike; lastType: "snapshot" | "update" }
->();
-
-let updatesPerSec = 0;
-let snapshotsPerSec = 0;
-let unknownPerSec = 0;
 
 let snapshotFlushInFlight = false;
 
-// Your existing per-second console summarizer stays as-is
-setInterval(() => {
-  const parts: string[] = [];
-  for (const [symbol, v] of latestBySymbol.entries()) {
-    const t = v.ticker;
-    parts.push(
-      `${symbol} (${v.lastType}) last=${t.last ?? "?"} bid=${t.bid ?? "?"} ask=${t.ask ?? "?"}`
-    );
-  }
+const updateInterval = setTickerUpdateInterval(latestBySymbol, frequencyMetrics)
 
-  color.info(
-    `[ticker] update=${updatesPerSec}/s snapshot=${snapshotsPerSec}/s unknown=${unknownPerSec}/s`
-  );
-
-  if (parts.length > 0) console.log(parts.join("\n") + "\n");
-
-  updatesPerSec = 0;
-  snapshotsPerSec = 0;
-  unknownPerSec = 0;
-}, 1000);
 
 // Coalesce snapshots to Redis once per second (store + publish)
-setInterval(async () => {
+const snapshotInterval = setInterval(async () => {
   if (snapshotFlushInFlight) return;
   snapshotFlushInFlight = true;
 
@@ -135,13 +106,13 @@ ws.on("message", async (kmsg: WebSocket.RawData) => {
     const ticker = json.data[0] as TickerLike;
 
     if (json.type === "snapshot") {
-      snapshotsPerSec += 1;
+      frequencyMetrics.snapshotsPerSec += 1;
     }
     else if (json.type === "update") {
-      updatesPerSec += 1;
+      frequencyMetrics.updatesPerSec += 1;
     }
     else {
-      unknownPerSec += 1;
+      frequencyMetrics.unknownPerSec += 1;
     }
 
     latestBySymbol.set(ticker.symbol, { ticker, lastType: json.type });
@@ -164,24 +135,15 @@ ws.on("message", async (kmsg: WebSocket.RawData) => {
     return;
   }
 
-  unknownPerSec += 1;
+  frequencyMetrics.unknownPerSec += 1;
 });
 
-async function shutdown() {
-  try {
-    ws.close();
-  } catch {
-    // ignore
+const { shutdown } = registerShutdownHandlers({
+  ws,
+  redis,
+  stopTimers: () => {
+    clearInterval(updateInterval);
+    clearInterval(snapshotInterval);
   }
-  try {
-    await redis.quit();
-  } catch {
-    // ignore
-  }
-  process.exit(0);
-}
-
-process.on("SIGINT", shutdown);
-process.on("SIGTERM", shutdown);
-
+});
 

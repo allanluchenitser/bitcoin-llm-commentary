@@ -1,0 +1,72 @@
+import type { RedisClient } from "@blc/redis-client";
+import type { LatestBySymbol } from "../ws/cryptoClient.js";
+import { publishSnapshot, publishUpdate, storeLatestSnapshot } from "../redis/publisher.js";
+import { color } from "@blc/color-logger";
+
+// Your existing per-second console summarizer stays as-is
+export type FrequencyMetrics = {
+  updatesPerSec: number;
+  snapshotsPerSec: number;
+  unknownPerSec: number;
+}
+
+export function setTickerUpdateInterval(
+  latestBySymbol: LatestBySymbol,
+  metrics: FrequencyMetrics,
+) {
+  const updateInterval = setInterval(() => {
+    const parts: string[] = [];
+    for (const [symbol, v] of latestBySymbol.entries()) {
+      const t = v.ticker;
+      parts.push(
+        `${symbol} (${v.lastType}) last=${t.last ?? "?"} bid=${t.bid ?? "?"} ask=${t.ask ?? "?"}`
+      );
+    }
+
+    color.info(
+      `[ticker] update=${metrics.updatesPerSec}/s snapshot=${metrics.snapshotsPerSec}/s unknown=${metrics.unknownPerSec}/s`
+    );
+
+    if (parts.length > 0) console.log(parts.join("\n") + "\n");
+
+    metrics.updatesPerSec = 0;
+    metrics.snapshotsPerSec = 0;
+    metrics.unknownPerSec = 0;
+  }, 1000);
+
+  return updateInterval;
+}
+export function setSnapshotInterval(
+  latestBySymbol: LatestBySymbol,
+  metrics: FrequencyMetrics,
+  redis: RedisClient
+) {
+  // Coalesce snapshots to Redis once per second (store + publish)
+  const snapshotInterval = setInterval(async () => {
+    if (snapshotFlushInFlight) return;
+    snapshotFlushInFlight = true;
+
+    try {
+      const ts = Date.now();
+
+      for (const [symbol, v] of latestBySymbol.entries()) {
+        const snapshotEvent = {
+          source: "kraken" as const,
+          symbol,
+          type: "snapshot" as const,
+          ts_ms: ts,
+          data: v.ticker as unknown as Record<string, unknown>
+        };
+
+        try {
+          await storeLatestSnapshot(redis, symbol, snapshotEvent, { ttlSeconds: 120 });
+          await publishSnapshot(redis, snapshotEvent);
+        } catch (err) {
+          color.error(`[redis] snapshot store/publish failed for ${symbol}: ${String(err)}`);
+        }
+      }
+    } finally {
+      snapshotFlushInFlight = false;
+    }
+  }, 1000);
+}
