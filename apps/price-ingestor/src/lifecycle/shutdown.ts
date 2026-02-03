@@ -11,7 +11,7 @@ export function registerShutdownHandlers(deps: ShutdownDeps) {
   let shuttingDown = false;
   const { ws, redis, stopTimers } = deps;
 
-  async function shutdown(exitCode = 0) {
+  async function shutdown(exitCode = 0): Promise<void> {
     if (shuttingDown) return;
     shuttingDown = true;
 
