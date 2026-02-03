@@ -10,11 +10,11 @@ import {
 } from "./types-and-guards.js";
 
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
-import { publishSnapshot, publishUpdate, storeLatestSnapshot } from "./redis/publisher.js";
+import { publishUpdate } from "./redis/publisher.js";
 import { registerShutdownHandlers } from "./lifecycle/shutdown.js";
 
 import { type TickerLike, type LatestBySymbol } from "./ws/cryptoClient.js";
-import { type FrequencyMetrics, setTickerUpdateInterval } from "./intervals/intervals.js";
+import { setTickerUpdateInterval, setSnapshotInterval, type FrequencyMetrics } from "./intervals/intervals.js";
 
 /*
   Kraken WebSocket API v2 documentation:
@@ -43,39 +43,8 @@ const frequencyMetrics: FrequencyMetrics = {
   unknownPerSec: 0
 };
 
-let snapshotFlushInFlight = false;
-
-const updateInterval = setTickerUpdateInterval(latestBySymbol, frequencyMetrics)
-
-
-// Coalesce snapshots to Redis once per second (store + publish)
-const snapshotInterval = setInterval(async () => {
-  if (snapshotFlushInFlight) return;
-  snapshotFlushInFlight = true;
-
-  try {
-    const ts = Date.now();
-
-    for (const [symbol, v] of latestBySymbol.entries()) {
-      const snapshotEvent = {
-        source: "kraken" as const,
-        symbol,
-        type: "snapshot" as const,
-        ts_ms: ts,
-        data: v.ticker as unknown as Record<string, unknown>
-      };
-
-      try {
-        await storeLatestSnapshot(redis, symbol, snapshotEvent, { ttlSeconds: 120 });
-        await publishSnapshot(redis, snapshotEvent);
-      } catch (err) {
-        color.error(`[redis] snapshot store/publish failed for ${symbol}: ${String(err)}`);
-      }
-    }
-  } finally {
-    snapshotFlushInFlight = false;
-  }
-}, 1000);
+const tickerUpdateInterval = setTickerUpdateInterval(latestBySymbol, frequencyMetrics);
+const snapshotInterval = setSnapshotInterval(redis, latestBySymbol);
 
 ws.on("open", () => {
   const msg: SubRequest = {
@@ -142,7 +111,7 @@ const { shutdown } = registerShutdownHandlers({
   ws,
   redis,
   stopTimers: () => {
-    clearInterval(updateInterval);
+    clearInterval(tickerUpdateInterval);
     clearInterval(snapshotInterval);
   }
 });

@@ -1,6 +1,6 @@
 import type { RedisClient } from "@blc/redis-client";
 import type { LatestBySymbol } from "../ws/cryptoClient.js";
-import { publishSnapshot, publishUpdate, storeLatestSnapshot } from "../redis/publisher.js";
+import { publishSnapshot, storeLatestSnapshot } from "../redis/publisher.js";
 import { color } from "@blc/color-logger";
 
 // Your existing per-second console summarizer stays as-is
@@ -36,10 +36,13 @@ export function setTickerUpdateInterval(
 
   return updateInterval;
 }
+
+
+let snapshotFlushInFlight = false;
+
 export function setSnapshotInterval(
+  redis: RedisClient,
   latestBySymbol: LatestBySymbol,
-  metrics: FrequencyMetrics,
-  redis: RedisClient
 ) {
   // Coalesce snapshots to Redis once per second (store + publish)
   const snapshotInterval = setInterval(async () => {
@@ -69,4 +72,6 @@ export function setSnapshotInterval(
       snapshotFlushInFlight = false;
     }
   }, 1000);
+
+  return snapshotInterval;
 }
