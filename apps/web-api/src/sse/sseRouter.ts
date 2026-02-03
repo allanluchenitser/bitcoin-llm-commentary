@@ -17,6 +17,7 @@ export function createSseRouter(hub: SseHub) {
 
     const id = randomUUID();
     hub.addClient(id, res);
+    console.log(`SSE client connected: ${id}`);
 
     // initial message (optional)
     res.write(
@@ -25,6 +26,7 @@ export function createSseRouter(hub: SseHub) {
 
     req.on("close", () => {
       hub.removeClient(id);
+      console.log(`SSE client disconnected: ${id}`);
     });
   });
 
