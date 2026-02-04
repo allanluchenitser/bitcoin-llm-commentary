@@ -53,7 +53,7 @@ const { shutdown } = registerShutdownHandlers({
 
 attachCryptoWebSocketHandlers({
   ws,
-  error: (err: Error) => {
+  fatal: (err: Error) => {
     color.error(`[ws][kraken] ${String(err)}`);
     shutdown(1);
   },

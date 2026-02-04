@@ -32,15 +32,27 @@ export type LatestBySymbol = Map<
 
 type AttachCryptoWebSocketHandlersParams = {
   ws: WebSocket;
-  error: (err: Error) => void;
+  fatal: (err: Error) => void;
   latestBySymbol: LatestBySymbol;
   frequencyMetrics: FrequencyMetrics;
   redis: RedisClient;
 };
 
+function shouldFatalWsError(err: unknown): boolean {
+  const code = (err as { code?: string }).code;
+
+  // “Usually won’t fix itself without a deploy/config change”
+  return (
+    code === "ERR_INVALID_URL" ||
+    code === "ERR_TLS_CERT_ALTNAME_INVALID" ||
+    code === "UNABLE_TO_VERIFY_LEAF_SIGNATURE" ||
+    code === "CERT_HAS_EXPIRED"
+  );
+}
+
 export function attachCryptoWebSocketHandlers({
   ws,
-  error,
+  fatal,
   latestBySymbol,
   frequencyMetrics,
   redis
@@ -106,7 +118,12 @@ export function attachCryptoWebSocketHandlers({
   }
 
   function onError(err: Error) {
-    error(err);
+      if (shouldFatalWsError(err.cause)) {
+        fatal(err);
+      }
+      else {
+        console.error(`[ws][kraken] ${String(err)}`);
+      }
   }
 
   ws.on("message", onMessage);
