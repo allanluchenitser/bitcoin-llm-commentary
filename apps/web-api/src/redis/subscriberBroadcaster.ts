@@ -7,20 +7,20 @@ export async function subRedisFanOutSSE(redis: RedisClient, hub: SseHub): Promis
   await sub.connect();
 
   await sub.subscribe(CHANNEL_TICKER_UPDATE, (message: string) => {
-    console.log(`from ingress ${CHANNEL_TICKER_UPDATE}: ${message}`);
+    // console.log(`from ingress ${CHANNEL_TICKER_UPDATE}: ${message}`);
     try {
-      hub.broadcast("ticker:update", JSON.parse(message));
+      hub.broadcast(CHANNEL_TICKER_UPDATE, JSON.parse(message));
     } catch {
-      hub.broadcast("ticker:update", { raw: message });
+      hub.broadcast(CHANNEL_TICKER_UPDATE, { raw: message });
     }
   });
 
   await sub.subscribe(CHANNEL_TICKER_SNAPSHOT, (message: string) => {
-    console.log(`from ingress ${CHANNEL_TICKER_SNAPSHOT}: ${message}`);
+    // console.log(`from ingress ${CHANNEL_TICKER_SNAPSHOT}: ${message}`);
     try {
-      hub.broadcast("ticker:snapshot", JSON.parse(message));
+      hub.broadcast(CHANNEL_TICKER_SNAPSHOT, JSON.parse(message));
     } catch {
-      hub.broadcast("ticker:snapshot", { raw: message });
+      hub.broadcast(CHANNEL_TICKER_SNAPSHOT, { raw: message });
     }
   });
 

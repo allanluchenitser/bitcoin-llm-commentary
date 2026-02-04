@@ -113,7 +113,7 @@ const PriceChart: React.FC = () => {
   }, [seriesType]); // lineData/candleData are static here
 
   return (
-    <div className="my-4 p-4 border rounded">
+    <div className="h-full p-4 border rounded ">
       <div className="mb-3 flex items-center justify-between gap-3">
         <h2 className="font-semibold">Price</h2>
 

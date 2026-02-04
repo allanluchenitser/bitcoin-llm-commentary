@@ -1,8 +1,8 @@
-import PriceChart from '@/shared-components/PriceChart'
-import BotSummary from '@/shared-components/BotSummary';
+import PriceChart from './PriceChart'
+import BotSummary from './BotSummary';
+import LiveEvents from './LiveEvents';
 
 import { useEffect, useState } from 'react';
-import LiveSummary from '@/shared-components/LiveSummary';
 
 const DashboardPage: React.FC = () => {
   const [sseStatus, setSseStatus] = useState<'connecting' | 'open' | 'closed' | 'error'>('connecting');
@@ -13,9 +13,7 @@ const DashboardPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Point this at an SSE endpoint your backend exposes.
-    // Keep it same-origin (e.g. "/api/sse") to avoid CORS headaches during dev.
-
+    // SSE connection with web-api
     const es = new EventSource('/sse/ticker');
 
     const onOpen = () => setSseStatus('open');
@@ -24,21 +22,15 @@ const DashboardPage: React.FC = () => {
     es.addEventListener('open', onOpen);
     es.addEventListener('error', onError);
 
-    // Default SSE event ("message")
     es.addEventListener('ticker:update', (e) => {
-      console.log('SSE message update:', e.data);
+      console.log('SSE message update:', e);
       setEvents((prev) => [String(e.data), ...prev].slice(0, 50));
     });
 
     es.addEventListener('ticker:snapshot', (e) => {
-      console.log('SSE message snapshot:', e.data);
+      console.log('SSE message snapshot:', e);
       setEvents((prev) => [String(e.data), ...prev].slice(0, 50));
     });
-
-    // Optional: listen for a named event the server sends, e.g. "price"
-    // es.addEventListener('price', (e) => {
-    //   setEvents((prev) => [`price: ${String(e.data)}`, ...prev].slice(0, 50));
-    // });
 
     return () => {
       es.removeEventListener('open', onOpen);
@@ -52,19 +44,22 @@ const DashboardPage: React.FC = () => {
     <div className="container mx-auto px-4">
       <h2>Dashboard Page</h2>
       <p>This is the Dashboard Page of the Bitcoin LLM Commentary application.</p>
+      <span className="font-semibold">SSE:</span> {sseStatus}
 
-      <div className="my-3 text-sm">
-        <span className="font-semibold">SSE:</span> {sseStatus}
-      </div>
-
-      <div className="flex">
+      <div className="flex mt-4">
         <div className="w-3/5">
-          <PriceChart />
-          <LiveSummary events={events} />
+          <div>
+            <PriceChart />
+          </div>
+          <div className="mt-4">
+            <LiveEvents events={events} />
+          </div>
         </div>
 
         <div className="w-2/5 ml-4 text-center">
-          <BotSummary />
+          <div className="h-full">
+            <BotSummary />
+          </div>
         </div>
       </div>
     </div>
