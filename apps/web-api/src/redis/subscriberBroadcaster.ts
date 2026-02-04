@@ -1,5 +1,5 @@
 import type { RedisClient } from "@blc/redis-client";
-import { CHANNEL_TICKER_UPDATE, CHANNEL_TICKER_SNAPSHOT } from "@blc/pubsub-contracts";
+import { CHANNEL_TICKER_UPDATE, CHANNEL_TICKER_SNAPSHOT } from "@blc/contracts";
 import type { SseHub } from "../sse/sseHub.js";
 
 export async function subRedisFanOutSSE(redis: RedisClient, hub: SseHub): Promise<() => Promise<void>> {
@@ -20,7 +20,7 @@ export async function subRedisFanOutSSE(redis: RedisClient, hub: SseHub): Promis
     try {
       hub.broadcast(CHANNEL_TICKER_SNAPSHOT, JSON.parse(message));
     } catch {
-      hub.broadcast(CHANNEL_TICKER_SNAPSHOT, { raw: message });
+      hub.broadcast("ticker:snapshot", { raw: message });
     }
   });
 
