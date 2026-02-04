@@ -3,10 +3,10 @@ import { Router } from "express";
 import { randomUUID } from "node:crypto";
 import type { SseHub } from "./sseHub.js";
 
-export function createSseRouter(hub: SseHub) {
+export function createSseRouter(path: string, hub: SseHub) {
   const router = Router();
 
-  router.get("/ticker", (req: Request, res: Response) => {
+  router.get(path, (req: Request, res: Response) => {
     res.status(200);
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache, no-transform");
