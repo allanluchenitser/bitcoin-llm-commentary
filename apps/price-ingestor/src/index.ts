@@ -20,7 +20,6 @@ import { setTickerUpdateInterval, setSnapshotInterval, type FrequencyMetrics } f
 const url: string = process.env.KRAKEN_WS_URL ?? "wss://ws.kraken.com/v2";
 const ws: WebSocket = new WebSocket(url);
 
-
 const redis: RedisClient = createRedisClient();
 try {
   await redis.connect();
@@ -29,7 +28,6 @@ try {
   color.error(`[redis] failed to connect: ${String(err)}`);
   process.exit(1);
 }
-
 
 const latestBySymbol: LatestBySymbol = new Map();
 

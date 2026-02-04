@@ -9,6 +9,7 @@ import {
 } from "../types-and-guards.js";
 
 import { publishUpdate } from "../redis/publisher.js";
+import helper from "./wsHelpers.js";
 
 export type TickerLike = {
   ask?: number;
@@ -38,17 +39,7 @@ type AttachCryptoWebSocketHandlersParams = {
   redis: RedisClient;
 };
 
-function shouldFatalWsError(err: unknown): boolean {
-  const code = (err as { code?: string }).code;
 
-  // “Usually won’t fix itself without a deploy/config change”
-  return (
-    code === "ERR_INVALID_URL" ||
-    code === "ERR_TLS_CERT_ALTNAME_INVALID" ||
-    code === "UNABLE_TO_VERIFY_LEAF_SIGNATURE" ||
-    code === "CERT_HAS_EXPIRED"
-  );
-}
 
 export function attachCryptoWebSocketHandlers({
   ws,
@@ -72,11 +63,21 @@ export function attachCryptoWebSocketHandlers({
   }
 
   async function onMessage(kmsg: WebSocket.RawData) {
+    let rawMessage: string;
+    try {
+      rawMessage = helper.rawDataToUtf8(kmsg);
+    }
+    catch(err) {
+      console.error("Failed to parse message:", String(err));
+      return;
+    }
+
     let json: unknown;
     try {
-      json = JSON.parse(kmsg.toString());
-    } catch {
-      console.error("Failed to parse message:", kmsg.toString());
+      json = JSON.parse(rawMessage);
+    }
+    catch {
+      console.error("Failed to parse message:", rawMessage);
       return;
     }
 
@@ -118,7 +119,7 @@ export function attachCryptoWebSocketHandlers({
   }
 
   function onError(err: Error) {
-      if (shouldFatalWsError(err.cause)) {
+      if (helper.shouldFatalWsError(err)) {
         fatal(err);
       }
       else {
