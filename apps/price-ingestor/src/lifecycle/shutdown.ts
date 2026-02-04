@@ -2,14 +2,14 @@ import type WebSocket from "ws";
 import type { RedisClient } from "@blc/redis-client";
 
 export type ShutdownDeps = {
-  ws: WebSocket,
+  getWs: () => WebSocket | undefined,
   redis: RedisClient,
   stopTimers: () => void
 }
 
 export function registerShutdownHandlers(deps: ShutdownDeps) {
   let shuttingDown = false;
-  const { ws, redis, stopTimers } = deps;
+  const { getWs, redis, stopTimers } = deps;
 
   async function shutdown(exitCode = 0): Promise<void> {
     if (shuttingDown) return;
@@ -17,7 +17,7 @@ export function registerShutdownHandlers(deps: ShutdownDeps) {
 
     stopTimers();
 
-    try { ws.close(); } catch {}
+    try { getWs()?.close(); } catch {}
     try { await redis.quit(); } catch {}
 
     process.exit(exitCode);

@@ -1,15 +1,20 @@
-import '@blc/env';
+import "@blc/env";
 
 import WebSocket from "ws";
 import { color } from "@blc/color-logger";
 
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
-import { registerShutdownHandlers } from "./lifecycle/shutdown.js";
+import { registerShutdownHandlers, type ShutdownDeps } from "./lifecycle/shutdown.js";
 
-import { attachCryptoWebSocketHandlers } from './ws/attachCryptoWebSocketHandlers.js';
-
+import { attachCryptoWebSocketHandlers } from "./ws/attachCryptoWebSocketHandlers.js";
 import { type LatestBySymbol } from "./ws/attachCryptoWebSocketHandlers.js";
-import { setTickerUpdateInterval, setSnapshotInterval, type FrequencyMetrics } from "./intervals/intervals.js";
+import {
+  setTickerUpdateInterval,
+  setSnapshotInterval,
+  type FrequencyMetrics
+} from "./intervals/intervals.js";
+
+import helper from "./ws/wsHelpers.js";
 
 /*
   Kraken WebSocket API v2 documentation:
@@ -18,7 +23,77 @@ import { setTickerUpdateInterval, setSnapshotInterval, type FrequencyMetrics } f
 */
 
 const url: string = process.env.KRAKEN_WS_URL ?? "wss://ws.kraken.com/v2";
-const ws: WebSocket = new WebSocket(url);
+
+let ws: WebSocket | undefined;
+
+let stopping = false;
+let reconnectTimer: NodeJS.Timeout | undefined;
+let attempt = 0;
+
+function backoffMsFullJitter(attemptNum: number, baseMs = 250, capMs = 30_000): number {
+  const maxDelay = Math.min(capMs, baseMs * 2 ** attemptNum);
+  return Math.floor(Math.random() * maxDelay);
+}
+
+function scheduleReconnect(why: string) {
+  if (stopping) return;
+  if (reconnectTimer) return;
+
+  const delay = backoffMsFullJitter(attempt++);
+  console.error(`[ws][kraken] ${why}; reconnecting in ${delay}ms (attempt=${attempt})`);
+
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = undefined;
+    connectWs();
+  }, delay);
+}
+
+function connectWs() {
+  if (stopping) return;
+
+  ws = new WebSocket(url);
+
+  ws.once("open", () => {
+    console.log("[ws][kraken] connected");
+    attempt = 0;
+  });
+
+  // likely an upgrade problem
+  ws.once("unexpected-response", (_req, res) => {
+    const status = res?.statusCode;
+    console.error(`[ws][kraken] unexpected-response HTTP ${status ?? "?"}`);
+
+    // hopeless, don't reconnect
+    if ([401, 403, 404, 426].includes(status ?? 0)) {
+      shutdown(1);
+      return;
+    }
+
+    scheduleReconnect(`handshake rejected (HTTP ${status ?? "?"})`);
+  });
+
+  ws.once("close", (code, reason) => {
+    const reasonText = reason?.length ? reason.toString("utf8") : "";
+    scheduleReconnect(`closed code=${code}${reasonText ? ` reason=${reasonText}` : ""}`);
+  });
+
+  ws.on("error", (err: Error) => {
+      if (helper.isFatalWsError(err)) {
+        shutdown(1);
+      }
+      else {
+        console.error(`[ws][kraken] ${String(err)}`);
+      }
+  });
+
+  // business logic
+  attachCryptoWebSocketHandlers({
+    ws,
+    latestBySymbol,
+    frequencyMetrics,
+    redis
+  });
+}
 
 const redis: RedisClient = createRedisClient();
 try {
@@ -40,8 +115,8 @@ const frequencyMetrics: FrequencyMetrics = {
 const tickerUpdateInterval = setTickerUpdateInterval(latestBySymbol, frequencyMetrics);
 const snapshotInterval = setSnapshotInterval(redis, latestBySymbol);
 
-const { shutdown } = registerShutdownHandlers({
-  ws,
+const { shutdown: baseShutdown } = registerShutdownHandlers({
+  getWs: () => ws,
   redis,
   stopTimers: () => {
     clearInterval(tickerUpdateInterval);
@@ -49,16 +124,18 @@ const { shutdown } = registerShutdownHandlers({
   }
 });
 
-attachCryptoWebSocketHandlers({
-  ws,
-  fatal: (err: Error) => {
-    color.error(`[ws][kraken] ${String(err)}`);
-    shutdown(1);
-  },
-  latestBySymbol,
-  frequencyMetrics,
-  redis
-});
+function shutdown(code = 0) {
+  stopping = true;
+  if (reconnectTimer) clearTimeout(reconnectTimer);
+
+  try {
+    ws?.close();
+  } catch {}
+
+  baseShutdown(code);
+}
+
+connectWs();
 
 
 

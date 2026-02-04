@@ -1,6 +1,6 @@
 import WebSocket from "ws";
 
-function shouldFatalWsError(err: unknown): boolean {
+function isFatalWsError(err: unknown): boolean {
   const code = (err as { code?: string } | undefined | null)?.code;
 
   // “Usually won’t fix itself without a deploy/config change”
@@ -19,6 +19,6 @@ function rawDataToUtf8(data: WebSocket.RawData): string {
 }
 
 export default {
-  shouldFatalWsError,
+  isFatalWsError,
   rawDataToUtf8
 };

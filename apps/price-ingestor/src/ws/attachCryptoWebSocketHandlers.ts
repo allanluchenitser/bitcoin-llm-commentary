@@ -33,7 +33,6 @@ export type LatestBySymbol = Map<
 
 type AttachCryptoWebSocketHandlersParams = {
   ws: WebSocket;
-  fatal: (err: Error) => void;
   latestBySymbol: LatestBySymbol;
   frequencyMetrics: FrequencyMetrics;
   redis: RedisClient;
@@ -43,7 +42,6 @@ type AttachCryptoWebSocketHandlersParams = {
 
 export function attachCryptoWebSocketHandlers({
   ws,
-  fatal,
   latestBySymbol,
   frequencyMetrics,
   redis
@@ -59,25 +57,19 @@ export function attachCryptoWebSocketHandlers({
     };
 
     ws.send(JSON.stringify(msg));
-    console.log("Opened websocket to Kraken ticker. Subscription request sent.");
+    console.log("opened ws to Kraken ticker. Subscription request sent.");
   }
 
   async function onMessage(kmsg: WebSocket.RawData) {
-    let rawMessage: string;
+    let rawMessage: string | undefined;
+    let json: unknown;
+
     try {
       rawMessage = helper.rawDataToUtf8(kmsg);
-    }
-    catch(err) {
-      console.error("Failed to parse message:", String(err));
-      return;
-    }
-
-    let json: unknown;
-    try {
       json = JSON.parse(rawMessage);
     }
-    catch {
-      console.error("Failed to parse message:", rawMessage);
+    catch(err) {
+      console.error("message error", String(err), 'rawMessage:', rawMessage);
       return;
     }
 
@@ -118,16 +110,6 @@ export function attachCryptoWebSocketHandlers({
     frequencyMetrics.unknownPerSec += 1;
   }
 
-  function onError(err: Error) {
-      if (helper.shouldFatalWsError(err)) {
-        fatal(err);
-      }
-      else {
-        console.error(`[ws][kraken] ${String(err)}`);
-      }
-  }
-
   ws.on("message", onMessage);
-  ws.on("error", onError);
-  ws.on("open", onOpen);
+  ws.once("open", onOpen);
 }
