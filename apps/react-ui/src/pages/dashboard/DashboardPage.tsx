@@ -25,8 +25,13 @@ const DashboardPage: React.FC = () => {
     es.addEventListener('error', onError);
 
     // Default SSE event ("message")
-    es.addEventListener('message', (e) => {
-      console.log('SSE message event:', e.data);
+    es.addEventListener('ticker:update', (e) => {
+      console.log('SSE message update:', e.data);
+      setEvents((prev) => [String(e.data), ...prev].slice(0, 50));
+    });
+
+    es.addEventListener('ticker:snapshot', (e) => {
+      console.log('SSE message snapshot:', e.data);
       setEvents((prev) => [String(e.data), ...prev].slice(0, 50));
     });
 
