@@ -11,7 +11,7 @@ import {
 import { publishUpdate } from "../redis/publisher.js";
 import helper from "./wsHelpers.js";
 
-export type TickerLike = {
+export type KrakenTickerLike = {
   ask?: number;
   ask_qty?: number;
   bid?: number;
@@ -28,7 +28,7 @@ export type TickerLike = {
 
 export type LatestBySymbol = Map<
   string,
-  { ticker: TickerLike; lastType: "snapshot" | "update" }
+  { ticker: KrakenTickerLike; lastType: "snapshot" | "update" }
 >;
 
 type AttachCryptoWebSocketHandlersParams = {
@@ -37,8 +37,6 @@ type AttachCryptoWebSocketHandlersParams = {
   frequencyMetrics: FrequencyMetrics;
   redis: RedisClient;
 };
-
-
 
 export function attachCryptoWebSocketHandlers({
   ws,
@@ -76,7 +74,7 @@ export function attachCryptoWebSocketHandlers({
     if (isSubAcknowledgement(json)) return;
 
     if (isUpdateResponse(json)) {
-      const ticker = json.data[0] as TickerLike;
+      const ticker = json.data[0] as KrakenTickerLike;
 
       if (json.type === "snapshot") {
         frequencyMetrics.snapshotsPerSec += 1;
