@@ -2,6 +2,7 @@ import PriceChart from '@/shared-components/PriceChart'
 import BotSummary from '@/shared-components/BotSummary';
 
 import { useEffect, useState } from 'react';
+import LiveSummary from '@/shared-components/LiveSummary';
 
 const DashboardPage: React.FC = () => {
   const [sseStatus, setSseStatus] = useState<'connecting' | 'open' | 'closed' | 'error'>('connecting');
@@ -14,9 +15,8 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     // Point this at an SSE endpoint your backend exposes.
     // Keep it same-origin (e.g. "/api/sse") to avoid CORS headaches during dev.
-    const url = "/api/v1/sse";
 
-    const es = new EventSource(url);
+    const es = new EventSource('/sse/ticker');
 
     const onOpen = () => setSseStatus('open');
     const onError = () => setSseStatus('error');
@@ -26,6 +26,7 @@ const DashboardPage: React.FC = () => {
 
     // Default SSE event ("message")
     es.addEventListener('message', (e) => {
+      console.log('SSE message event:', e.data);
       setEvents((prev) => [String(e.data), ...prev].slice(0, 50));
     });
 
@@ -52,27 +53,13 @@ const DashboardPage: React.FC = () => {
       </div>
 
       <div className="flex">
-        <div className="flex-2">
+        <div className="w-3/5">
           <PriceChart />
+          <LiveSummary events={events} />
         </div>
 
-        <div className="flex-1 ml-4 text-center">
+        <div className="w-2/5 ml-4 text-center">
           <BotSummary />
-
-          <div className="text-lg font-semibold mb-2">
-            <div className="border rounded p-2 h-48 overflow-auto bg-white">
-            <h3 >Live Events</h3>
-              {events.length === 0 ? (
-                <div className="text-gray-500">No events yet…</div>
-              ) : (
-                <ul className="text-xs space-y-1">
-                  {events.map((x, i) => (
-                    <li key={i} className="font-mono break-words">{x}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
         </div>
       </div>
     </div>
