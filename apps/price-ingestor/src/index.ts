@@ -6,8 +6,8 @@ import { color } from "@blc/color-logger";
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
 import { registerShutdownHandlers, type ShutdownDeps } from "./lifecycle/shutdown.js";
 
-import { attachCryptoWebSocketHandlers } from "./ws/attachCryptoWebSocketHandlers.js";
-import { type LatestBySymbol } from "./ws/attachCryptoWebSocketHandlers.js";
+import { attachCryptoWebSocketHandlers } from "./ws/wsBusinessHandlers.js";
+import { type LatestBySymbol } from "./ws/wsBusinessHandlers.js";
 import {
   setTickerUpdateInterval,
   setSnapshotInterval,

@@ -1,5 +1,5 @@
 import type { RedisClient } from "@blc/redis-client";
-import type { LatestBySymbol } from "../ws/attachCryptoWebSocketHandlers.js";
+import type { LatestBySymbol } from "../ws/wsBusinessHandlers.js";
 import { publishSnapshot, storeLatestSnapshot } from "../redis/publisher.js";
 import { color } from "@blc/color-logger";
 
