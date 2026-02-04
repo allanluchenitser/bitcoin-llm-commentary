@@ -6,7 +6,21 @@ import {
   CandlestickSeries,
 } from "lightweight-charts";
 
-const PriceChart: React.FC = () => {
+type ChildProps = {
+  events: string[];
+};
+
+const PriceChart: React.FC<ChildProps> = ({ events }) => {
+    const processedEvents = events.map((e) => {
+    try {
+      const parsed = JSON.parse(e);
+      // return JSON.stringify(parsed, null, 2);
+      return { time: parsed.data.timestamp }
+    } catch {
+      return e;
+    }
+  });
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<any | null>(null);
@@ -14,18 +28,18 @@ const PriceChart: React.FC = () => {
   const [seriesType, setSeriesType] = useState<"line" | "candles">("line");
 
   // Fake daily data (line)
-  const lineData = [
-    { time: "2026-01-01", value: 42150 },
-    { time: "2026-01-02", value: 42800 },
-    { time: "2026-01-03", value: 42425 },
-    { time: "2026-01-04", value: 43110 },
-    { time: "2026-01-05", value: 43990 },
-    { time: "2026-01-06", value: 43550 },
-    { time: "2026-01-07", value: 44620 },
-    { time: "2026-01-08", value: 44180 },
-    { time: "2026-01-09", value: 45210 },
-    { time: "2026-01-10", value: 45740 },
-  ];
+  // const lineData = [
+  //   { time: "2026-01-01", value: 42150 },
+  //   { time: "2026-01-02", value: 42800 },
+  //   { time: "2026-01-03", value: 42425 },
+  //   { time: "2026-01-04", value: 43110 },
+  //   { time: "2026-01-05", value: 43990 },
+  //   { time: "2026-01-06", value: 43550 },
+  //   { time: "2026-01-07", value: 44620 },
+  //   { time: "2026-01-08", value: 44180 },
+  //   { time: "2026-01-09", value: 45210 },
+  //   { time: "2026-01-10", value: 45740 },
+  // ];
 
   // Fake daily data (candles) – derived-ish from the same values
   const candleData = [
@@ -95,7 +109,7 @@ const PriceChart: React.FC = () => {
         color: "#2563eb",
         lineWidth: 2,
       });
-      series.setData(lineData);
+      series.setData(processedEvents as any);
       seriesRef.current = series;
     } else {
       const series = chart.addSeries(CandlestickSeries, {

@@ -2,6 +2,8 @@ import PriceChart from './PriceChart'
 import BotSummary from './BotSummary';
 import LiveEvents from './LiveEvents';
 
+import { CHANNEL_TICKER_SNAPSHOT, CHANNEL_TICKER_UPDATE } from '@blc/contracts';
+
 import { useEffect, useState } from 'react';
 
 const DashboardPage: React.FC = () => {
@@ -22,12 +24,12 @@ const DashboardPage: React.FC = () => {
     es.addEventListener('open', onOpen);
     es.addEventListener('error', onError);
 
-    es.addEventListener('ticker:update', (e) => {
+    es.addEventListener(CHANNEL_TICKER_UPDATE, (e) => {
       console.log('SSE message update:', e);
       setEvents((prev) => [String(e.data), ...prev].slice(0, 50));
     });
 
-    es.addEventListener('ticker:snapshot', (e) => {
+    es.addEventListener(CHANNEL_TICKER_SNAPSHOT, (e) => {
       console.log('SSE message snapshot:', e);
       setEvents((prev) => [String(e.data), ...prev].slice(0, 50));
     });
@@ -49,7 +51,7 @@ const DashboardPage: React.FC = () => {
       <div className="flex mt-4">
         <div className="w-3/5">
           <div>
-            <PriceChart />
+            <PriceChart events={events} />
           </div>
           <div className="mt-4">
             <LiveEvents events={events} />
