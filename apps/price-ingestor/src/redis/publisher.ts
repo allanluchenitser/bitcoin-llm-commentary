@@ -9,12 +9,15 @@ export type TickerEvent = {
   data: Record<string, unknown>;
 };
 
-export async function publishUpdate(redis: RedisClient, event: TickerEvent) {
-  await redis.publish(CHANNEL_TICKER_UPDATE, JSON.stringify(event));
-}
+export async function publishTicker(
+  event: TickerEvent,
+  redis: RedisClient,
+) {
+  const channel = event.type === "snapshot"
+    ? CHANNEL_TICKER_SNAPSHOT
+    : CHANNEL_TICKER_UPDATE;
 
-export async function publishSnapshot(redis: RedisClient, event: TickerEvent) {
-  await redis.publish(CHANNEL_TICKER_SNAPSHOT, JSON.stringify(event));
+  await redis.publish(channel, JSON.stringify(event));
 }
 
 export async function storeLatestSnapshot(

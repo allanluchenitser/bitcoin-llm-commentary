@@ -1,6 +1,6 @@
 import type { RedisClient } from "@blc/redis-client";
 import type { LatestBySymbol } from "../ws/wsBusinessHandlers.js";
-import { publishSnapshot, storeLatestSnapshot } from "../redis/publisher.js";
+import { publishTicker, storeLatestSnapshot } from "../redis/publisher.js";
 import { color } from "@blc/color-logger";
 
 // Your existing per-second console summarizer stays as-is
@@ -10,6 +10,7 @@ export type FrequencyMetrics = {
   unknownPerSec: number;
 }
 
+// just for logging
 export function setTickerMetricsInterval(
   latestBySymbol: LatestBySymbol,
   metrics: FrequencyMetrics,
@@ -64,7 +65,7 @@ export function setSnapshotPublishingInterval(
 
         try {
           await storeLatestSnapshot(redis, symbol, snapshotEvent, { ttlSeconds: 120 });
-          await publishSnapshot(redis, snapshotEvent);
+          await publishTicker(snapshotEvent, redis);
         } catch (err) {
           color.error(`[redis] snapshot store/publish failed for ${symbol}: ${String(err)}`);
         }

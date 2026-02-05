@@ -73,6 +73,7 @@ function connectWs() {
   });
 
   ws.once("close", (code, reason) => {
+    // console.log(code, reason);
     const reasonText = reason?.length ? reason.toString("utf8") : "";
     scheduleReconnect(`closed code=${code}${reasonText ? ` reason=${reasonText}` : ""}`);
   });
@@ -112,14 +113,14 @@ const frequencyMetrics: FrequencyMetrics = {
   unknownPerSec: 0
 };
 
-const tickerUpdateInterval = setTickerMetricsInterval(latestBySymbol, frequencyMetrics);
+// const tickerUpdateInterval = setTickerMetricsInterval(latestBySymbol, frequencyMetrics);
 const snapshotInterval = setSnapshotPublishingInterval(redis, latestBySymbol);
 
 const { shutdown: baseShutdown } = registerShutdownHandlers({
   getWs: () => ws,
   redis,
   stopTimers: () => {
-    clearInterval(tickerUpdateInterval);
+    // clearInterval(tickerUpdateInterval);
     clearInterval(snapshotInterval);
   }
 });

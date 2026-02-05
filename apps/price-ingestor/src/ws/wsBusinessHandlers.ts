@@ -8,7 +8,7 @@ import {
   isTickerResponse
 } from "../types-and-guards.js";
 
-import { publishUpdate } from "../redis/publisher.js";
+import { publishTicker } from "../redis/publisher.js";
 import helper from "./wsHelpers.js";
 
 export type KrakenTickerLike = {
@@ -67,7 +67,7 @@ export function attachCryptoWebSocketHandlers({
     isPublishing = true;
     try {
       for (const { ticker, lastType } of batch) {
-        const updateEvent = {
+        const tickerEvent = {
           source: "kraken" as const,
           symbol: ticker.symbol,
           type: lastType,
@@ -76,7 +76,7 @@ export function attachCryptoWebSocketHandlers({
         };
 
         try {
-          await publishUpdate(redis, updateEvent);
+          await publishTicker(tickerEvent, redis);
         } catch (err) {
           color.error(
             `[redis] update publish failed for ${ticker.symbol}: ${String(err)}`
