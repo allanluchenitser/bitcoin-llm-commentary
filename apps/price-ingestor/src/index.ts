@@ -9,8 +9,8 @@ import { registerShutdownHandlers, type ShutdownDeps } from "./lifecycle/shutdow
 import { attachCryptoWebSocketHandlers } from "./ws/wsBusinessHandlers.js";
 import { type LatestBySymbol } from "./ws/wsBusinessHandlers.js";
 import {
-  setTickerUpdateInterval,
-  setSnapshotInterval,
+  setTickerMetricsInterval,
+  setSnapshotPublishingInterval,
   type FrequencyMetrics
 } from "./intervals/intervals.js";
 
@@ -112,8 +112,8 @@ const frequencyMetrics: FrequencyMetrics = {
   unknownPerSec: 0
 };
 
-const tickerUpdateInterval = setTickerUpdateInterval(latestBySymbol, frequencyMetrics);
-const snapshotInterval = setSnapshotInterval(redis, latestBySymbol);
+const tickerUpdateInterval = setTickerMetricsInterval(latestBySymbol, frequencyMetrics);
+const snapshotInterval = setSnapshotPublishingInterval(redis, latestBySymbol);
 
 const { shutdown: baseShutdown } = registerShutdownHandlers({
   getWs: () => ws,

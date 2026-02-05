@@ -10,12 +10,14 @@ export type FrequencyMetrics = {
   unknownPerSec: number;
 }
 
-export function setTickerUpdateInterval(
+export function setTickerMetricsInterval(
   latestBySymbol: LatestBySymbol,
   metrics: FrequencyMetrics,
 ) {
   const updateInterval = setInterval(() => {
     const parts: string[] = [];
+
+    // each ticker gets a line
     for (const [symbol, v] of latestBySymbol.entries()) {
       const t = v.ticker;
       parts.push(
@@ -37,10 +39,9 @@ export function setTickerUpdateInterval(
   return updateInterval;
 }
 
-
 let snapshotFlushInFlight = false;
 
-export function setSnapshotInterval(
+export function setSnapshotPublishingInterval(
   redis: RedisClient,
   latestBySymbol: LatestBySymbol,
 ) {

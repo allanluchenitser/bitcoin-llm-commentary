@@ -5,7 +5,7 @@ import { type FrequencyMetrics } from "../intervals/intervals.js";
 import {
   SubRequest,
   isSubAcknowledgement,
-  isUpdateResponse
+  isTickerResponse
 } from "../types-and-guards.js";
 
 import { publishUpdate } from "../redis/publisher.js";
@@ -118,7 +118,7 @@ export function attachCryptoWebSocketHandlers({
 
     if (isSubAcknowledgement(json)) return;
 
-    if (isUpdateResponse(json)) {
+    if (isTickerResponse(json)) {
       const ticker = json.data[0] as KrakenTickerLike;
 
       if (json.type === "snapshot") {

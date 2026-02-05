@@ -38,13 +38,13 @@ interface TickerData {
   change_pct: number;
 }
 
-export interface UpdateResponse {
+export interface TickerResponse {
   channel: "ticker";
   type: "snapshot" | "update";
   data: TickerData[];
 }
 
-export function isUpdateResponse(msg: any): msg is UpdateResponse {
+export function isTickerResponse(msg: any): msg is TickerResponse {
   return msg
     && msg.channel === "ticker"
     && (msg.type === "snapshot" || msg.type === "update")
@@ -53,5 +53,5 @@ export function isUpdateResponse(msg: any): msg is UpdateResponse {
 
 export type KrakenMessage =
   | SubAcknowledgement
-  | UpdateResponse
+  | TickerResponse
 
