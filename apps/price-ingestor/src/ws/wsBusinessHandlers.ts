@@ -44,6 +44,50 @@ export function attachCryptoWebSocketHandlers({
   frequencyMetrics,
   redis
 }: AttachCryptoWebSocketHandlersParams): void {
+  // Throttle: publish at most N times/sec (coalesce to latest per symbol).
+  const INGESTOR_PUBLISH_INTERVAL_MS = process.env.INGESTOR_PUBLISH_INTERVAL_MS ? parseInt(process.env.INGESTOR_PUBLISH_INTERVAL_MS) : 200; // 5 Hz (tune as needed)
+
+  console.log(`[ws][kraken] publish interval set to ${INGESTOR_PUBLISH_INTERVAL_MS}ms`);
+
+  const pendingBySymbol = new Map<
+    string,
+    { ticker: KrakenTickerLike; lastType: "snapshot" | "update" }
+  >();
+
+  let isPublishing = false;
+  const publishTimer = setInterval(async () => {
+    if (isPublishing) return;
+    if (pendingBySymbol.size === 0) return;
+
+    // Drain pending (coalesced latest per symbol)
+    const batch = Array.from(pendingBySymbol.values());
+    pendingBySymbol.clear();
+
+    isPublishing = true;
+    try {
+      for (const { ticker, lastType } of batch) {
+        const updateEvent = {
+          source: "kraken" as const,
+          symbol: ticker.symbol,
+          type: lastType,
+          ts_ms: Date.now(), // ingestion/received time
+          data: ticker
+        };
+
+        try {
+          await publishUpdate(redis, updateEvent);
+        } catch (err) {
+          color.error(
+            `[redis] update publish failed for ${ticker.symbol}: ${String(err)}`
+          );
+        }
+      }
+    } finally {
+      isPublishing = false;
+    }
+  }, INGESTOR_PUBLISH_INTERVAL_MS);
+
+
   function onOpen() {
     const msg: SubRequest = {
       method: "subscribe",
@@ -86,21 +130,8 @@ export function attachCryptoWebSocketHandlers({
 
       latestBySymbol.set(ticker.symbol, { ticker, lastType: json.type });
 
-      const updateEvent = {
-        source: "kraken" as const,
-        symbol: ticker.symbol,
-        type: "update" as const,
-        ts_ms: Date.now(),
-        data: ticker as unknown as Record<string, unknown>
-      };
-
-      try {
-        await publishUpdate(redis, updateEvent);
-      } catch (err) {
-        color.error(
-          `[redis] update publish failed for ${ticker.symbol}: ${String(err)}`
-        );
-      }
+      // Coalesce: keep only the most recent tick per symbol until next publish interval.
+      pendingBySymbol.set(ticker.symbol, { ticker, lastType: json.type });
 
       return;
     }
@@ -110,4 +141,5 @@ export function attachCryptoWebSocketHandlers({
 
   ws.on("message", onMessage);
   ws.once("open", onOpen);
+  ws.once("close", () => clearInterval(publishTimer));
 }
