@@ -18,50 +18,7 @@ function rawDataToUtf8(data: WebSocket.RawData): string {
   return Buffer.concat(data).toString("utf8");
 }
 
-type AsyncHandler<T> = (arg: T) => void | Promise<void>;
-
-/**
- * Throttle an async handler by running it at most once per interval,
- * always with the latest argument seen during the interval.
- * Intermediate messages are dropped.
- */
-function throttleLatest<T>(handler: AsyncHandler<T>, intervalMs: number) {
-  let lastArg: T | undefined;
-  let scheduled = false;
-  let running = false;
-
-  const flush = async () => {
-    scheduled = false;
-    if (running) return;
-
-    const arg = lastArg;
-    lastArg = undefined;
-    if (arg === undefined) return;
-
-    running = true;
-    try {
-      await handler(arg);
-    } finally {
-      running = false;
-      // If more messages arrived while running, schedule another flush.
-      if (lastArg !== undefined && !scheduled) {
-        scheduled = true;
-        setTimeout(flush, intervalMs);
-      }
-    }
-  };
-
-  return (arg: T) => {
-    lastArg = arg;
-    if (!scheduled && !running) {
-      scheduled = true;
-      setTimeout(flush, intervalMs);
-    }
-  };
-}
-
 export default {
   isFatalWsError,
   rawDataToUtf8,
-  throttleLatest
 };
