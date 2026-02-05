@@ -44,8 +44,9 @@ export function attachCryptoWebSocketHandlers({
   frequencyMetrics,
   redis
 }: AttachCryptoWebSocketHandlersParams): void {
-  // Throttle: publish at most N times/sec (coalesce to latest per symbol).
-  const INGESTOR_PUBLISH_INTERVAL_MS = process.env.INGESTOR_PUBLISH_INTERVAL_MS ? parseInt(process.env.INGESTOR_PUBLISH_INTERVAL_MS) : 200; // 5 Hz (tune as needed)
+  const INGESTOR_PUBLISH_INTERVAL_MS = process.env.INGESTOR_PUBLISH_INTERVAL_MS
+    ? parseInt(process.env.INGESTOR_PUBLISH_INTERVAL_MS)
+    : 200;
 
   console.log(`[ws][kraken] publish interval set to ${INGESTOR_PUBLISH_INTERVAL_MS}ms`);
 
@@ -59,7 +60,7 @@ export function attachCryptoWebSocketHandlers({
     if (isPublishing) return;
     if (pendingBySymbol.size === 0) return;
 
-    // Drain pending (coalesced latest per symbol)
+    // "batch" means a single ticker but perhaps a value for each symbol
     const batch = Array.from(pendingBySymbol.values());
     pendingBySymbol.clear();
 
@@ -70,7 +71,7 @@ export function attachCryptoWebSocketHandlers({
           source: "kraken" as const,
           symbol: ticker.symbol,
           type: lastType,
-          ts_ms: Date.now(), // ingestion/received time
+          ts_ms: Date.now(),
           data: ticker
         };
 
@@ -99,7 +100,7 @@ export function attachCryptoWebSocketHandlers({
     };
 
     ws.send(JSON.stringify(msg));
-    console.log("opened ws to Kraken ticker. Subscription request sent.");
+    console.log("opened ws to Kraken. Subscription request sent.");
   }
 
   async function onMessage(kmsg: WebSocket.RawData) {
@@ -128,9 +129,10 @@ export function attachCryptoWebSocketHandlers({
         frequencyMetrics.unknownPerSec += 1;
       }
 
+      // from calling function
       latestBySymbol.set(ticker.symbol, { ticker, lastType: json.type });
 
-      // Coalesce: keep only the most recent tick per symbol until next publish interval.
+      // local, the interval above publishes whatever happens to be here at the time
       pendingBySymbol.set(ticker.symbol, { ticker, lastType: json.type });
 
       return;
