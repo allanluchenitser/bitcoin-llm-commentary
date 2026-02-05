@@ -49,7 +49,7 @@ export function attachCryptoWebSocketHandlers({
       method: "subscribe",
       params: {
         channel: "ticker",
-        symbol: ["BTC/USD", "ETH/USD"],
+        symbol: ["BTC/USD"],
         event_trigger: "bbo"
       }
     };

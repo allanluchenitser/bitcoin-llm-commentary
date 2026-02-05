@@ -1,48 +1,74 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   createChart,
   type IChartApi,
   LineSeries,
   CandlestickSeries,
+  type CandlestickData,
+  type LineData,
+  type UTCTimestamp
 } from "lightweight-charts";
 
+import { type TickerSseEvent } from "@blc/contracts";
+
+function toUTCTimestamp(ts: unknown): UTCTimestamp {
+  const n = typeof ts === "number" ? ts : typeof ts === "string" ? Number(ts) : NaN;
+
+  // If it's ms (13 digits-ish), convert to seconds; if it's already seconds (10 digits), keep it.
+  const seconds = n > 1e12 ? Math.floor(n / 1000) : Math.floor(n);
+
+  return seconds as UTCTimestamp;
+}
+
+function toFiniteNumber(x: unknown): number | null {
+  const n = typeof x === "number" ? x : typeof x === "string" ? Number(x) : NaN;
+  return Number.isFinite(n) ? n : null;
+}
+
 type ChildProps = {
-  events: string[];
+  events: TickerSseEvent[];
 };
 
-const PriceChart: React.FC<ChildProps> = ({ events }) => {
-    const processedEvents = events.map((e) => {
-    try {
-      const parsed = JSON.parse(e);
-      // return JSON.stringify(parsed, null, 2);
-      return { time: parsed.data.timestamp }
-    } catch {
-      return e;
-    }
-  });
+const BTC_USD = "BTC/USD";
 
+const PriceChart: React.FC<ChildProps> = ({ events }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<any | null>(null);
 
   const [seriesType, setSeriesType] = useState<"line" | "candles">("line");
 
+  const lineData: LineData[] = useMemo(() => {
+    // Keep the latest point per second (chart time resolution is seconds)
+    const bySec = new Map<number, LineData>();
+
+    for (const e of events) {
+      if (e.symbol !== BTC_USD) continue;
+      const t = toUTCTimestamp(e.ts_ms) as unknown as number;
+      const value = toFiniteNumber((e.data as any)?.last);
+      if (value === null) continue;
+
+      bySec.set(t, { time: t as unknown as UTCTimestamp, value });
+    }
+
+    return [...bySec.values()].sort(
+      (a, b) => (a.time as unknown as number) - (b.time as unknown as number)
+    );
+  }, [events]);
+
+  useEffect(() => {
+    console.log("lineData (first 5):", lineData.slice(0, 5));
+  }, [lineData]);
+
   // Fake daily data (line)
   // const lineData = [
   //   { time: "2026-01-01", value: 42150 },
-  //   { time: "2026-01-02", value: 42800 },
-  //   { time: "2026-01-03", value: 42425 },
-  //   { time: "2026-01-04", value: 43110 },
-  //   { time: "2026-01-05", value: 43990 },
-  //   { time: "2026-01-06", value: 43550 },
-  //   { time: "2026-01-07", value: 44620 },
-  //   { time: "2026-01-08", value: 44180 },
   //   { time: "2026-01-09", value: 45210 },
   //   { time: "2026-01-10", value: 45740 },
   // ];
 
   // Fake daily data (candles) – derived-ish from the same values
-  const candleData = [
+  const candleData: CandlestickData[] = [
     { time: "2026-01-01", open: 41800, high: 42550, low: 41550, close: 42150 },
     { time: "2026-01-02", open: 42150, high: 43000, low: 42000, close: 42800 },
     { time: "2026-01-03", open: 42800, high: 42950, low: 42100, close: 42425 },
@@ -66,6 +92,7 @@ const PriceChart: React.FC<ChildProps> = ({ events }) => {
       layout: {
         background: { color: "#ffffff" },
         textColor: "#111827",
+        attributionLogo: false,
       },
       grid: {
         vertLines: { color: "#e5e7eb" },
@@ -109,7 +136,7 @@ const PriceChart: React.FC<ChildProps> = ({ events }) => {
         color: "#2563eb",
         lineWidth: 2,
       });
-      series.setData(processedEvents as any);
+      series.setData(lineData);
       seriesRef.current = series;
     } else {
       const series = chart.addSeries(CandlestickSeries, {
@@ -124,7 +151,7 @@ const PriceChart: React.FC<ChildProps> = ({ events }) => {
     }
 
     chart.timeScale().fitContent();
-  }, [seriesType]); // lineData/candleData are static here
+  }, [seriesType, lineData]); // <-- this is the key change
 
   return (
     <div className="h-full p-4 border rounded ">

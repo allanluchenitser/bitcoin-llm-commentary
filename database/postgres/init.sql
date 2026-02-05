@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS ticker_event (
   msg_type kraken_ticker_msg_type NOT NULL,
 
   -- Kraken-provided timestamp (e.g. '2026-01-22T04:15:06.958618Z')
-  event_time TIMESTAMPTZ NOT NULL,
+  exchange_time TIMESTAMPTZ NOT NULL,
+  received_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
   -- when our ingestor received it
   received_at TIMESTAMPTZ NOT NULL DEFAULT now(),

@@ -6,6 +6,14 @@ export function latestKey(symbol: string) {
   return `ticker:latest:${symbol.replace(/\s+/g, "")}`;
 }
 
+export type TickerSseEvent = {
+  source: string;
+  symbol: string;
+  type: "update" | "snapshot" | string;
+  ts_ms: number;
+  data: Record<string, unknown>;
+};
+
 export type KrakenTickerLike = {
   ask?: number;
   ask_qty?: number;

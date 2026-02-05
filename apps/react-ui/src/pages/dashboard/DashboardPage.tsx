@@ -2,13 +2,20 @@ import PriceChart from './PriceChart'
 import BotSummary from './BotSummary';
 import LiveEvents from './LiveEvents';
 
-import { CHANNEL_TICKER_SNAPSHOT, CHANNEL_TICKER_UPDATE } from '@blc/contracts';
+import {
+  CHANNEL_TICKER_SNAPSHOT,
+  CHANNEL_TICKER_UPDATE,
+  type TickerSseEvent
+} from '@blc/contracts';
 
 import { useEffect, useState } from 'react';
 
+
 const DashboardPage: React.FC = () => {
   const [sseStatus, setSseStatus] = useState<'connecting' | 'open' | 'closed' | 'error'>('connecting');
-  const [events, setEvents] = useState<string[]>([]);
+
+  const [rawEvents, setRawEvents] = useState<string[]>([]);
+  const [tickerEvents, setTickerEvents] = useState<TickerSseEvent[]>([]);
 
   useEffect(() => {
     document.title = "Dashboard - Bitcoin LLM Commentary";
@@ -21,22 +28,28 @@ const DashboardPage: React.FC = () => {
     const onOpen = () => setSseStatus('open');
     const onError = () => setSseStatus('error');
 
+    const onTicker = (e: MessageEvent) => {
+      const raw = e.data;
+
+      setRawEvents((prev) => [raw, ...prev].slice(0, 50));
+
+      try {
+        const parsed = JSON.parse(raw) as TickerSseEvent;
+        setTickerEvents(prev => [parsed, ...prev].slice(0, 200))
+      } catch {}
+    }
+
     es.addEventListener('open', onOpen);
     es.addEventListener('error', onError);
 
-    es.addEventListener(CHANNEL_TICKER_UPDATE, (e) => {
-      console.log('SSE message update:', e);
-      setEvents((prev) => [String(e.data), ...prev].slice(0, 50));
-    });
-
-    es.addEventListener(CHANNEL_TICKER_SNAPSHOT, (e) => {
-      console.log('SSE message snapshot:', e);
-      setEvents((prev) => [String(e.data), ...prev].slice(0, 50));
-    });
+    es.addEventListener(CHANNEL_TICKER_UPDATE, onTicker);
+    es.addEventListener(CHANNEL_TICKER_SNAPSHOT, onTicker);
 
     return () => {
       es.removeEventListener('open', onOpen);
       es.removeEventListener('error', onError);
+      es.removeEventListener(CHANNEL_TICKER_UPDATE, onTicker);
+      es.removeEventListener(CHANNEL_TICKER_SNAPSHOT, onTicker);
       es.close();
       setSseStatus('closed');
     };
@@ -51,10 +64,10 @@ const DashboardPage: React.FC = () => {
       <div className="flex mt-4">
         <div className="w-3/5">
           <div>
-            <PriceChart events={events} />
+            <PriceChart events={tickerEvents} />
           </div>
           <div className="mt-4">
-            <LiveEvents events={events} />
+            <LiveEvents events={rawEvents} />
           </div>
         </div>
 
