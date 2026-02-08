@@ -2,6 +2,7 @@ import type { RedisClient } from "@blc/redis-client";
 import type { LatestBySymbol } from "../ws/wsBusinessHandlers.js";
 import { publishTicker, storeLatestSnapshot } from "../redis/publisher.js";
 import { color } from "@blc/color-logger";
+import { type KrakenTickerData, type KrakenTickerEvent } from "@blc/contracts";
 
 // Your existing per-second console summarizer stays as-is
 export type FrequencyMetrics = {
@@ -55,12 +56,12 @@ export function setSnapshotPublishingInterval(
       const ts = Date.now();
 
       for (const [symbol, v] of latestBySymbol.entries()) {
-        const snapshotEvent = {
+        const snapshotEvent: KrakenTickerEvent = {
           source: "kraken" as const,
           symbol,
           type: "snapshot" as const,
           ts_ms: ts,
-          data: v.ticker as unknown as Record<string, unknown>
+          data: v.ticker
         };
 
         try {

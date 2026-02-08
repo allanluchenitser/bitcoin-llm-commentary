@@ -5,14 +5,7 @@ import { color } from "@blc/color-logger";
 
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
 import { registerShutdownHandlers, type ShutdownDeps } from "./lifecycle/shutdown.js";
-
-import { attachCryptoWebSocketHandlers } from "./ws/wsBusinessHandlers.js";
-import { type LatestBySymbol } from "./ws/wsBusinessHandlers.js";
-import {
-  setTickerMetricsInterval,
-  setSnapshotPublishingInterval,
-  type FrequencyMetrics
-} from "./intervals/intervals.js";
+import { attachWsBusinessHandlers, type LatestBySymbol } from "./ws/wsBusinessHandlers.js";
 
 import helper from "./ws/wsHelpers.js";
 
@@ -30,12 +23,28 @@ let stopping = false;
 let reconnectTimer: NodeJS.Timeout | undefined;
 let attempt = 0;
 
+
+const latestBySymbol: LatestBySymbol = new Map();
+
+
+const redis: RedisClient = createRedisClient();
+try {
+  await redis.connect();
+  color.success("[redis] connected");
+} catch (err) {
+  color.error(`[redis] failed to connect: ${String(err)}`);
+  process.exit(1);
+}
+
+// const snapshotInterval = setSnapshotPublishingInterval(redis, latestBySymbol);
+
+
 function backoffMsFullJitter(attemptNum: number, baseMs = 250, capMs = 30_000): number {
   const maxDelay = Math.min(capMs, baseMs * 2 ** attemptNum);
   return Math.floor(Math.random() * maxDelay);
 }
 
-function scheduleReconnect(why: string) {
+function scheduleReconnect(redis: RedisClient, why: string) {
   if (stopping) return;
   if (reconnectTimer) return;
 
@@ -44,11 +53,11 @@ function scheduleReconnect(why: string) {
 
   reconnectTimer = setTimeout(() => {
     reconnectTimer = undefined;
-    connectWs();
+    connectWs(redis);
   }, delay);
 }
 
-function connectWs() {
+function connectWs(redis: RedisClient) {
   if (stopping) return;
 
   ws = new WebSocket(url);
@@ -69,13 +78,13 @@ function connectWs() {
       return;
     }
 
-    scheduleReconnect(`handshake rejected (HTTP ${status ?? "?"})`);
+    scheduleReconnect(redis, `handshake rejected (HTTP ${status ?? "?"})`);
   });
 
   ws.once("close", (code, reason) => {
     // console.log(code, reason);
     const reasonText = reason?.length ? reason.toString("utf8") : "";
-    scheduleReconnect(`closed code=${code}${reasonText ? ` reason=${reasonText}` : ""}`);
+    scheduleReconnect(redis, `closed code=${code}${reasonText ? ` reason=${reasonText}` : ""}`);
   });
 
   ws.on("error", (err: Error) => {
@@ -88,7 +97,7 @@ function connectWs() {
   });
 
   // business logic
-  attachCryptoWebSocketHandlers({
+  attachWsBusinessHandlers({
     ws,
     latestBySymbol,
     frequencyMetrics,
@@ -96,35 +105,7 @@ function connectWs() {
   });
 }
 
-const redis: RedisClient = createRedisClient();
-try {
-  await redis.connect();
-  color.success("[redis] connected");
-} catch (err) {
-  color.error(`[redis] failed to connect: ${String(err)}`);
-  process.exit(1);
-}
-
-const latestBySymbol: LatestBySymbol = new Map();
-
-const frequencyMetrics: FrequencyMetrics = {
-  updatesPerSec: 0,
-  snapshotsPerSec: 0,
-  unknownPerSec: 0
-};
-
 // const tickerUpdateInterval = setTickerMetricsInterval(latestBySymbol, frequencyMetrics);
-const snapshotInterval = setSnapshotPublishingInterval(redis, latestBySymbol);
-
-const { shutdown: baseShutdown } = registerShutdownHandlers({
-  getWs: () => ws,
-  redis,
-  stopTimers: () => {
-    // clearInterval(tickerUpdateInterval);
-    clearInterval(snapshotInterval);
-  }
-});
-
 function shutdown(code = 0) {
   stopping = true;
   if (reconnectTimer) clearTimeout(reconnectTimer);
@@ -136,8 +117,15 @@ function shutdown(code = 0) {
   baseShutdown(code);
 }
 
-connectWs();
+const { shutdown: baseShutdown } = registerShutdownHandlers({
+  getWs: () => ws,
+  redis,
+  stopTimers: () => {
+    // clearInterval(tickerUpdateInterval);
+    clearInterval(snapshotInterval);
+  }
+});
 
-
+connectWs(redis);
 
 

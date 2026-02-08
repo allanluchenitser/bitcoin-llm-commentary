@@ -1,15 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   createChart,
-  type IChartApi,
   LineSeries,
   CandlestickSeries,
+  type IChartApi,
+  type ISeriesApi,
   type CandlestickData,
   type LineData,
   type UTCTimestamp
 } from "lightweight-charts";
 
-import { type TickerSseEvent } from "@blc/contracts";
+import type { KrakenTickerEvent } from "@blc/contracts/ticker";
+
 
 function toUTCTimestamp(ts: unknown): UTCTimestamp {
   const n = typeof ts === "number" ? ts : typeof ts === "string" ? Number(ts) : NaN;
@@ -25,47 +27,37 @@ function toFiniteNumber(x: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-type ChildProps = {
-  events: TickerSseEvent[];
-};
-
 const BTC_USD = "BTC/USD";
 
-const PriceChart: React.FC<ChildProps> = ({ events }) => {
+const PriceChart: React.FC<{ events: KrakenTickerEvent[] }> = ({ events }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
-  const seriesRef = useRef<any | null>(null);
+  const seriesRef = useRef<
+    ISeriesApi<"Line"> | ISeriesApi<"Candlestick"> | null
+  >(null);
 
   const [seriesType, setSeriesType] = useState<"line" | "candles">("line");
 
   const lineData: LineData[] = useMemo(() => {
-    // Keep the latest point per second (chart time resolution is seconds)
-    const bySec = new Map<number, LineData>();
+    const bySec = new Map<UTCTimestamp, LineData>();
 
     for (const e of events) {
       if (e.symbol !== BTC_USD) continue;
-      const t = toUTCTimestamp(e.ts_ms) as unknown as number;
+      const t = toUTCTimestamp(e.ts_ms);
       const value = toFiniteNumber((e.data as any)?.last);
       if (value === null) continue;
 
-      bySec.set(t, { time: t as unknown as UTCTimestamp, value });
+      bySec.set(t, { time: t, value });
     }
 
     return [...bySec.values()].sort(
-      (a, b) => (a.time as unknown as number) - (b.time as unknown as number)
+      (a, b) => Number(a.time) - Number(b.time)
     );
   }, [events]);
 
   useEffect(() => {
     console.log("lineData (first 5):", lineData.slice(0, 5));
   }, [lineData]);
-
-  // Fake daily data (line)
-  // const lineData = [
-  //   { time: "2026-01-01", value: 42150 },
-  //   { time: "2026-01-09", value: 45210 },
-  //   { time: "2026-01-10", value: 45740 },
-  // ];
 
   // Fake daily data (candles) – derived-ish from the same values
   const candleData: CandlestickData[] = [
@@ -155,7 +147,7 @@ const PriceChart: React.FC<ChildProps> = ({ events }) => {
 
   return (
     <div className="h-full p-4 border rounded ">
-      <div className="mb-3 flex items-center justify-between gap-3">
+      <header className="mb-3 flex items-center justify-between gap-3">
         <h2 className="font-semibold">Price</h2>
 
         <div className="flex gap-2">
@@ -184,7 +176,7 @@ const PriceChart: React.FC<ChildProps> = ({ events }) => {
             Candles
           </button>
         </div>
-      </div>
+      </header>
 
       <div ref={containerRef} />
     </div>

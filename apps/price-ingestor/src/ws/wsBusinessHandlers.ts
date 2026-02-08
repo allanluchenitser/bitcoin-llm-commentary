@@ -1,6 +1,7 @@
 import WebSocket from "ws";
 import { color } from "@blc/color-logger";
 import { type RedisClient } from "@blc/redis-client";
+import { type KrakenTickerData, type KrakenTickerEvent } from "@blc/contracts";
 import { type FrequencyMetrics } from "../intervals/intervals.js";
 import {
   SubRequest,
@@ -11,24 +12,9 @@ import {
 import { publishTicker } from "../redis/publisher.js";
 import helper from "./wsHelpers.js";
 
-export type KrakenTickerLike = {
-  ask?: number;
-  ask_qty?: number;
-  bid?: number;
-  bid_qty?: number;
-  change?: number;
-  change_pct?: number;
-  high?: number;
-  last?: number;
-  low?: number;
-  symbol: string;
-  volume?: number;
-  vwap?: number;
-};
-
 export type LatestBySymbol = Map<
   string,
-  { ticker: KrakenTickerLike; lastType: "snapshot" | "update" }
+  { ticker: KrakenTickerData; lastType: "snapshot" | "update" }
 >;
 
 type AttachCryptoWebSocketHandlersParams = {
@@ -38,21 +24,20 @@ type AttachCryptoWebSocketHandlersParams = {
   redis: RedisClient;
 };
 
-export function attachCryptoWebSocketHandlers({
+export function attachWsBusinessHandlers({
   ws,
+  redis,
   latestBySymbol,
   frequencyMetrics,
-  redis
 }: AttachCryptoWebSocketHandlersParams): void {
-  const INGESTOR_PUBLISH_INTERVAL_MS = process.env.INGESTOR_PUBLISH_INTERVAL_MS
-    ? parseInt(process.env.INGESTOR_PUBLISH_INTERVAL_MS)
-    : 200;
+  const ms = process.env.INGESTOR_PUBLISH_INTERVAL_MS;
+  const INGESTOR_PUBLISH_INTERVAL_MS = ms ? Number(ms) : 200;
 
   console.log(`[ws][kraken] publish interval set to ${INGESTOR_PUBLISH_INTERVAL_MS}ms`);
 
   const pendingBySymbol = new Map<
     string,
-    { ticker: KrakenTickerLike; lastType: "snapshot" | "update" }
+    { ticker: KrakenTickerData; lastType: "snapshot" | "update" }
   >();
 
   let isPublishing = false;
@@ -67,7 +52,7 @@ export function attachCryptoWebSocketHandlers({
     isPublishing = true;
     try {
       for (const { ticker, lastType } of batch) {
-        const tickerEvent = {
+        const tickerEvent: KrakenTickerEvent = {
           source: "kraken" as const,
           symbol: ticker.symbol,
           type: lastType,

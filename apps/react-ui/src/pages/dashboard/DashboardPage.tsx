@@ -5,7 +5,7 @@ import LiveEvents from './LiveEvents';
 import {
   CHANNEL_TICKER_SNAPSHOT,
   CHANNEL_TICKER_UPDATE,
-  type TickerSseEvent
+  type TickerEvent
 } from '@blc/contracts';
 
 import { useEffect, useState } from 'react';
@@ -15,7 +15,7 @@ const DashboardPage: React.FC = () => {
   const [sseStatus, setSseStatus] = useState<'connecting' | 'open' | 'closed' | 'error'>('connecting');
 
   const [rawEvents, setRawEvents] = useState<string[]>([]);
-  const [tickerEvents, setTickerEvents] = useState<TickerSseEvent[]>([]);
+  const [tickerEvents, setTickerEvents] = useState<TickerEvent[]>([]);
 
   useEffect(() => {
     document.title = "Dashboard - Bitcoin LLM Commentary";
@@ -34,7 +34,7 @@ const DashboardPage: React.FC = () => {
       setRawEvents((prev) => [raw, ...prev].slice(0, 50));
 
       try {
-        const parsed = JSON.parse(raw) as TickerSseEvent;
+        const parsed = JSON.parse(raw) as TickerEvent;
         setTickerEvents(prev => [parsed, ...prev].slice(0, 200))
       } catch {}
     }
