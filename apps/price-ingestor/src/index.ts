@@ -20,7 +20,7 @@ const url: string = process.env.KRAKEN_WS_URL ?? "wss://ws.kraken.com/v2";
 let ws: WebSocket | undefined;
 
 let stopping = false;
-let reconnectTimer: NodeJS.Timeout | undefined;
+let reconnectTimeoutId: NodeJS.Timeout | undefined;
 let attempt = 0;
 
 
@@ -46,13 +46,13 @@ function backoffMsFullJitter(attemptNum: number, baseMs = 250, capMs = 30_000): 
 
 function scheduleReconnect(redis: RedisClient, why: string) {
   if (stopping) return;
-  if (reconnectTimer) return;
+  if (reconnectTimeoutId) return;
 
   const delay = backoffMsFullJitter(attempt++);
   console.error(`[ws][kraken] ${why}; reconnecting in ${delay}ms (attempt=${attempt})`);
 
-  reconnectTimer = setTimeout(() => {
-    reconnectTimer = undefined;
+  reconnectTimeoutId = setTimeout(() => {
+    reconnectTimeoutId = undefined;
     connectWs(redis);
   }, delay);
 }
@@ -97,13 +97,13 @@ function connectWs(redis: RedisClient) {
   });
 
   // business logic
-  attachWsBusinessHandlers({
-    ws,
-    latestBySymbol,
-    frequencyMetrics,
-    redis
-  });
 }
+attachWsBusinessHandlers({
+  ws,
+  latestBySymbol,
+  frequencyMetrics,
+  redis
+});
 
 // const tickerUpdateInterval = setTickerMetricsInterval(latestBySymbol, frequencyMetrics);
 function shutdown(code = 0) {

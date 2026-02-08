@@ -17,7 +17,7 @@ export type LatestBySymbol = Map<
   { ticker: KrakenTickerData; lastType: "snapshot" | "update" }
 >;
 
-type AttachCryptoWebSocketHandlersParams = {
+type WsBusinessHandlerParams = {
   ws: WebSocket;
   latestBySymbol: LatestBySymbol;
   frequencyMetrics: FrequencyMetrics;
@@ -29,7 +29,7 @@ export function attachWsBusinessHandlers({
   redis,
   latestBySymbol,
   frequencyMetrics,
-}: AttachCryptoWebSocketHandlersParams): void {
+}: WsBusinessHandlerParams): void {
   const ms = process.env.INGESTOR_PUBLISH_INTERVAL_MS;
   const INGESTOR_PUBLISH_INTERVAL_MS = ms ? Number(ms) : 200;
 
