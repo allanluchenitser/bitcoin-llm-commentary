@@ -20,7 +20,7 @@ const url: string = process.env.KRAKEN_WS_URL ?? "wss://ws.kraken.com/v2";
 let ws: WebSocket | undefined;
 
 let stopping = false;
-let reconnectTimeoutId: NodeJS.Timeout | undefined;
+let reconnectTimeoutId: NodeJS.Timeout| undefined;
 let attempt = 0;
 
 
@@ -96,7 +96,7 @@ function connectWs(redis: RedisClient) {
       }
   });
 
-  // business logic
+  return ws;
 }
 attachWsBusinessHandlers({
   ws,

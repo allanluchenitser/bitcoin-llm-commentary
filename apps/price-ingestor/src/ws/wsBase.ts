@@ -1,71 +1,108 @@
 import WebSocket from "ws";
-import { isFatalWsError } from "./wsHelpers.js";
 
-let stopping = false;
-let reconnectTimeoutId: NodeJS.Timeout | undefined;
+let ws: WebSocket | null = null;
+let shouldReconnect = true;
 let attempt = 0;
+let heartbeatTimer: NodeJS.Timeout | null = null;
+let stopping = false;
 
-type ConnectOptions = {
-  shutdown: (code: number) => void;
-};
+function backOffMs(attemptNum: number, max = 30_000): number {
+  const jitter = Math.floor(Math.random() * 10);
+  const total = 250 * 2 ** attemptNum + jitter;
+  const capped = Math.min(max, total);
 
-
-function calcBackoffJitter(attemptNum: number, baseMs = 250, capMs = 30_000): number {
-  const maxDelay = Math.min(capMs, baseMs * 2 ** attemptNum);
-  return Math.floor(Math.random() * maxDelay);
+  return capped;
 }
 
-function scheduleReconnect(url: string, options: ConnectOptions) {
-  if (stopping) return;
-  if (reconnectTimeoutId) return;
+function clearHeartbeat() {
+  if (heartbeatTimer) clearTimeout(heartbeatTimer);
+  heartbeatTimer = null;
+}
 
-  const delay = calcBackoffJitter(attempt++);
-  console.log(`[ws][kraken] reconnecting in ${delay}ms (attempt=${attempt})`);
+function armHeartbeat(socket: WebSocket, timeoutMs = 45_000) {
+  clearHeartbeat();
+  heartbeatTimer = setTimeout(() => {
 
-  reconnectTimeoutId = setTimeout(() => {
-    reconnectTimeoutId = undefined;
-    connectWs(url, options);
-  }, delay);
+    socket.terminate();
+  }, timeoutMs)
 }
 
 
-function connectWs(url: string, options: ConnectOptions): WebSocket | undefined {
-  if (stopping) return;
+/*
+fundamental ws events:
+- lifecycle 1: handshake errors
+- lifecycle 2: handshake rejected (http)
+- lifecycle 3: connection established (ws)
+- lifecycle 4: connection closed (ws)
+*/
 
-  const ws: WebSocket = new WebSocket(url);
+function connectWs(url: string, onFatal: () => void): WebSocket {
+  ws = new WebSocket(url);
+  const socket = ws;
 
-  ws.once("open", () => {
-    console.log("[ws][kraken] connected");
+  // lifecycle 1: initial handshake problem, DNS/TCP/SSL.
+  // Or, ws protocol errors later
+  socket.on("error", (err: Error & { code?: string }) => { // NodeJS Error object base
+    console.error(`[ws] error: ${String(err)}`);
+
+    const fatalErrors = [
+      "ERR_INVALID_URL",
+      "ERR_TLS_CERT_ALTNAME_INVALID",
+      "UNABLE_TO_VERIFY_LEAF_SIGNATURE",
+      "CERT_HAS_EXPIRED"
+    ];
+
+    if (fatalErrors.includes(err.code ?? '')) {
+      shouldReconnect = false;
+      try { socket.terminate(); } catch {}
+    }
+
+    if (socket.readyState === WebSocket.CLOSING || socket.readyState === WebSocket.CLOSED) return;
+
+    if (socket.readyState === WebSocket.CONNECTING || socket.readyState === WebSocket.OPEN) {
+      try { socket.close(); } catch {}
+      const t = setTimeout(() => { try { socket.terminate(); } catch {} }, 1000);
+      socket.once("close", () => clearTimeout(t));
+    }
+  });
+
+  // // lifecycle 2: http to ws upgrade problem. never happens after open event
+  // socket.once("unexpected-response", (_req, res) => { // http objects
+  //   const status = res.statusCode;
+  //   console.error(`[ws] unexpected-response HTTP ${status ?? "?"}`);
+
+  //   // hopeless, don't reconnect
+  //   if ([401, 403, 404, 426].includes(status ?? 0)) {
+  //     shouldReconnect = false;
+  //   }
+
+  //   socket.terminate();
+  // });
+
+  // lifecycle 3: handshake, upgrade successful. happens once per connection
+  socket.once("open", () => {
+    armHeartbeat(socket);
+    console.log("[ws] connected");
     attempt = 0;
   });
 
-  // this event is a successful negotuation but a failed upgrade
-  ws.once("unexpected-response", (_req, res) => { // http objects
-    const status = res?.statusCode;
-    console.error(`[ws][kraken] unexpected-response HTTP ${status ?? "?"}`);
 
-    // hopeless, don't reconnect
-    if ([401, 403, 404, 426].includes(status ?? 0)) {
-      options.shutdown(1);
+  // lifecycle 4: connection closed
+  socket.once("close", (code, reason) => { // websocket objects
+    console.log(`[ws] close code ${code}, reason ${reason.toString()}`);
+
+    clearHeartbeat();
+    if (ws === socket) ws = null;
+
+    if (!shouldReconnect) {
+      console.log("[ws] not reconnecting, probably a config issue. Exiting program.");
+      onFatal();
       return;
     }
 
-    scheduleReconnect(url, options);
-  });
-
-  ws.once("close", (code, reason) => { // websocket objects
-    // console.log(code, reason);
-    const reasonText = reason?.length ? reason.toString("utf8") : "";
-    scheduleReconnect(url, options);
-  });
-
-  ws.on("error", (err: Error) => { // NodeJS Error objects
-      if (isFatalWsError(err)) {
-        options.shutdown(1);
-      }
-      else {
-        console.error(`[ws][kraken] ${String(err)}`);
-      }
+    setTimeout(() => {
+      connectWs(url, onFatal)
+    }, backOffMs(attempt++))
   });
 
   return ws;
