@@ -42,20 +42,36 @@ type ClientOptions = {
 };
 
 let reconnectAttempt = 0;
-let initialConnect = true;
+let isInitialConnect = true;
 let dontReconnect = false;
 
-export async function connectWs(options: ClientOptions) {
-  const socket = new WebSocket(options.url);
+let currentSocket: WebSocket | null = null;
 
-  try {
-    await new Promise<void>((resolve, reject) => {
-      init(socket, resolve, reject, options);
-    });
-    return socket;
-  } catch {
-    console.log("initial ws connect failed");
-    return null;
+export async function connectWs(options: ClientOptions) {
+  async function createSocket() {
+    const socket = new WebSocket(options.url);
+    currentSocket = socket;
+    try {
+      if (isInitialConnect) {
+        await new Promise<void>((resolve, reject) => {
+          init(socket, resolve, reject, options);
+        });
+      }
+      else {
+        init(socket, () => {}, () => {}, options);
+      }
+      return socket;
+    } catch {
+      console.log("initial ws connect failed");
+      currentSocket = null;
+      return null;
+    }
+  }
+
+  await createSocket();
+
+  return {
+    getSocket: () => currentSocket,
   }
 }
 
@@ -70,7 +86,7 @@ function init(
     console.log("ws error event", err);
 
     // immediate error may render "close" uncoercable below
-    if (initialConnect) {
+    if (isInitialConnect) {
       return reject(err);
     }
 
@@ -83,13 +99,14 @@ function init(
       if (closeStates.includes(socket.readyState)) return;
       console.log("error w/ no followup. forcing close.");
       socket.terminate();
+      currentSocket = null;
     }, 250);
   }
 
   function onOpen() {
     console.log("ws open event");
-    if (initialConnect) resolve();
-    initialConnect = false;
+    if (isInitialConnect) resolve();
+    isInitialConnect = false;
     reconnectAttempt = 0;
     dontReconnect = false;
 
@@ -104,12 +121,13 @@ function init(
     console.log("ws close event", code, reason.toString("utf-8"));
     cleanup();
 
-    if (initialConnect) reject(new Error(`WebSocket closed during initial connect (code=${code})`));
-    initialConnect = false;
+    if (isInitialConnect) reject(new Error(`WebSocket closed during initial connect (code=${code})`));
+    isInitialConnect = false;
     dontReconnect = dontReconnect || fatalCloseCodes.has(code);
 
     if (dontReconnect) {
       console.error("fatal close", code || "no code");
+      currentSocket = null;
       const reasonText = reason?.toString?.("utf8") ?? "";
       options.fatal?.(code, reasonText);
       return;
