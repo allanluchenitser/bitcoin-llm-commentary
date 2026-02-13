@@ -1,13 +1,11 @@
 import "@blc/env";
-
-import WebSocket from "ws";
-import { color } from "@blc/color-logger";
-
+import { WebSocket } from 'ws';
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
-import { registerShutdownHandlers, type ShutdownDeps } from "./lifecycle/shutdown.js";
-import { attachWsBusinessHandlers, type LatestBySymbol } from "./ws/wsBusinessHandlers.js";
-
-import helper from "./ws/wsHelpers.js";
+import { connectWs } from "./ws/wsSetup.js";
+import { color } from "@blc/color-logger";
+// import { attachWsBusinessHandlers, type LatestBySymbol } from "./ws/wsBusinessHandlers.js";
+import { rawDataToUtf8 } from "./ws/wsHelpers.js";
+import { type KrakenSubscriptionRequest } from "./ws/wsTypes.js";
 
 /*
   Kraken WebSocket API v2 documentation:
@@ -15,17 +13,36 @@ import helper from "./ws/wsHelpers.js";
   https://docs.kraken.com/api/docs/websocket-v2/ticker
 */
 
-const url: string = process.env.KRAKEN_WS_URL ?? "wss://ws.kraken.com/v2";
+// major business function, receives ticket data
+function processPriceData(data: WebSocket.RawData, isBinary: boolean) {
+  const utf8Data = rawDataToUtf8(data);
+  const jsonData = JSON.parse(utf8Data);
+  console.log("tick");
+  console.log(jsonData);
+}
 
-let ws: WebSocket | undefined;
+function sendTickerSubscriptionRequest(socket: WebSocket) {
+  const requestMessage: KrakenSubscriptionRequest = {
+    method: "subscribe",
+    params: {
+      channel: "ticker",
+      symbol: ["BTC/USD"],
+      event_trigger: "bbo"
+    }
+  };
 
-let stopping = false;
-let reconnectTimeoutId: NodeJS.Timeout| undefined;
-let attempt = 0;
+  socket.send(JSON.stringify(requestMessage))
+}
 
+function cleanUpFunction(code: number, reason: string) {
+  console.log('cleanup started..')
 
-const latestBySymbol: LatestBySymbol = new Map();
+}
 
+/* ------ Main Execution Flow ------ */
+
+const socketUrl: string = process.env.KRAKEN_WS_URL ?? "wss://ws.kraken.com/v2";
+// const latestBySymbol: LatestBySymbol = new Map();
 
 const redis: RedisClient = createRedisClient();
 try {
@@ -37,95 +54,18 @@ try {
 }
 
 // const snapshotInterval = setSnapshotPublishingInterval(redis, latestBySymbol);
-
-
-function backoffMsFullJitter(attemptNum: number, baseMs = 250, capMs = 30_000): number {
-  const maxDelay = Math.min(capMs, baseMs * 2 ** attemptNum);
-  return Math.floor(Math.random() * maxDelay);
-}
-
-function scheduleReconnect(redis: RedisClient, why: string) {
-  if (stopping) return;
-  if (reconnectTimeoutId) return;
-
-  const delay = backoffMsFullJitter(attempt++);
-  console.error(`[ws][kraken] ${why}; reconnecting in ${delay}ms (attempt=${attempt})`);
-
-  reconnectTimeoutId = setTimeout(() => {
-    reconnectTimeoutId = undefined;
-    connectWs(redis);
-  }, delay);
-}
-
-function connectWs(redis: RedisClient) {
-  if (stopping) return;
-
-  ws = new WebSocket(url);
-
-  ws.once("open", () => {
-    console.log("[ws][kraken] connected");
-    attempt = 0;
-  });
-
-  // likely an upgrade problem
-  ws.once("unexpected-response", (_req, res) => {
-    const status = res?.statusCode;
-    console.error(`[ws][kraken] unexpected-response HTTP ${status ?? "?"}`);
-
-    // hopeless, don't reconnect
-    if ([401, 403, 404, 426].includes(status ?? 0)) {
-      shutdown(1);
-      return;
-    }
-
-    scheduleReconnect(redis, `handshake rejected (HTTP ${status ?? "?"})`);
-  });
-
-  ws.once("close", (code, reason) => {
-    // console.log(code, reason);
-    const reasonText = reason?.length ? reason.toString("utf8") : "";
-    scheduleReconnect(redis, `closed code=${code}${reasonText ? ` reason=${reasonText}` : ""}`);
-  });
-
-  ws.on("error", (err: Error) => {
-      if (helper.isFatalWsError(err)) {
-        shutdown(1);
-      }
-      else {
-        console.error(`[ws][kraken] ${String(err)}`);
-      }
-  });
-
-  return ws;
-}
-attachWsBusinessHandlers({
-  ws,
-  latestBySymbol,
-  frequencyMetrics,
-  redis
+const socket = await connectWs({
+  url: socketUrl,
+  messageFunction: processPriceData,
+  openFunction: sendTickerSubscriptionRequest,
+  fatal: cleanUpFunction,
 });
 
-// const tickerUpdateInterval = setTickerMetricsInterval(latestBySymbol, frequencyMetrics);
-function shutdown(code = 0) {
-  stopping = true;
-  if (reconnectTimer) clearTimeout(reconnectTimer);
-
-  try {
-    ws?.close();
-  } catch {}
-
-  baseShutdown(code);
+if (socket) {
+  console.log('---------- PARENT websocket connected!');
+} else {
+  console.log('---------- PARENT websocket connection failed');
 }
 
-const { shutdown: baseShutdown } = registerShutdownHandlers({
-  getWs: () => ws,
-  redis,
-  stopTimers: () => {
-    // clearInterval(tickerUpdateInterval);
-    clearInterval(snapshotInterval);
-  }
-});
-
-connectWs(redis);
 
 

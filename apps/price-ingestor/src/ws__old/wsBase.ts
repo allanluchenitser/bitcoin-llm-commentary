@@ -36,7 +36,10 @@ fundamental ws events:
 - lifecycle 4: connection closed (ws)
 */
 
-function connectWs(url: string, onFatal: () => void): WebSocket {
+export function connectWs(
+  url: string,
+  onFatal: () => void
+): WebSocket {
   ws = new WebSocket(url);
   const socket = ws;
 
