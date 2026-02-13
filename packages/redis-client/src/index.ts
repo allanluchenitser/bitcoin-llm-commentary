@@ -8,9 +8,39 @@ export function createRedisClient() {
     url: `redis://${host}:${port}`
   });
 
-  client.on("error", (err) => {
-    console.error("[redis] client error:", err);
+  client.on("connect", () => {
+      console.log("[redis] client connected");
   });
+
+  client.on("ready", () => {
+      console.log("[redis] client ready");
+  });
+
+  client.on("error", (err) => {
+      console.error("[redis] client error:", err);
+  });
+
+  client.on("end", () => {
+      console.log("[redis] client disconnected");
+  });
+
+  // Graceful shutdown
+  async function handleShutdown(signal: string) {
+      console.log(`[redis] ${signal} received, disconnecting client...`);
+      try {
+        await client.quit();
+        console.log('[redis] client disconnected');
+      }
+      catch {
+        console.log('[redis] error during shutdown')
+      }
+      finally {
+        process.exit(0);
+      }
+  }
+
+  process.on("SIGINT", handleShutdown);
+  process.on("SIGTERM", handleShutdown);
 
   return client;
 }
