@@ -51,6 +51,7 @@ let dontReconnect = false;
 let currentSocket: WebSocket | null = null;
 
 export async function connectWs(options: ClientOptions) {
+  console.log('attempting ws connection to', options.url);
   async function createSocket() {
     const socket = new WebSocket(options.url);
     currentSocket = socket;
@@ -64,7 +65,8 @@ export async function connectWs(options: ClientOptions) {
         init(socket, () => {}, () => {}, options);
       }
       return socket;
-    } catch {
+    }
+    catch {
       console.log("initial ws connect failed");
       currentSocket = null;
       return null;
@@ -97,9 +99,11 @@ function init(
       dontReconnect = true;
     }
 
+    const closeStates: number[] = [WebSocket.CLOSED, WebSocket.CLOSING]
+
     setTimeout(() => {
-      const closeStates: number[] = [WebSocket.CLOSED, WebSocket.CLOSING]
       if (closeStates.includes(socket.readyState)) return;
+
       console.log("error w/ no followup. forcing close.");
       socket.terminate();
       currentSocket = null;
@@ -108,7 +112,9 @@ function init(
 
   function onOpen() {
     console.log("ws open event");
+
     if (isInitialConnect) resolve();
+
     isInitialConnect = false;
     reconnectAttempt = 0;
     dontReconnect = false;
@@ -126,7 +132,13 @@ function init(
     console.log("ws close event", code, reason.toString("utf-8"));
     cleanup();
 
-    if (isInitialConnect) reject(new Error(`WebSocket closed during initial connect (code=${code})`));
+    if (isInitialConnect) {
+      currentSocket = null;
+      return reject(
+        new Error(`WebSocket closed during initial connect (code=${code})`
+      ));
+    }
+
     isInitialConnect = false;
     dontReconnect = dontReconnect || fatalCloseCodes.has(code);
 

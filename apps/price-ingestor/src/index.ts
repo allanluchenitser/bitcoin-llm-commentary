@@ -67,6 +67,7 @@ if (getSocket()) {
   console.log('---------- PARENT websocket connected!');
 } else {
   console.log('---------- PARENT websocket connection failed');
+  process.exit(1);
 }
 
 
