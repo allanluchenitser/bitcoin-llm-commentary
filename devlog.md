@@ -13,3 +13,5 @@ Now starting to flesh out program flow and docker setup Postgres, Redis, and thr
 #### Jan 22, 2026
 Conatiner breakout is decided. Now to get ingestion working with Postgres and Redis.
 
+### Fed 14, 2026
+Took some seroius time to better understand Wesockets and completely redo the price ingestor. Opted for the older and more feature-rich "ws" client library for nodejs, over the newer native websockets client.
