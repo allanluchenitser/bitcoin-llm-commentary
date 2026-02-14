@@ -1,5 +1,7 @@
 /* ------ websocket client (node: ws) ------ */
 import WebSocket from 'ws';
+import { type LoopSocket } from './wsTypes.js';
+
 
 // https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code
 const WS_CLOSE_CODE = {
@@ -37,8 +39,9 @@ const fatalCloseCodes = new Set<number>([
 type ClientOptions = {
   url: string;
   fatal?: (code: number, reason: string) => void;
-  messageFunction?: (data: WebSocket.RawData, isBinary: boolean, socket: WebSocket) => void;
-  openFunction?: (socket: WebSocket) => void;
+  messageFunction?: (data: WebSocket.RawData, isBinary: boolean, socket: LoopSocket) => void;
+  openFunction?: (socket: LoopSocket) => void;
+  intervalFunction?: (socket: LoopSocket) => void;
 };
 
 let reconnectAttempt = 0;
@@ -76,7 +79,7 @@ export async function connectWs(options: ClientOptions) {
 }
 
 function init(
-  socket: WebSocket,
+  socket: LoopSocket,
   resolve: () => void,
   reject: (err?: unknown) => void,
   options: ClientOptions
@@ -111,9 +114,11 @@ function init(
     dontReconnect = false;
 
     options.openFunction?.(socket)
+    options.intervalFunction?.(socket);
   }
 
   function onMessage(data: WebSocket.RawData, isBinary: boolean) {
+    socket.ticks = socket.ticks ? socket.ticks + 1 : 1;
     options.messageFunction?.(data, isBinary, socket);
   }
 

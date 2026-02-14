@@ -5,7 +5,8 @@ export function createRedisClient() {
   const port = process.env.REDIS_PORT || 6379;
 
   const client = createClient({
-    url: `redis://${host}:${port}`
+    url: `redis://${host}:${port}`,
+    name: "price-ingestor-client",
   });
 
   client.on("connect", () => {

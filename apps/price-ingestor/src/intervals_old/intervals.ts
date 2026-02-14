@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { RedisClient } from "@blc/redis-client";
 import type { LatestBySymbol } from "../ws/wsBusinessHandlers.js";
 import { publishTicker, storeLatestSnapshot } from "../redis/publisher.js";

@@ -5,7 +5,7 @@ import { connectWs } from "./ws/wsSetup.js";
 import { color } from "@blc/color-logger";
 // import { attachWsBusinessHandlers, type LatestBySymbol } from "./ws/wsBusinessHandlers.js";
 import { rawDataToUtf8 } from "./ws/wsHelpers.js";
-import { type KrakenSubscriptionRequest } from "./ws/wsTypes.js";
+import { type KrakenSubscriptionRequest, type LoopSocket } from "./ws/wsTypes.js";
 
 /*
   Kraken WebSocket API v2 documentation:
@@ -14,11 +14,12 @@ import { type KrakenSubscriptionRequest } from "./ws/wsTypes.js";
 */
 
 // major business function, receives ticket data
-function processPriceData(data: WebSocket.RawData, isBinary: boolean) {
+function processPriceData(
+  data: WebSocket.RawData,
+) {
   const utf8Data = rawDataToUtf8(data);
   const jsonData = JSON.parse(utf8Data);
-  console.log("tick");
-  console.log(jsonData);
+  redis.publish("blc-ticker", JSON.stringify(jsonData));
 }
 
 function sendTickerSubscriptionRequest(socket: WebSocket) {
@@ -34,9 +35,13 @@ function sendTickerSubscriptionRequest(socket: WebSocket) {
   socket.send(JSON.stringify(requestMessage))
 }
 
-function cleanUpFunction(code: number, reason: string) {
+async function cleanUpFunction(code: number, reason: string) {
   console.log('cleanup started..')
+  console.log(`WebSocket closed with code ${code} and reason: ${reason}`);
 
+  await redis.quit();
+  console.log('cleanup completed, exiting process');
+  process.exit(0);
 }
 
 /* ------ Main Execution Flow ------ */
@@ -54,14 +59,14 @@ try {
 }
 
 // const snapshotInterval = setSnapshotPublishingInterval(redis, latestBySymbol);
-const socket = await connectWs({
+const { getSocket } = await connectWs({
   url: socketUrl,
   messageFunction: processPriceData,
   openFunction: sendTickerSubscriptionRequest,
   fatal: cleanUpFunction,
 });
 
-if (socket) {
+if (getSocket()) {
   console.log('---------- PARENT websocket connected!');
 } else {
   console.log('---------- PARENT websocket connection failed');

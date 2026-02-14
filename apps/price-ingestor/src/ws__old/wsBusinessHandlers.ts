@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import WebSocket from "ws";
 import { color } from "@blc/color-logger";
 import { type RedisClient } from "@blc/redis-client";
@@ -10,7 +12,7 @@ import {
 } from "../types-and-guards.js";
 
 import { publishTicker } from "../redis/publisher.js";
-import helper from "./wsHelpers.js";
+import { rawDataToUtf8 } from "./wsHelpers.js";
 
 export type LatestBySymbol = Map<
   string,
@@ -88,13 +90,17 @@ export function attachWsBusinessHandlers({
     console.log("opened ws to Kraken. Subscription request sent.");
   }
 
-  async function onMessage(kmsg: WebSocket.RawData) {
+  async function onMessage(data: WebSocket.RawData) {
     let rawMessage: string | undefined;
     let json: unknown;
 
     try {
-      rawMessage = helper.rawDataToUtf8(kmsg);
-      json = JSON.parse(rawMessage);
+      rawMessage = helper.rawDataToUtf8(data);
+      if (rawMessage) {
+        json = JSON.parse(rawMessage);
+      } else {
+        throw new Error("empty message");
+      }
     }
     catch(err) {
       console.error("message error", String(err), 'rawMessage:', rawMessage);
@@ -104,7 +110,7 @@ export function attachWsBusinessHandlers({
     if (isSubAcknowledgement(json)) return;
 
     if (isTickerResponse(json)) {
-      const ticker = json.data[0] as KrakenTickerLike;
+      const ticker = json.data[0] as KrakenTickerData;
 
       if (json.type === "snapshot") {
         frequencyMetrics.snapshotsPerSec += 1;

@@ -24,7 +24,6 @@ export async function publishTicker(
       throw new Error(`Invalid event type: ${event.type}`);
   }
 
-
   await redis.publish(channel, JSON.stringify(event));
 }
 
