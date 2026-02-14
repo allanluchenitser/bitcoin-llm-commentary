@@ -1,10 +1,5 @@
 import type { Response } from "express";
 
-type Client = {
-  id: string;
-  res: Response;
-};
-
 /*
   SSE Protocol Reference:
 
@@ -17,7 +12,14 @@ type Client = {
   event:	Event name (optional)
 */
 
-export class SseHub {
+type Client = {
+  id: string;
+  res: Response;
+};
+
+/* ------ Manage SSE connections ------ */
+
+export class SseClients {
   private clients = new Map<string, Client>();
 
   addClient(id: string, res: Response) {
@@ -28,7 +30,7 @@ export class SseHub {
     this.clients.delete(id);
   }
 
-  broadcast(event: string, data: unknown) {
+  messageAll(event: string, data: unknown) {
     const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
     for (const c of this.clients.values()) {
       c.res.write(payload);

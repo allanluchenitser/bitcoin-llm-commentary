@@ -1,9 +1,13 @@
 import type { Request, Response } from "express";
 import { Router } from "express";
 import { randomUUID } from "node:crypto";
-import type { SseHub } from "./sseHub.js";
+import type { SseClients } from "./sseClients.js";
 
-export function createSseRouter(path: string, hub: SseHub) {
+/* ---- SSE Router and connection setup / teardown ---- */
+
+// note that a SSE message requires an extra newline at the end
+
+export function createSseRouter(path: string, hub: SseClients) {
   const router = Router();
 
   router.get(path, (req: Request, res: Response) => {
@@ -19,7 +23,6 @@ export function createSseRouter(path: string, hub: SseHub) {
     hub.addClient(id, res);
     console.log(`SSE client connected: ${id}`);
 
-    // initial message (optional)
     res.write(
       `event: ready\ndata: ${JSON.stringify({ id, message: "connected to ticker SSE stream" })}\n\n`
     );
