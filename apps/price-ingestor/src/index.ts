@@ -3,7 +3,6 @@ import { WebSocket } from 'ws';
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
 import { connectWs } from "./ws/wsSetup.js";
 import { color } from "@blc/color-logger";
-// import { attachWsBusinessHandlers, type LatestBySymbol } from "./ws/wsBusinessHandlers.js";
 import { rawDataToUtf8 } from "./ws/wsHelpers.js";
 import { type KrakenSubscriptionRequest, type LoopSocket } from "./ws/wsTypes.js";
 
@@ -47,7 +46,6 @@ async function cleanUpFunction(code: number, reason: string) {
 /* ------ Main Execution Flow ------ */
 
 const socketUrl: string = process.env.KRAKEN_WS_URL ?? "wss://ws.kraken.com/v2";
-// const latestBySymbol: LatestBySymbol = new Map();
 
 const redis: RedisClient = createRedisClient();
 try {
@@ -58,7 +56,6 @@ try {
   process.exit(1);
 }
 
-// const snapshotInterval = setSnapshotPublishingInterval(redis, latestBySymbol);
 const { getSocket } = await connectWs({
   url: socketUrl,
   messageFunction: processPriceData,
