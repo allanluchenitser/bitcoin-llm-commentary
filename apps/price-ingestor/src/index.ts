@@ -1,6 +1,7 @@
 import "@blc/env";
 import { WebSocket } from 'ws';
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
+import { CHANNEL_TICKER_GENERIC } from "@blc/contracts";
 import { connectWs } from "./ws/wsSetup.js";
 import { color } from "@blc/color-logger";
 import { rawDataToUtf8 } from "./ws/wsHelpers.js";
@@ -18,7 +19,7 @@ function processPriceData(
 ) {
   const utf8Data = rawDataToUtf8(data);
   const jsonData = JSON.parse(utf8Data);
-  redis.publish("blc-ticker", JSON.stringify(jsonData));
+  redis.publish(CHANNEL_TICKER_GENERIC, JSON.stringify(jsonData));
 }
 
 function sendTickerSubscriptionRequest(socket: WebSocket) {
