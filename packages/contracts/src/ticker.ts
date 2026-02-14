@@ -1,5 +1,6 @@
 export const CHANNEL_TICKER_UPDATE = "ticker:update";
 export const CHANNEL_TICKER_SNAPSHOT = "ticker:snapshot";
+export const CHANNEL_TICKER_GENERIC = "blc-ticker";
 
 /* ------ Ticker Data Types ------ */
 
