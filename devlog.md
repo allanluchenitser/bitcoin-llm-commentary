@@ -15,3 +15,5 @@ Conatiner breakout is decided. Now to get ingestion working with Postgres and Re
 
 ### Fed 14, 2026
 Took some seroius time to better understand Wesockets and completely redo the price ingestor. Opted for the older and more feature-rich "ws" client library for nodejs, over the newer native websockets client.
+
+Price ingestor can now read ticks from the Kraken exchange and send them to Redis pubsub via container. Acknowledged via GUI (Redis insights)
