@@ -11,9 +11,9 @@ import {
 } from "lightweight-charts";
 
 import { toFiniteNumber, toUTCTimestamp } from "./dashboardHelpers";
-import type { KrakenTickerEvent } from "@blc/contracts/ticker";
+import type { KrakenTickerEvent, KrakenTickerData } from "@blc/contracts/ticker";
 
-const BTC_USD = "BTC/USD";
+// const BTC_USD = "BTC/USD";
 
 const PriceChart: React.FC<{ events: KrakenTickerEvent[] }> = ({ events }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -26,11 +26,11 @@ const PriceChart: React.FC<{ events: KrakenTickerEvent[] }> = ({ events }) => {
     const bySec = new Map<UTCTimestamp, LineData>();
 
     for (const e of events) {
-      const t = toUTCTimestamp(e.ts_ms);
-      const value = toFiniteNumber((e.data as any)[0]?.last);
-      if (value === null) continue;
-
-      bySec.set(t, { time: t, value });
+      const data = (e.data as KrakenTickerData[])[0]; // this is based on KrakenTickerEvent structure, where data is an array of KrakenTickerData, we take the first one for simplicity
+      const t = toUTCTimestamp(data.timestamp)
+      const lastPrice = toFiniteNumber(data.last);
+      if (lastPrice === null) continue;
+      bySec.set(t, { time: t, value: lastPrice });
     }
 
     return [...bySec.values()].sort(
@@ -39,7 +39,7 @@ const PriceChart: React.FC<{ events: KrakenTickerEvent[] }> = ({ events }) => {
   }, [events]);
 
   useEffect(() => {
-    console.log("lineData (first 5):", lineData.slice(0, 5));
+    // console.log("lineData (first 5):", lineData.slice(0, 5));
   }, [lineData]);
 
   // Fake daily data (candles) – derived-ish from the same values

@@ -27,7 +27,7 @@ const DashboardPage: React.FC = () => {
     const onError = () => setSseStatus('error');
 
     const onTicker = (sseEvent: MessageEvent) => {
-      const subData = sseEvent.data; // this is SSE native data property, not the same as KrakenTickerEvent.data
+      const subData = sseEvent.data; // this is SSE native data property
 
       setRawEvents((prev) => [subData, ...prev].slice(0, 100));
 
@@ -35,7 +35,6 @@ const DashboardPage: React.FC = () => {
         const parsed = JSON.parse(subData)
         if(parsed.channel === "ticker") {
           setTickerEvents(prev => [parsed as KrakenTickerEvent, ...prev].slice(0, 50))
-          console.log('made it');
         }
       } catch {}
     }
