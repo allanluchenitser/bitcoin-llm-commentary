@@ -41,18 +41,17 @@ export type TickerData = KrakenTickerData | CoinbaseProTickerData;
 
 export interface KrakenTickerEvent {
   source: "kraken";
-  symbol: string;
+  channel: "ticker";
   type: "snapshot" | "update";
   ts_ms: number;
-  data: KrakenTickerData;
+  data: KrakenTickerData[];
 };
 
 export interface CoinbaseProTickerEvent {
   source: "coinbasepro";
-  symbol: string;
   type: "snapshot" | "update";
   ts_ms: number;
-  data: unknown;
+  data: CoinbaseProTickerData[];
 }
 
 export type TickerEvent = KrakenTickerEvent | CoinbaseProTickerEvent;
