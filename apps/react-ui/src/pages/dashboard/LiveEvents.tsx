@@ -1,3 +1,4 @@
+import ButtonOne from "@/shared-components/ButtonOne";
 import { useState } from "react";
 
 type ChildProps = {
@@ -9,36 +10,46 @@ const LiveEvents: React.FC<ChildProps> = ({ events }) => {
   const [showUpdates, setShowUpdates] = useState<boolean>(true);
   const [showSnapshots, setShowSnapshots] = useState<boolean>(true);
 
-  const processedEvents = events.map((e) => {
-    try {
-      const parsed = JSON.parse(e);
-      // return JSON.stringify(parsed, null, 2);
-      return parsed;
-    } catch {
-      return e;
-    }
-  });
+  const processedEvents = events
+    .map((ev) => {
+      try {
+        const parsed = JSON.parse(ev);
+        // return JSON.stringify(parsed, null, 2);
+        return parsed;
+      } catch {
+        return ev;
+      }
+    })
+    .filter((eb) => {
+      if (showHeartBeats && eb.channel === "heartbeat") return true;
+      if (showUpdates && eb.channel === "ticker" && eb.type === "update") return true;
+      if (showSnapshots && eb.channel === "ticker" && eb.type === "snapshot") return true;
+      return false;
+    })
 
   return (
     <div className="h-full text-lg font-semibold">
         <div>
           <h3>Live Events</h3>
-          <div className="event-filters">
-            <button
-              onClick={() => setShowHeartBeats(!showHeartBeats) }
-              className={ showHeartBeats ? "active" : "" }>
+          <div className="event-filters my-1 flex gap-1">
+            <ButtonOne
+              onClick={() => setShowHeartBeats(!showHeartBeats)}
+              isActive={showHeartBeats}
+            >
               HeartBeats
-            </button>
-            <button
-              onClick={() => setShowUpdates(!showUpdates) }
-              className={ showUpdates ? "active" : "" }>
+            </ButtonOne>
+            <ButtonOne
+              onClick={() => setShowUpdates(!showUpdates)}
+              isActive={showUpdates}
+            >
               Updates
-            </button>
-            <button
-              onClick={() => setShowSnapshots(!showSnapshots) }
-              className={ showSnapshots ? "active" : "" }>
+            </ButtonOne>
+            <ButtonOne
+              onClick={() => setShowSnapshots(!showSnapshots)}
+              isActive={showSnapshots}
+            >
               Snapshots
-            </button>
+            </ButtonOne>
           </div>
         </div>
         <div className="border rounded p-2 h-60 overflow-auto bg-white">
@@ -48,9 +59,9 @@ const LiveEvents: React.FC<ChildProps> = ({ events }) => {
               : (
                 <table className="text-xs space-y-1 w-full">
                   <tbody>
-                    {processedEvents.map((x, i) => (
+                    {processedEvents.map((ev, i) => (
                       <tr key={i} className="font-mono">
-                          <td key={i} className="font-mono"><pre>{JSON.stringify(x, null, 2)}</pre></td>
+                          <td key={i} className="font-mono"><pre>{JSON.stringify(ev, null, 2)}</pre></td>
                       </tr>
                     ))}
                   </tbody>
