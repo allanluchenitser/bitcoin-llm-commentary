@@ -1,60 +1,25 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import {
   createChart,
   LineSeries,
-  CandlestickSeries,
   type IChartApi,
   type ISeriesApi,
-  type CandlestickData,
   type LineData,
   type UTCTimestamp
 } from "lightweight-charts";
 
-import { toFiniteNumber, toUTCTimestamp } from "./dashboardHelpers";
+import {
+  toFiniteNumber,
+  toUTCTimestamp,
+} from "./dashboardHelpers";
 import type { KrakenTickerEvent, KrakenTickerData } from "@blc/contracts/ticker";
-
-// const BTC_USD = "BTC/USD";
 
 const PriceChart: React.FC<{ events: KrakenTickerEvent[] }> = ({ events }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Line"> | ISeriesApi<"Candlestick"> | null >(null);
 
-  const [seriesType, setSeriesType] = useState<"line" | "candles">("line");
-
-  const lineData: LineData[] = useMemo(() => {
-    const bySec = new Map<UTCTimestamp, LineData>();
-
-    for (const e of events) {
-      const data = (e.data as KrakenTickerData[])[0]; // this is based on KrakenTickerEvent structure, where data is an array of KrakenTickerData, we take the first one for simplicity
-      const t = toUTCTimestamp(data.timestamp)
-      const lastPrice = toFiniteNumber(data.last);
-      if (lastPrice === null) continue;
-      bySec.set(t, { time: t, value: lastPrice });
-    }
-
-    return [...bySec.values()].sort(
-      (a, b) => Number(a.time) - Number(b.time)
-    );
-  }, [events]);
-
-  useEffect(() => {
-    // console.log("lineData (first 5):", lineData.slice(0, 5));
-  }, [lineData]);
-
-  // Fake daily data (candles) – derived-ish from the same values
-  const candleData: CandlestickData[] = [
-    { time: "2026-01-01", open: 41800, high: 42550, low: 41550, close: 42150 },
-    { time: "2026-01-02", open: 42150, high: 43000, low: 42000, close: 42800 },
-    { time: "2026-01-03", open: 42800, high: 42950, low: 42100, close: 42425 },
-    { time: "2026-01-04", open: 42425, high: 43400, low: 42350, close: 43110 },
-    { time: "2026-01-05", open: 43110, high: 44300, low: 42950, close: 43990 },
-    { time: "2026-01-06", open: 43990, high: 44120, low: 43200, close: 43550 },
-    { time: "2026-01-07", open: 43550, high: 44850, low: 43400, close: 44620 },
-    { time: "2026-01-08", open: 44620, high: 44700, low: 43850, close: 44180 },
-    { time: "2026-01-09", open: 44180, high: 45550, low: 44100, close: 45210 },
-    { time: "2026-01-10", open: 45210, high: 45950, low: 45000, close: 45740 },
-  ];
+  /* ------ setup chart ------ */
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -97,36 +62,44 @@ const PriceChart: React.FC<{ events: KrakenTickerEvent[] }> = ({ events }) => {
     };
   }, []);
 
+  /* ------ chart data ------ */
+
+  const lineData: LineData[] = useMemo(() => {
+    const bySec = new Map<UTCTimestamp, LineData>();
+
+    for (const e of events) {
+      const data = (e.data as KrakenTickerData[])[0]; // this is based on KrakenTickerEvent structure, where data is an array of KrakenTickerData, we take the first one for simplicity
+      const t = toUTCTimestamp(data.timestamp)
+      const lastPrice = toFiniteNumber(data.last);
+      if (lastPrice === null) continue;
+      bySec.set(t, { time: t, value: lastPrice });
+    }
+
+    return [...bySec.values()].sort(
+      (a, b) => Number(a.time) - Number(b.time)
+    );
+  }, [events]);
+
+  /* ------ update chart ------ */
+
   useEffect(() => {
     const chart = chartRef.current;
     if (!chart) return;
 
-    if (seriesRef.current) {
-      chart.removeSeries(seriesRef.current);
-      seriesRef.current = null;
-    }
+    let series = seriesRef.current;
 
-    if (seriesType === "line") {
-      const series = chart.addSeries(LineSeries, {
+    if (!series) {
+      series = chart.addSeries(LineSeries, {
         color: "#2563eb",
         lineWidth: 2,
       });
-      series.setData(lineData);
-      seriesRef.current = series;
-    } else {
-      const series = chart.addSeries(CandlestickSeries, {
-        upColor: "#16a34a",
-        downColor: "#dc2626",
-        wickUpColor: "#16a34a",
-        wickDownColor: "#dc2626",
-        borderVisible: false,
-      });
-      series.setData(candleData);
       seriesRef.current = series;
     }
 
+    series.setData(lineData);
+
     chart.timeScale().fitContent();
-  }, [seriesType, lineData]); // <-- this is the key change
+  }, [lineData]);
 
   return (
     <div className="h-full p-4 border rounded ">
@@ -136,27 +109,9 @@ const PriceChart: React.FC<{ events: KrakenTickerEvent[] }> = ({ events }) => {
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => setSeriesType("line")}
-            className={`px-2 py-1 rounded border text-sm ${
-              seriesType === "line"
-                ? "bg-gray-900 text-white border-gray-900"
-                : "bg-white text-gray-900 border-gray-300"
-            }`}
-            aria-pressed={seriesType === "line"}
+            className="px-2 py-1 rounded border text-sm bg-gray-900 text-white border-gray-900"
           >
             Line
-          </button>
-          <button
-            type="button"
-            onClick={() => setSeriesType("candles")}
-            className={`px-2 py-1 rounded border text-sm ${
-              seriesType === "candles"
-                ? "bg-gray-900 text-white border-gray-900"
-                : "bg-white text-gray-900 border-gray-300"
-            }`}
-            aria-pressed={seriesType === "candles"}
-          >
-            Candles
           </button>
         </div>
       </header>
