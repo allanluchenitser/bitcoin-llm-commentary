@@ -3,19 +3,17 @@ import BotSummary from './BotSummary';
 import LiveEvents from './LiveEvents';
 
 import {
-  CHANNEL_TICKER_SNAPSHOT,
-  CHANNEL_TICKER_UPDATE,
-  type TickerEvent
+  CHANNEL_TICKER_GENERIC,
+  type KrakenTickerEvent
 } from '@blc/contracts';
 
 import { useEffect, useState } from 'react';
-
 
 const DashboardPage: React.FC = () => {
   const [sseStatus, setSseStatus] = useState<'connecting' | 'open' | 'closed' | 'error'>('connecting');
 
   const [rawEvents, setRawEvents] = useState<string[]>([]);
-  const [tickerEvents, setTickerEvents] = useState<TickerEvent[]>([]);
+  const [tickerEvents, setTickerEvents] = useState<KrakenTickerEvent[]>([]);
 
   useEffect(() => {
     document.title = "Dashboard - Bitcoin LLM Commentary";
@@ -28,28 +26,28 @@ const DashboardPage: React.FC = () => {
     const onOpen = () => setSseStatus('open');
     const onError = () => setSseStatus('error');
 
-    const onTicker = (e: MessageEvent) => {
-      const raw = e.data;
+    const onTicker = (sseEvent: MessageEvent) => {
+      const subData = sseEvent.data; // this is SSE native data property, not the same as KrakenTickerEvent.data
 
-      setRawEvents((prev) => [raw, ...prev].slice(0, 50));
+      setRawEvents((prev) => [subData, ...prev].slice(0, 100));
 
       try {
-        const parsed = JSON.parse(raw) as TickerEvent;
-        setTickerEvents(prev => [parsed, ...prev].slice(0, 200))
+        const parsed = JSON.parse(subData)
+        if(parsed.channel === "ticker") {
+          setTickerEvents(prev => [parsed as KrakenTickerEvent, ...prev].slice(0, 50))
+          console.log('made it');
+        }
       } catch {}
     }
 
     es.addEventListener('open', onOpen);
     es.addEventListener('error', onError);
-
-    es.addEventListener(CHANNEL_TICKER_UPDATE, onTicker);
-    es.addEventListener(CHANNEL_TICKER_SNAPSHOT, onTicker);
+    es.addEventListener(CHANNEL_TICKER_GENERIC, onTicker);
 
     return () => {
       es.removeEventListener('open', onOpen);
       es.removeEventListener('error', onError);
-      es.removeEventListener(CHANNEL_TICKER_UPDATE, onTicker);
-      es.removeEventListener(CHANNEL_TICKER_SNAPSHOT, onTicker);
+      es.removeEventListener(CHANNEL_TICKER_GENERIC, onTicker);
       es.close();
       setSseStatus('closed');
     };

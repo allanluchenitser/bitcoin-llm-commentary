@@ -10,31 +10,15 @@ import {
   type UTCTimestamp
 } from "lightweight-charts";
 
+import { toFiniteNumber, toUTCTimestamp } from "./dashboardHelpers";
 import type { KrakenTickerEvent } from "@blc/contracts/ticker";
-
-
-function toUTCTimestamp(ts: unknown): UTCTimestamp {
-  const n = typeof ts === "number" ? ts : typeof ts === "string" ? Number(ts) : NaN;
-
-  // If it's ms (13 digits-ish), convert to seconds; if it's already seconds (10 digits), keep it.
-  const seconds = n > 1e12 ? Math.floor(n / 1000) : Math.floor(n);
-
-  return seconds as UTCTimestamp;
-}
-
-function toFiniteNumber(x: unknown): number | null {
-  const n = typeof x === "number" ? x : typeof x === "string" ? Number(x) : NaN;
-  return Number.isFinite(n) ? n : null;
-}
 
 const BTC_USD = "BTC/USD";
 
 const PriceChart: React.FC<{ events: KrakenTickerEvent[] }> = ({ events }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
-  const seriesRef = useRef<
-    ISeriesApi<"Line"> | ISeriesApi<"Candlestick"> | null
-  >(null);
+  const seriesRef = useRef<ISeriesApi<"Line"> | ISeriesApi<"Candlestick"> | null >(null);
 
   const [seriesType, setSeriesType] = useState<"line" | "candles">("line");
 
@@ -42,9 +26,8 @@ const PriceChart: React.FC<{ events: KrakenTickerEvent[] }> = ({ events }) => {
     const bySec = new Map<UTCTimestamp, LineData>();
 
     for (const e of events) {
-      if (e.symbol !== BTC_USD) continue;
       const t = toUTCTimestamp(e.ts_ms);
-      const value = toFiniteNumber((e.data as any)?.last);
+      const value = toFiniteNumber((e.data as any)[0]?.last);
       if (value === null) continue;
 
       bySec.set(t, { time: t, value });
