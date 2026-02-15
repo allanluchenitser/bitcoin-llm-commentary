@@ -6,7 +6,6 @@ export const CHANNEL_TICKER_GENERIC = "blc-ticker";
 
 export interface KrakenTickerData {
   source: "kraken";
-  symbol: string;
 
   // external api so who knows
   ask?: number;
@@ -18,6 +17,8 @@ export interface KrakenTickerData {
   high?: number;
   last?: number;
   low?: number;
+  symbol: string;
+  timestamp: string;
   volume?: number;
   vwap?: number;
 };
@@ -43,7 +44,6 @@ export interface KrakenTickerEvent {
   source: "kraken";
   channel: "ticker";
   type: "snapshot" | "update";
-  ts_ms: number;
   data: KrakenTickerData[];
 };
 
