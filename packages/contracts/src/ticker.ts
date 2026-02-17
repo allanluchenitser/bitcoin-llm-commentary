@@ -23,6 +23,18 @@ export interface KrakenTickerData {
   vwap?: number;
 };
 
+export interface KrakenTradeData {
+  source: "kraken";
+  symbol: string;
+  side: string;
+  qty: number;
+  price: number;
+  ord_type: "market" | "limit";
+  trade_id: number;
+  timestamp: string;
+}
+
+
 export interface CoinbaseProTickerData {
   source: "coinbasepro";
   symbol: string;
@@ -40,12 +52,27 @@ export type TickerData = KrakenTickerData | CoinbaseProTickerData;
 
 /* ------ Ticker Event Types ------ */
 
-export interface KrakenTickerEvent {
-  source: "kraken";
-  channel: "ticker";
-  type: "snapshot" | "update";
-  data: KrakenTickerData[];
-};
+export type KrakenEvent =
+  | {
+      source: "kraken";
+      channel: "ticker";
+      type: "snapshot" | "update";
+      data: KrakenTickerData[];
+    }
+  | {
+      source: "kraken";
+      channel: "trade";
+      type: "snapshot" | "update";
+      data: KrakenTradeData[];
+    }
+  | {
+      source: "kraken";
+      channel: "heartbeat";
+    };
+
+// export const isKrakenDataEvent = (kEvent: any) => {
+//   return ('data' in kEvent && Array.isArray(kEvent.data) && kEvent.data.length > 0)
+// }
 
 export interface CoinbaseProTickerEvent {
   source: "coinbasepro";
@@ -53,5 +80,3 @@ export interface CoinbaseProTickerEvent {
   ts_ms: number;
   data: CoinbaseProTickerData[];
 }
-
-export type TickerEvent = KrakenTickerEvent | CoinbaseProTickerEvent;

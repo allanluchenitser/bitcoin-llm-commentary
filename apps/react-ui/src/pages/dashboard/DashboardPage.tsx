@@ -4,7 +4,7 @@ import LiveEvents from './LiveEvents';
 
 import {
   CHANNEL_TICKER_GENERIC,
-  type KrakenTickerEvent
+  type KrakenEvent
 } from '@blc/contracts';
 
 import { useEffect, useState } from 'react';
@@ -12,8 +12,8 @@ import { useEffect, useState } from 'react';
 const DashboardPage: React.FC = () => {
   const [sseStatus, setSseStatus] = useState<'connecting' | 'open' | 'closed' | 'error'>('connecting');
 
-  const [rawEvents, setRawEvents] = useState<string[]>([]);
-  const [tickerEvents, setTickerEvents] = useState<KrakenTickerEvent[]>([]);
+  // const [rawEvents, setRawEvents] = useState<string[]>([]);
+  const [tickerEvents, setTickerEvents] = useState<KrakenEvent[]>([]);
 
   useEffect(() => {
     document.title = "Dashboard - Bitcoin LLM Commentary";
@@ -27,14 +27,12 @@ const DashboardPage: React.FC = () => {
     const onError = () => setSseStatus('error');
 
     const onTicker = (sseEvent: MessageEvent) => {
-      const subData = sseEvent.data; // this is SSE native data property
-
-      setRawEvents((prev) => [subData, ...prev].slice(0, 300));
+      const subData = sseEvent.data; // SSE native data
 
       try {
         const parsed = JSON.parse(subData)
         if(parsed.channel === "ticker") {
-          setTickerEvents(prev => [parsed as KrakenTickerEvent, ...prev].slice(0, 300))
+          setTickerEvents(prev => [parsed as KrakenEvent, ...prev].slice(0, 300))
         }
       } catch {}
     }
@@ -62,7 +60,7 @@ const DashboardPage: React.FC = () => {
             <PriceChart events={tickerEvents} />
           </div>
           <div className="mt-4">
-            <LiveEvents events={rawEvents} />
+            <LiveEvents events={tickerEvents} />
           </div>
         </div>
 

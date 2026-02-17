@@ -1,10 +1,10 @@
 import ButtonOne from "@/shared-components/ButtonOne";
 import { useState, useMemo } from "react";
-import { type KrakenTickerEvent } from '@blc/contracts';
+import type { KrakenEvent } from '@blc/contracts';
 import { formatUtcMonthDayTime } from "./dashboardHelpers";
 
 type ChildProps = {
-  events: string[];
+  events: KrakenEvent[];
 };
 
 const LiveEvents: React.FC<ChildProps> = ({ events }) => {
@@ -14,25 +14,31 @@ const LiveEvents: React.FC<ChildProps> = ({ events }) => {
 
   const [tableMode, setTableMode] = useState<boolean>(true)
 
-  const processedEvents: KrakenTickerEvent[] = useMemo(() =>  {
+  function isDataEvent(ev: KrakenEvent): ev is Extract<KrakenEvent, { data: any[] }> {
+    return "data" in ev && Array.isArray(ev.data);
+  }
+
+  const processedTickerEvents: KrakenEvent[] = useMemo(() =>  {
     return events
+      .filter(ev => ev.channel !== "heartbeat")
       .map((ev) => {
         try {
-          const parsed = JSON.parse(ev);
-          parsed.data[0].timestamp = formatUtcMonthDayTime(parsed.data[0].timestamp);
-          return parsed;
+          if (!ev.data?.[0] || ev.data.length === 0) return ev
+          ev.data[0].timestamp = formatUtcMonthDayTime(ev.data[0].timestamp);
+          return ev;
         } catch {
           return ev;
         }
       })
       .filter((eb) => {
-        if (showHeartBeats && eb.channel === "heartbeat") return true;
+        console.log(eb);
         if (showUpdates && eb.channel === "ticker" && eb.type === "update") return true;
         if (showSnapshots && eb.channel === "ticker" && eb.type === "snapshot") return true;
-        return false;
+        return false
       })
-  }, [events, showHeartBeats, showUpdates, showSnapshots]);
+      .filter(isDataEvent)
 
+  }, [events, showHeartBeats, showUpdates, showSnapshots]);
 
   return (
     <div className="h-full text-lg font-semibold">
@@ -94,18 +100,20 @@ const LiveEvents: React.FC<ChildProps> = ({ events }) => {
                   {
                     tableMode
                       ? // <table> view
-                      processedEvents.map((ev: KrakenTickerEvent, i: number) => (
-                        <tr key={i} className="font-mono">
-                            <td>{ ev.type ?? "" }</td>
-                            <td>{ ev.data[0]?.symbol ?? "" }</td>
-                            <td>{ ev.data[0]?.last ?? "" }</td>
-                            <td>{ ev.data[0]?.timestamp ?? "" }</td>
-                            <td>{ ev.data[0]?.high ?? "" }</td>
-                            <td>{ ev.data[0]?.low ?? "" }</td>
-                        </tr>
-                      ))
+                      processedTickerEvents.map((ev, i) => {
+                        return (
+                          <tr key={i} className="font-mono">
+                              <td>{ ev.type ?? "" }</td>
+                              <td>{ ev.data[0]?.symbol ?? "" }</td>
+                              <td>{ ev.data[0]?.last ?? "" }</td>
+                              <td>{ ev.data[0]?.timestamp ?? "" }</td>
+                              <td>{ ev.data[0]?.high ?? "" }</td>
+                              <td>{ ev.data[0]?.low ?? "" }</td>
+                          </tr>
+                        );
+                      })
                       : // JSON view
-                      processedEvents.map((ev: KrakenTickerEvent, i: number) => (
+                      processedTickerEvents.map((ev, i) => (
                         <tr key={i} className="font-mono">
                           <td key={i} className="font-mono text-[0.65rem]"><pre>{JSON.stringify(ev, null, 2)}</pre></td>
                         </tr>
