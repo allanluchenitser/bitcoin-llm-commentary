@@ -40,9 +40,11 @@ const PriceChart: React.FC<{ events: KrakenTickerEvent[] }> = ({ events }) => {
       },
       rightPriceScale: {
         borderColor: "#e5e7eb",
+        // autoScale: false,
       },
       timeScale: {
         borderColor: "#e5e7eb",
+        timeVisible: true,
       },
     });
 

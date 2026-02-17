@@ -38,3 +38,17 @@ export const fakeCandlestickData: CandlestickData[] = [
   { time: toUTCTimestamp("2026-01-09"), open: 44180, high: 45550, low: 44100, close: 45210 },
   { time: toUTCTimestamp("2026-01-10"), open: 45210, high: 45950, low: 45000, close: 45740 },
 ];
+
+export function formatUtcMonthDayTime(utcIso: string, locale = "en-US") {
+  const d = new Date(utcIso);
+
+  return new Intl.DateTimeFormat(locale, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    second: "numeric",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "UTC",  // interpret/format as UTC
+  }).format(d);
+}

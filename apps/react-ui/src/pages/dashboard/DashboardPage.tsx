@@ -29,12 +29,12 @@ const DashboardPage: React.FC = () => {
     const onTicker = (sseEvent: MessageEvent) => {
       const subData = sseEvent.data; // this is SSE native data property
 
-      setRawEvents((prev) => [subData, ...prev].slice(0, 100));
+      setRawEvents((prev) => [subData, ...prev].slice(0, 300));
 
       try {
         const parsed = JSON.parse(subData)
         if(parsed.channel === "ticker") {
-          setTickerEvents(prev => [parsed as KrakenTickerEvent, ...prev].slice(0, 50))
+          setTickerEvents(prev => [parsed as KrakenTickerEvent, ...prev].slice(0, 300))
         }
       } catch {}
     }
@@ -54,8 +54,6 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4">
-      <h2>Dashboard Page</h2>
-      <p>This is the Dashboard Page of the Bitcoin LLM Commentary application.</p>
       <span className="font-semibold">SSE:</span> {sseStatus}
 
       <div className="flex mt-4">
