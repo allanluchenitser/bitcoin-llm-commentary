@@ -1,5 +1,5 @@
 import {
-  type KrakenTickerEvent,
+  type KrakenEvent,
   CHANNEL_TICKER_GENERIC
 } from "@blc/contracts";
 
@@ -19,7 +19,7 @@ export async function subRedisFanOutSSE(
   const sub = redis.duplicate();
   await sub.connect();
 
-  let lastTick: KrakenTickerEvent | null = null;
+  let lastTick: KrakenEvent | null = null;
 
   const fanoutInterval = setInterval(() => {
     if (lastTick) {
@@ -28,7 +28,7 @@ export async function subRedisFanOutSSE(
   }, intervalMs);
 
   await sub.subscribe(CHANNEL_TICKER_GENERIC, (message: string) => {
-    lastTick = JSON.parse(message) as KrakenTickerEvent;
+    lastTick = JSON.parse(message) as KrakenEvent;
   });
 
   return {
