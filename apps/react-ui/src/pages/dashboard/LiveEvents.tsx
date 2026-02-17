@@ -14,30 +14,33 @@ const LiveEvents: React.FC<ChildProps> = ({ events }) => {
 
   const [tableMode, setTableMode] = useState<boolean>(true)
 
-  function isDataEvent(ev: KrakenEvent): ev is Extract<KrakenEvent, { data: any[] }> {
-    return "data" in ev && Array.isArray(ev.data);
-  }
-
   const processedTickerEvents: KrakenEvent[] = useMemo(() =>  {
     return events
       .filter(ev => ev.channel !== "heartbeat")
       .map((ev) => {
         try {
           if (!ev.data?.[0] || ev.data.length === 0) return ev
-          ev.data[0].timestamp = formatUtcMonthDayTime(ev.data[0].timestamp);
+
+          if (ev.channel === "ticker") {
+            const t = formatUtcMonthDayTime(ev.data[0].timestamp);
+
+            // prevent mutating the prop
+            return {
+              ...ev,
+              data: [{ ...ev.data[0], timestamp: t }]
+            }
+          }
           return ev;
         } catch {
           return ev;
         }
       })
       .filter((eb) => {
-        console.log(eb);
+        console.log(eb.data[0]?.timestamp);
         if (showUpdates && eb.channel === "ticker" && eb.type === "update") return true;
         if (showSnapshots && eb.channel === "ticker" && eb.type === "snapshot") return true;
         return false
       })
-      .filter(isDataEvent)
-
   }, [events, showHeartBeats, showUpdates, showSnapshots]);
 
   return (
@@ -101,7 +104,10 @@ const LiveEvents: React.FC<ChildProps> = ({ events }) => {
                     tableMode
                       ? // <table> view
                       processedTickerEvents.map((ev, i) => {
-                        return (
+                        if (ev.channel === "heartbeat") {
+                          return <tr><td key={i} className="font-mono text-center">❤️ heartbeat ❤️</td></tr>
+                        }
+                        else if(ev.channel === "ticker") return (
                           <tr key={i} className="font-mono">
                               <td>{ ev.type ?? "" }</td>
                               <td>{ ev.data[0]?.symbol ?? "" }</td>

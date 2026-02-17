@@ -1,4 +1,4 @@
-import maxHedronSrc from './max_hedron.png';
+import maxHedronSrc from '@/assets/max_hedron.png';
 
 const BotSummary: React.FC = () => {
   return (

@@ -12,9 +12,10 @@ import {
   toFiniteNumber,
   toUTCTimestamp,
 } from "./dashboardHelpers";
-import type { KrakenEvent, KrakenTickerData } from "@blc/contracts/ticker";
 
-const PriceChart: React.FC<{ events: KrakenEvent[] }> = ({ events }) => {
+import { type KrakenTickerEvent } from './dashboard-types';
+
+const PriceChart: React.FC<{ events: KrakenTickerEvent[] }> = ({ events }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Line"> | ISeriesApi<"Candlestick"> | null >(null);
@@ -40,7 +41,6 @@ const PriceChart: React.FC<{ events: KrakenEvent[] }> = ({ events }) => {
       },
       rightPriceScale: {
         borderColor: "#e5e7eb",
-        // autoScale: false,
       },
       timeScale: {
         borderColor: "#e5e7eb",
@@ -70,7 +70,7 @@ const PriceChart: React.FC<{ events: KrakenEvent[] }> = ({ events }) => {
     const bySec = new Map<UTCTimestamp, LineData>();
 
     for (const e of events) {
-      const data = (e.data as KrakenTickerData[])[0]; // this is based on KrakenEvent structure, where data is an array of KrakenTickerData, we take the first one for simplicity
+      const data = e.data[0];
       const t = toUTCTimestamp(data.timestamp)
       const lastPrice = toFiniteNumber(data.last);
       if (lastPrice === null) continue;
