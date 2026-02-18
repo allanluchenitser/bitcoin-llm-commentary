@@ -3,17 +3,22 @@ _Devlog for for Bitcoin live price and LLM summary project_
 ### Devlog
 
 #### Jan 17, 2026
-I've broken up directories per-app. As the project matures I'll try to turn this thing into a proper monorepo with shared packages and tooling.
+Attempting mono-repo with native npm workspaces.
 
 #### Jan 21, 2026
-Settled on npm native workspaces for monorepo.  There's Turborepo and pnpm but frankly that was starting to take up a lot of time.
-
-Now starting to flesh out program flow and docker setup Postgres, Redis, and three app containers. Introducing a signal worker container for LLM calls.
+Fleshing out program flow and docker setup for Postgres, Redis. Introducing a worker for LLM calls.
 
 #### Jan 22, 2026
-Conatiner breakout is decided. Now to get ingestion working with Postgres and Redis.
+Starting exchange price ingestion and redis pub-sub.
 
 ### Feb 14, 2026
-Took some seroius time to better understand Wesockets and completely redo the price ingestor. Opted for the older and more feature-rich "ws" client library for nodejs, over the newer native websockets client.
+Websockets is not trivial. Opted for the older "ws" library over the newer native websockets client.
 
-Price ingestor can now read ticks from the Kraken exchange and send them to Redis pubsub via container. Acknowledged via GUI (Redis insights)
+I now have basic ticker data moving from Kraken, to price-ingestor, to redis, to a reactjs UI.
+
+### Feb 18, 2026
+Wanting to calculate volume buckets and other trade metrics. Seems like I should
+do this at the price ingestor then fan out.
+
+First off I'm wiring up LLM, Lambda for the most basic real-time price summary.
+Just to keep momentum. It's fun seeing stuff on the screen yea?
