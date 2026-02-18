@@ -6,9 +6,8 @@ import {
 import type { RedisClient } from "@blc/redis-client";
 
 
-export async function subRedisFanOutSSE(
-  redis: RedisClient,
-): Promise<{ stopFanOut: () => Promise<void> }> {
+export async function subscribeTickers(redis: RedisClient):
+  Promise<{ stopFanOut: () => Promise<void> }> {
 
   // a redis connect can pub-sub or key-store, not both
   let lastTick: KrakenEvent | null = null;
