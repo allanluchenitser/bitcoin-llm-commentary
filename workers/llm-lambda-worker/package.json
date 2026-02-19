@@ -5,10 +5,16 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "tsc && node ./dist/index.js",
+    "dev_bak": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts"
+  },
   "description": "LLM Lambda Worker for subscribing to Redis events and sending to LLMs",
   "dependencies": {
     "@aws-sdk/client-lambda": "^3.992.0",
-    "@blc/redis-client": "0.0.0"
+    "@blc/redis-client": "0.0.0",
+    "@blc/env": "^0.0.0",
+    "openai": "^6.22.0"
   },
   "devDependencies": {
     "@types/node": "^25.0.9",

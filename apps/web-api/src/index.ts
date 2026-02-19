@@ -34,7 +34,8 @@ app.use((err: unknown, _req: any, res: any, _next: any) => {
 });
 
 /* ------ http server ------ */
-
+console.log("Starting web-api... process.env:");
+console.log(process.env);
 const port = Number(process.env.PORT ?? 3000);
 
 const server = app.listen(port, () => {
