@@ -13,7 +13,7 @@ console.log('LLM Lambda Worker starting...');
 // console.log('LLM Lambda Worker connected to Redis.');
 // subscribeTickers(redis)
 
-console.log(process.env)
+// console.log(process.env)
 
 const apiKey = process.env.OPENAI_API_KEY;
 
@@ -26,11 +26,26 @@ const client = new OpenAI({
   apiKey
 });
 
-const response = await client.responses.create({
-    model: process.env.LLM_MODEL_NAME || "GPT-5 nano",
-    input: "Write a one-sentence bedtime story about a unicorn."
-});
+// const models = await client.models.list();
+// for (const model of models.data) {
+//   console.log(`Model: ${model.id}`);
+// }
 
-console.log(response.output_text);
+try {
+  const response = await client.responses.create({
+      model: process.env.LLM_MODEL_NAME || "gpt-5-nano",
+      // reasoning: { effort: "low"},
+      instructions: "Answer the question as concisely as possible.",
+      input: "Please explain the concept of Bitcoin in simple terms.",
+  });
+
+  console.log(response.output_text);
+}
+catch (error) {
+    console.error("Error creating response:", error);
+    process.exit(0);
+}
+
+// console.log(response);
 
 

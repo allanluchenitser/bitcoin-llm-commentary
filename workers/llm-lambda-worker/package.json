@@ -6,7 +6,9 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "dev": "tsc && node ./dist/index.js",
+    "build": "npx tsc",
+    "start": "node ./dist/index.js",
+    "dev": "npm run build && npm run start",
     "dev_bak": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts"
   },
   "description": "LLM Lambda Worker for subscribing to Redis events and sending to LLMs",
