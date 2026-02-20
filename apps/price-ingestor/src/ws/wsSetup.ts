@@ -1,6 +1,6 @@
 /* ------ websocket client (node: ws) ------ */
 import WebSocket from 'ws';
-import { type LoopSocket } from './wsTypes.js';
+import { type CleanUpFunctionParams, type LoopSocket } from './wsTypes.js';
 
 
 // https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code
@@ -38,7 +38,7 @@ const fatalCloseCodes = new Set<number>([
 
 type ClientOptions = {
   url: string;
-  fatal?: (code: number, reason: string) => void;
+  fatal?: (params: CleanUpFunctionParams) => void;
   messageFunction?: (data: WebSocket.RawData, isBinary: boolean, socket: LoopSocket) => void;
   openFunction?: (socket: LoopSocket) => void;
   intervalFunction?: (socket: LoopSocket) => void;
@@ -135,8 +135,8 @@ function init(
     if (isInitialConnect) {
       currentSocket = null;
       return reject(
-        new Error(`WebSocket closed during initial connect (code=${code})`
-      ));
+        new Error(`WebSocket closed during initial connect (code=${code})`)
+      );
     }
 
     isInitialConnect = false;
@@ -146,7 +146,7 @@ function init(
       console.error("fatal close", code || "no code");
       currentSocket = null;
       const reasonText = reason?.toString?.("utf8") ?? "";
-      options.fatal?.(code, reasonText);
+      options.fatal?.({ socket, code, reason: reasonText });
       return;
     }
 

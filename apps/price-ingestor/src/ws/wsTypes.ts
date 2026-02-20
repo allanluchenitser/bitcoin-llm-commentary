@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
 
 export type KrakenTickerSubscriptionRequest = {
-  method: "subscribe",
+  method: "subscribe" | "unsubscribe",
   params: {
     channel: "ticker",
     symbol: string[],
@@ -12,12 +12,18 @@ export type KrakenTickerSubscriptionRequest = {
 };
 
 export type KrakenTradeSubscriptionRequest = {
-  method: "subscribe",
+  method: "subscribe" | "unsubscribe",
   params: {
     channel: "trade",
     symbol: string[],
   }
 };
+
+export type CleanUpFunctionParams = {
+  socket: WebSocket | null,
+  code: number,
+  reason: string
+}
 
 export type LoopSocket = WebSocket & { ticks?: number };
 

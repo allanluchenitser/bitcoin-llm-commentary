@@ -5,7 +5,10 @@ import { CHANNEL_TICKER_GENERIC } from "@blc/contracts";
 import { connectWs } from "./ws/wsSetup.js";
 import { color } from "@blc/color-logger";
 import { rawDataToUtf8 } from "./ws/wsHelpers.js";
-import { type KrakenTradeSubscriptionRequest, type LoopSocket } from "./ws/wsTypes.js";
+import {
+  type KrakenTradeSubscriptionRequest,
+  type CleanUpFunctionParams
+} from "./ws/wsTypes.js";
 
 /*
   Kraken WebSocket API v2 documentation:
@@ -36,9 +39,25 @@ function sendTickerSubscriptionRequest(socket: WebSocket) {
   socket.send(JSON.stringify(requestMessage))
 }
 
-async function cleanUpFunction(code: number, reason: string) {
+function sendTickerUnsubscriptionRequest(socket: WebSocket) {
+  const requestMessage: KrakenTradeSubscriptionRequest = {
+    method: "unsubscribe",
+    params: {
+      channel: "trade",
+      symbol: ["BTC/USD"],
+    }
+  };
+
+  socket.send(JSON.stringify(requestMessage))
+}
+
+async function cleanUpFunction({ socket, code, reason }: CleanUpFunctionParams) {
   console.log('cleanup started..')
   console.log(`WebSocket closed with code ${code} and reason: ${reason}`);
+
+  if (socket) {
+    sendTickerUnsubscriptionRequest(socket);
+  }
 
   await redis.quit();
   console.log('cleanup completed, exiting process');
@@ -72,5 +91,20 @@ if (getSocket()) {
   process.exit(1);
 }
 
+process.on('SIGINT', async () => {
+  await cleanUpFunction({
+    socket: getSocket(),
+    code: 0,
+    reason: 'SIGINT received'
+  });
+});
+
+process.on('SIGTERM', async () => {
+  await cleanUpFunction({
+    socket: getSocket(),
+    code: 0,
+    reason: 'SIGTERM received'
+  });
+});
 
 
