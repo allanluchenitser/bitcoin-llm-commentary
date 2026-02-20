@@ -1,7 +1,11 @@
 import "@blc/env";
 import { WebSocket } from 'ws';
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
-import { CHANNEL_TICKER_GENERIC } from "@blc/contracts";
+import {
+  CHANNEL_TICKER_GENERIC,
+  type OHLCV,
+  type KrakenTradeData,
+} from "@blc/contracts";
 import { connectWs } from "./ws/wsSetup.js";
 import { color } from "@blc/color-logger";
 import { rawDataToUtf8 } from "./ws/wsHelpers.js";
@@ -18,13 +22,60 @@ import {
   https://docs.kraken.com/api/docs/websocket-v2/trade
 */
 
+/* ------ OHLCV Buffer ------ */
+const tradeBuffer: KrakenTradeData[] = [];
+const intervalMs = Number(process.env.INGRESS_BUFFER_INTERVAL_MS) || 60000; // 1-minute interval
+
+function calculateOHLCV(trades: KrakenTradeData[]): OHLCV | null {
+  if (trades.length === 0) return null;
+
+  const interval = intervalMs;
+  const time = Math.floor(Math.ceil(Date.now() / interval) * interval);
+
+  const open = trades[0].price;
+  const close = trades[trades.length - 1].price;
+  const high = Math.max(...trades.map((trade) => trade.price));
+  const low = Math.min(...trades.map((trade) => trade.price));
+
+  const volume = trades.reduce((sum, trade) => sum + trade.qty, 0);
+
+  return {
+    interval,
+    time,
+    open,
+    high,
+    low,
+    close,
+    volume,
+  };
+}
+
+function processBufferedTrades() {
+  console.log(tradeBuffer.length, "trades in buffer, processing...");
+  const ohlcv = calculateOHLCV(tradeBuffer);
+  if (ohlcv) {
+    redis.publish(CHANNEL_TICKER_GENERIC, JSON.stringify(ohlcv));
+    console.log("Published OHLCV:", ohlcv);
+  }
+  tradeBuffer.length = 0; // Clear the buffer
+}
+
+setInterval(processBufferedTrades, intervalMs);
+
 // major business function, receives ticket data
-function processPriceData(
+function placeTradeData(
   data: WebSocket.RawData,
 ) {
   const utf8Data = rawDataToUtf8(data);
   const jsonData = JSON.parse(utf8Data);
-  redis.publish(CHANNEL_TICKER_GENERIC, JSON.stringify(jsonData));
+
+  console.log(jsonData);
+
+  if (jsonData.channel === "trade" && Array.isArray(jsonData.data)) {
+    jsonData.data.forEach((trade: KrakenTradeData) => {
+      tradeBuffer.push(trade);
+    });
+  }
 }
 
 function sendTickerSubscriptionRequest(socket: WebSocket) {
@@ -79,7 +130,7 @@ try {
 
 const { getSocket } = await connectWs({
   url: socketUrl,
-  messageFunction: processPriceData,
+  messageFunction: placeTradeData,
   openFunction: sendTickerSubscriptionRequest,
   fatal: cleanUpFunction,
 });
