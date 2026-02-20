@@ -35,21 +35,6 @@ export interface KrakenTradeData {
 }
 
 
-export interface CoinbaseProTickerData {
-  source: "coinbasepro";
-  symbol: string;
-
-  // external api so who knows
-  price?: number;
-  open_24h?: number;
-  volume_24h?: number;
-  low_24h?: number;
-  high_24h?: number;
-  volume_30d?: number;
-}
-
-export type TickerData = KrakenTickerData | CoinbaseProTickerData;
-
 /* ------ Ticker Event Types ------ */
 
 export type KrakenEvent =
@@ -74,9 +59,3 @@ export type KrakenEvent =
 //   return ('data' in kEvent && Array.isArray(kEvent.data) && kEvent.data.length > 0)
 // }
 
-export interface CoinbaseProTickerEvent {
-  source: "coinbasepro";
-  type: "snapshot" | "update";
-  ts_ms: number;
-  data: CoinbaseProTickerData[];
-}

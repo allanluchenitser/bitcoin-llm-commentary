@@ -1,4 +1,7 @@
-import { type UTCTimestamp, type CandlestickData } from 'lightweight-charts';
+import {
+  type UTCTimestamp,
+  type CandlestickData
+} from 'lightweight-charts';
 
 export function toUTCTimestamp(ts: unknown): UTCTimestamp {
   /* yes, AI did this */

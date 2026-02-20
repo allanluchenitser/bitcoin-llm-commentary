@@ -5,12 +5,14 @@ import { CHANNEL_TICKER_GENERIC } from "@blc/contracts";
 import { connectWs } from "./ws/wsSetup.js";
 import { color } from "@blc/color-logger";
 import { rawDataToUtf8 } from "./ws/wsHelpers.js";
-import { type KrakenSubscriptionRequest, type LoopSocket } from "./ws/wsTypes.js";
+import { type KrakenTradeSubscriptionRequest, type LoopSocket } from "./ws/wsTypes.js";
 
 /*
   Kraken WebSocket API v2 documentation:
   https://docs.kraken.com/api/docs/guides/global-intro
+
   https://docs.kraken.com/api/docs/websocket-v2/ticker
+  https://docs.kraken.com/api/docs/websocket-v2/trade
 */
 
 // major business function, receives ticket data
@@ -23,12 +25,11 @@ function processPriceData(
 }
 
 function sendTickerSubscriptionRequest(socket: WebSocket) {
-  const requestMessage: KrakenSubscriptionRequest = {
+  const requestMessage: KrakenTradeSubscriptionRequest = {
     method: "subscribe",
     params: {
-      channel: "ticker",
+      channel: "trade",
       symbol: ["BTC/USD"],
-      event_trigger: "bbo"
     }
   };
 

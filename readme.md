@@ -81,19 +81,20 @@ Starting with a single EC2 instance and Docker Compose. I'll break it out to oth
 #### Current Flow Diagram
 
 ```
-[Kraken api] -> [🐳 Price Ingestor]
-                        |
-                        v
-               __[🐳 Redis Pub/Sub]___
-              |         |            |
-              |         |            v
-              |         |   [🐳 LLM Lambda worker] -> [AWS Lambda LLM]
-              |         |
-              |         v
-              |   [🐳 Web API, SSE] -> [React UI]
-              |
-              v
-        [🐳 Postgres worker] -> [🐳 Postgres]
+[Kraken WebSocket API]
+      |
+      v
+  [🐳 Price Ingestor] ───────────────▶ [🐳 Postgres]
+      |                              (writes market aggregates)
+      v
+  [🐳 Redis (Pub/Sub)]
+      |
+      v
+[🐳 Web API (SSE + LLM)] ◀──────────▶ [🐳 Postgres]
+     |                     (historic data, llm commentary, maybe user stuff)
+     |
+     └──────────────────────────────▶ [React UI]
+     (SSE/HTTP)
 ```
 
 * If pub/sub looks good, I might later include redis streams for reliable message delivery.

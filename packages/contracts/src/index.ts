@@ -1,1 +1,1 @@
-export * from "./ticker.js";
+export * from "./krakenTypes.js";

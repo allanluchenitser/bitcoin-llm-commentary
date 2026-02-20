@@ -1,13 +1,21 @@
 import WebSocket from 'ws';
 
-export type KrakenSubscriptionRequest = {
+export type KrakenTickerSubscriptionRequest = {
   method: "subscribe",
   params: {
-    channel: string,
+    channel: "ticker",
     symbol: string[],
 
     // "bbo" gets only trades that move prices. "trades" gets everything.
     event_trigger: "bbo" | "trades"
+  }
+};
+
+export type KrakenTradeSubscriptionRequest = {
+  method: "subscribe",
+  params: {
+    channel: "trade",
+    symbol: string[],
   }
 };
 
