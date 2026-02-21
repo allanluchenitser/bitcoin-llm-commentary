@@ -4,8 +4,7 @@
 INSERT INTO instrument (exchange, symbol, base_asset, quote_asset)
 VALUES
   ('kraken', 'BTC/USD', 'BTC', 'USD'),
-  ('kraken', 'ETH/USD', 'ETH', 'USD');
-
+  ('kraken', 'ETH/USD', 'ETH', 'USD')
 ON CONFLICT (exchange, symbol) DO NOTHING;
 
 INSERT INTO ohlcv (exchange, symbol, ts, open, high, low, close, volume, interval_s)
