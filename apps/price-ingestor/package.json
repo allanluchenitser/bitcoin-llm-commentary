@@ -17,13 +17,14 @@
     "@blc/color-logger": "0.0.0",
     "@blc/env": "^0.0.0",
     "@blc/redis-client": "^0.0.0",
+    "pg": "^8.18.0",
     "ws": "^8.19.0"
   },
   "devDependencies": {
     "@blc/contracts": "0.0.0",
-    "@types/ws": "^8.18.1",
-
     "@types/node": "^25.0.9",
+    "@types/pg": "^8.16.0",
+    "@types/ws": "^8.18.1",
     "typescript": "^5.9.3"
   }
 }

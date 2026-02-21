@@ -2,7 +2,8 @@
   "name": "@blc/web-api",
   "scripts": {
     "dev": "tsc && node ./dist/index.js",
-    "dev_bak": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts"
+    "dev_bak": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
+    "build": "tsc -p tsconfig.json"
   },
   "version": "1.0.0",
   "description": "Web API for bitcoin llm commentary",

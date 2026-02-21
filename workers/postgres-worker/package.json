@@ -1,5 +1,0 @@
-{
-  "name": "@blc/postgres-worker",
-  "version": "1.0.0",
-  "description": "Postgres worker subscribing to Redis events and storing data in Postgres"
-}
