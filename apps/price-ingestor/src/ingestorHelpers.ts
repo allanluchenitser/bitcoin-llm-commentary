@@ -2,24 +2,20 @@ import { type OHLCV, type KrakenTradeData } from '@blc/contracts';
 
 export function calculateOHLCV(trades: KrakenTradeData[], intervalMs: number): OHLCV | null {
   if (trades.length === 0) return null;
-
-  const interval = intervalMs;
-  const time = Math.floor(Math.ceil(Date.now() / interval) * interval);
+  const exchange = trades[0].exchange;
+  const symbol = trades[0].symbol;
+  const ts = new Date(trades[0].timestamp).toISOString();
 
   const open = trades[0].price;
-  const close = trades[trades.length - 1].price;
   const high = Math.max(...trades.map((trade) => trade.price));
   const low = Math.min(...trades.map((trade) => trade.price));
+  const close = trades[trades.length - 1].price;
 
   const volume = trades.reduce((sum, trade) => sum + trade.qty, 0);
+  const interval_s = intervalMs / 1000;
 
   return {
-    interval,
-    time,
-    open,
-    high,
-    low,
-    close,
-    volume,
+    exchange, symbol, ts, open, high, low,
+    close, volume, interval_s
   };
 }

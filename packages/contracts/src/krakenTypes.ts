@@ -5,7 +5,7 @@ export const CHANNEL_TICKER_GENERIC = "blc-ticker";
 /* ------ Ticker Data Types ------ */
 
 export interface KrakenTickerData {
-  source: "kraken";
+  exchange: "kraken";
 
   // external api so who knows
   ask?: number;
@@ -24,7 +24,7 @@ export interface KrakenTickerData {
 };
 
 export interface KrakenTradeData {
-  source: "kraken";
+  exchange: "kraken";
   symbol: string;
   side: string;
   qty: number;
@@ -39,19 +39,19 @@ export interface KrakenTradeData {
 
 export type KrakenEvent =
   | {
-      source: "kraken";
+      exchange: "kraken";
       channel: "ticker";
       type: "snapshot" | "update";
       data: KrakenTickerData[];
     }
   | {
-      source: "kraken";
+      exchange: "kraken";
       channel: "trade";
       type: "snapshot" | "update";
       data: KrakenTradeData[];
     }
   | {
-      source: "kraken";
+      exchange: "kraken";
       channel: "heartbeat";
     };
 

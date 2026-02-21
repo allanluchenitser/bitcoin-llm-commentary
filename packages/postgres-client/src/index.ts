@@ -19,27 +19,29 @@ export class PostgresClient {
   async insertOHLCV(ohlcv: OHLCV): Promise<void> {
     const queryText = `
       INSERT INTO ohlcv (
-        instrument_id,
-        interval_seconds,
-        timestamp,
+        exchange,
+        symbol,
+        ts,
         open,
         high,
         low,
         close,
-        volume
+        volume,
+        interval_s
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      ON CONFLICT (instrument_id, interval_seconds, timestamp) DO NOTHING
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      ON CONFLICT (exchange, symbol, ts, interval_s) DO NOTHING
     `;
     const queryValues = [
-      ohlcv.instrumentId,
-      ohlcv.intervalSeconds,
-      new Date(ohlcv.time), // Convert UNIX ms to JS Date for TIMESTAMPTZ
+      ohlcv.exchange,
+      ohlcv.symbol,
+      ohlcv.ts,
       ohlcv.open,
       ohlcv.high,
       ohlcv.low,
       ohlcv.close,
-      ohlcv.volume
+      ohlcv.volume,
+      ohlcv.interval_s
     ];
 
     try {

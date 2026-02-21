@@ -2,38 +2,34 @@ export * from "./krakenTypes.js";
 export * from "./coinbaseTypes.js";
 
 export type Instrument = {
-  instrumentId: number;
   exchange: string;
   symbol: string;
+  base_asset?: string;
+  quote_asset?: string;
 };
 
 export type OHLCV = {
-  ohlcvId?: number;
-  instrumentId: number;
-  instrument?: string;
-
-  timeSize: number; // size of interval in seconds
-  time: number; // which second is this
-
+  exchange: string;
+  symbol: string;
+  ts: string; // start of interval
   open: number;
   high: number;
   low: number;
   close: number;
   volume: number;
+  interval_s: number; // size of interval
 };
 
 // possibly for reading DB
 export type OHLCVRow = {
-  ohlcvId: number;
-  instrumentId: number;
-
-  timeSize: number;
-  time: string;
-
+  exchange: string;
+  symbol: string;
+  ts: string;
   open: string;
   high: string;
   low: string;
   close: string;
   volume: string;
+  interval_s: string;
 };
 

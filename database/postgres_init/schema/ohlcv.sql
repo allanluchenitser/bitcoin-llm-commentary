@@ -1,27 +1,34 @@
 -- Schema for OHLCV pricing data
 CREATE TABLE IF NOT EXISTS instrument (
-  instrument_id BIGSERIAL PRIMARY KEY,
-  exchange TEXT NOT NULL,                 -- e.g. 'kraken'
-  symbol TEXT NOT NULL,                   -- e.g. 'BTC/USD' (as the exchange formats it)
-  base_asset TEXT,                        -- optional (e.g. 'BTC')
-  quote_asset TEXT,                       -- optional (e.g. 'USD')
-  UNIQUE (exchange, symbol)
+  exchange    TEXT NOT NULL,      -- 'kraken'
+  symbol      TEXT NOT NULL,      -- exchange-formatted, e.g. 'XBT/USD'
+  base_asset  TEXT,
+  quote_asset TEXT,
+  PRIMARY KEY (exchange, symbol)
 );
 
 
 CREATE TABLE IF NOT EXISTS ohlcv (
-  ohlcv_id BIGSERIAL PRIMARY KEY,
-  instrument_id BIGINT NOT NULL REFERENCES instrument(instrument_id),
-  time_size INTEGER NOT NULL,      -- e.g. 1, 60, 300
-  time TIMESTAMPTZ NOT NULL,         -- bucket start time (UTC)
-  open NUMERIC(20, 10) NOT NULL,
-  high NUMERIC(20, 10) NOT NULL,
-  low NUMERIC(20, 10) NOT NULL,
-  close NUMERIC(20, 10) NOT NULL,
-  volume NUMERIC(28, 12) NOT NULL,
-  UNIQUE (instrument_id, time_size, time)
+  exchange   TEXT NOT NULL,
+  symbol     TEXT NOT NULL,       -- same format as instrument.symbol
+  ts         TIMESTAMPTZ NOT NULL,
+  open       NUMERIC(20,10) NOT NULL,
+  high       NUMERIC(20,10) NOT NULL,
+  low        NUMERIC(20,10) NOT NULL,
+  close      NUMERIC(20,10) NOT NULL,
+  volume     NUMERIC(20,10) NOT NULL,
+  interval_s INTEGER NOT NULL,
+
+  PRIMARY KEY (exchange, symbol, ts, interval_s),
+  FOREIGN KEY (exchange, symbol)
+    REFERENCES instrument (exchange, symbol)
+    ON DELETE RESTRICT
 );
 
 CREATE INDEX IF NOT EXISTS idx_ohlcv_instrument_interval_ts
-  ON ohlcv (instrument_id, time_size, time DESC);
+  ON ohlcv (exchange, symbol, interval_s, ts DESC);
+
+
+
+
 
