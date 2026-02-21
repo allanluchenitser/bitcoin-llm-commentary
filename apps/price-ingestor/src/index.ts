@@ -28,32 +28,55 @@ import { calculateOHLCV } from "./ingestorHelpers.js";
   https://docs.kraken.com/api/docs/websocket-v2/trade
 */
 
+console.log('CHANNEL_TICKER_GENERIC:', CHANNEL_TICKER_GENERIC);
+
 /* ------ OHLCV Buffer ------ */
 const tradeBuffer: KrakenTradeData[] = [];
+const heartBeats: { channel: "heartbeat" }[] = [];
 const intervalMs = Number(process.env.INGRESS_BUFFER_INTERVAL_MS) || 60000; // 1-minute interval
 
+// publishes, stores buffer of trades per setInterval
 function processBufferedTrades() {
+
+  if (tradeBuffer.length === 0 && heartBeats.length > 0) {
+    console.log("No trades. Publishing heartbeat.");
+    redis.publish(CHANNEL_TICKER_GENERIC, JSON.stringify({ type: "heartbeat" }));
+    return;
+  }
+
   console.log(tradeBuffer.length, "trades in buffer, processing...");
   const ohlcv = calculateOHLCV(tradeBuffer, intervalMs);
+
   if (ohlcv) {
-    redis.publish(CHANNEL_TICKER_GENERIC, JSON.stringify(ohlcv));
-    pgClient.insertOHLCV(ohlcv);
-    console.log("Published OHLCV:", ohlcv);
+    try {
+      pgClient.insertOHLCV(ohlcv);
+    }
+    catch (err) {
+      console.error("Failed to insert OHLCV into Postgres:", err);
+    }
+
+    try {
+      redis.publish(CHANNEL_TICKER_GENERIC, JSON.stringify(ohlcv));
+    }
+    catch (err) {
+      console.error("Failed to publish OHLCV to Redis:", err);
+    }
   }
-  tradeBuffer.length = 0; // Clear the buffer
+  tradeBuffer.length = 0;
+  heartBeats.length = 0;
 }
 
 setInterval(processBufferedTrades, intervalMs);
 
-// major business function, receives ticket data
-function placeTradeData(
+// buffers trade via websockets message events
+async function placeTradeData(
   data: WebSocket.RawData,
 ) {
   const utf8Data = rawDataToUtf8(data);
   const jsonData = JSON.parse(utf8Data);
 
-  console.log(jsonData);
 
+  // grabs what's usually just one trade, but could be multiple if Kraken batches them
   if (jsonData.channel === "trade" && Array.isArray(jsonData.data)) {
     jsonData.data.forEach((trade: unknown) => {
       if (typeof trade !== "object" || trade === null) {
@@ -63,8 +86,12 @@ function placeTradeData(
       tradeBuffer.push({ ...trade, exchange: "kraken" } as KrakenTradeData);
     });
   }
+  else if (jsonData.channel === "heartbeat") {
+    heartBeats.push({ channel: "heartbeat" });
+  }
 }
 
+// initial websockets call to the external exchange
 function sendTickerSubscriptionRequest(socket: WebSocket) {
   const requestMessage: KrakenTradeSubscriptionRequest = {
     method: "subscribe",

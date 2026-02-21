@@ -4,11 +4,9 @@ import LiveEvents from './LiveEvents';
 
 import {
   CHANNEL_TICKER_GENERIC,
-  type KrakenEvent,
   type OHLCVRow
 } from '@blc/contracts';
 
-import { type KrakenTickerEvent } from './dashboard-types';
 
 import { useEffect, useState } from 'react';
 
@@ -16,8 +14,8 @@ const DashboardPage: React.FC = () => {
   const [sseStatus, setSseStatus] = useState<'connecting' | 'open' | 'closed' | 'error'>('connecting');
 
   // const [rawEvents, setRawEvents] = useState<string[]>([]);
-  const [tickerEvents, setTickerEvents] = useState<KrakenTickerEvent[]>([]);
-  const [allEvents, setAllEvents] = useState<KrakenEvent[]>([]);
+  const [tickerEvents, setTickerEvents] = useState<OHLCVRow[]>([]);
+  const [allEvents, setAllEvents] = useState<OHLCVRow[]>([]);
 
   useEffect(() => {
     document.title = "Dashboard - Bitcoin LLM Commentary";
@@ -50,7 +48,7 @@ const DashboardPage: React.FC = () => {
         const parsed = JSON.parse(subData)
         setAllEvents(prev => [parsed, ...prev])
         if(parsed.channel === "ticker") {
-          setTickerEvents(prev => [parsed as KrakenTickerEvent, ...prev])
+          setTickerEvents(prev => [parsed as OHLCVRow, ...prev])
         }
       } catch {}
     }
@@ -78,7 +76,7 @@ const DashboardPage: React.FC = () => {
             <PriceChart events={tickerEvents} />
           </div>
           <div className="mt-4">
-            {/* <LiveEvents events={allEvents} /> */}
+            <LiveEvents events={allEvents} />
           </div>
         </div>
 

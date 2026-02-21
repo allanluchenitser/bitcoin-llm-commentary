@@ -1,10 +1,12 @@
 import ButtonOne from "@/shared-components/ButtonOne";
 import { useState, useMemo } from "react";
-import type { KrakenEvent } from '@blc/contracts';
+import type { KrakenEvent, OHLCVRow } from '@blc/contracts';
 import { formatUtcMonthDayTime } from "./dashboardHelpers";
 
+
+
 type ChildProps = {
-  events: KrakenEvent[];
+  events: OHLCVRow[];
 };
 
 const LiveEvents: React.FC<ChildProps> = ({ events }) => {
@@ -14,7 +16,7 @@ const LiveEvents: React.FC<ChildProps> = ({ events }) => {
 
   const [tableMode, setTableMode] = useState<boolean>(true)
 
-  const processedTickerEvents: KrakenEvent[] = useMemo(() =>  {
+  const processedTickerEvents: OHLCVRow[] = useMemo(() =>  {
     return events
       .filter(ev => ev.channel !== "heartbeat")
       .map((ev) => {

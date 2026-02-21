@@ -8,7 +8,7 @@ import { createSseRouter } from "./sse/sseRouter.js";
 import { createDbRouter } from "./db/dbRouter.js";
 
 import { SseClients } from "./sse/sseClients.js";
-import { subRedisFanOutSSE } from "./redis/subscriberFanOut.js";
+import { priceSubscription_fanOut } from "./redis/subscriberFanOut.js";
 
 /* ------ ticker fanout (signup below) ------ */
 
@@ -16,8 +16,7 @@ const redis: RedisClient = createRedisClient();
 await redis.connect();
 
 const sseClients = new SseClients();
-const { stopFanOut } = await subRedisFanOutSSE(redis, sseClients);
-const heartbeatTimer = setInterval(() => sseClients.heartbeat(), 15_000).unref();
+const { stopPrices } = await priceSubscription_fanOut(redis, sseClients);
 
 /* ------ middleware ------ */
 
@@ -40,7 +39,6 @@ app.use((err: unknown, _req: any, res: any, _next: any) => {
 
 /* ------ http server ------ */
 console.log("Starting web-api..");
-// console.log(process.env);
 const port = Number(process.env.PORT ?? 3000);
 
 const server = app.listen(port, () => {
@@ -51,12 +49,11 @@ const server = app.listen(port, () => {
 
 async function shutdown(signal: string) {
   color.warn(`received ${signal}, shutting down...`);
-  clearInterval(heartbeatTimer);
 
   server.close();
 
   // catch and ignore, in case any of these are closing/closed already.
-  await stopFanOut().catch(() => undefined);
+  await stopPrices().catch(() => undefined);
   await redis.quit().catch(() => undefined);
 
   process.exit(0);
