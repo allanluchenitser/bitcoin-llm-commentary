@@ -10,7 +10,8 @@
     "base:stop": "npm run -s compose:base -- stop",
     "base:logs": "npm run -s compose:base -- logs -f --tail=200",
     "base:ps": "npm run -s compose:base -- ps",
-    "base:reset": "npm run -s compose:base -- down -v && npm run -s compose:base -- up -d",
+    "base:reset": "npm run -s compose:base -- down -v && sleep 2 && npm run -s compose:base -- up -d",
+    "base:reset_verbose": "npm run compose:base -- down -v && sleep 2 && npm run -s compose:base -- up",
 
     "apps:up": "npm run -s compose:apps -- up -d",
     "apps:down": "npm run -s compose:apps -- down",

@@ -1,4 +1,4 @@
 -- Create schema
-\i ./schema/ohlcv.sql
-\i ./schema/llm_price_summaries.sql
-\i ./schema/enums.sql
+\i /docker-entrypoint-initdb.d/schema/enums.sql
+\i /docker-entrypoint-initdb.d/schema/ohlcv.sql
+\i /docker-entrypoint-initdb.d/schema/llm_price_summaries.sql

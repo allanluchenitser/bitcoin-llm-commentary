@@ -12,8 +12,8 @@ export type OHLCV = {
   instrumentId: number;
   instrument?: string;
 
-  intervalSeconds: number;
-  time: number;
+  timeSize: number; // size of interval in seconds
+  time: number; // which second is this
 
   open: number;
   high: number;
@@ -27,8 +27,8 @@ export type OHLCVRow = {
   ohlcvId: number;
   instrumentId: number;
 
-  intervalSeconds: number;
-  timestamp: string;
+  timeSize: number;
+  time: string;
 
   open: string;
   high: string;
