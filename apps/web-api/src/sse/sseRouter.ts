@@ -1,5 +1,9 @@
-import type { Request, Response } from "express";
-import { Router } from "express";
+import {
+  Router,
+  type Request,
+  type Response
+} from "express";
+
 import { randomUUID } from "node:crypto";
 import type { SseClients } from "./sseClients.js";
 
@@ -7,7 +11,7 @@ import type { SseClients } from "./sseClients.js";
 
 // note that a SSE message requires an extra newline at the end
 
-export function createSseRouter(path: string, hub: SseClients) {
+export function createSseRouter(path: string, hub: SseClients): Router {
   const router = Router();
 
   router.get(path, (req: Request, res: Response) => {

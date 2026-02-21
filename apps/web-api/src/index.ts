@@ -3,7 +3,10 @@ import express from "express";
 
 import { color } from "@blc/color-logger";
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
+
 import { createSseRouter } from "./sse/sseRouter.js";
+import { createDbRouter } from "./db/dbRouter.js";
+
 import { SseClients } from "./sse/sseClients.js";
 import { subRedisFanOutSSE } from "./redis/subscriberFanOut.js";
 
@@ -25,7 +28,9 @@ app.use(express.urlencoded({ extended: true }));
 
 /* ------ routes ------ */
 
-app.use("/sse", createSseRouter('/ticker', sseClients)); // signup for SSE fanout
+app.use("/db", createDbRouter('/history')); // get price history to start the fun
+app.use("/sse", createSseRouter('/trades', sseClients)); // SSE does updates
+
 app.use((_req, res) => res.status(404).json({ error: "Not Found" }));
 
 app.use((err: unknown, _req: any, res: any, _next: any) => {
@@ -34,8 +39,8 @@ app.use((err: unknown, _req: any, res: any, _next: any) => {
 });
 
 /* ------ http server ------ */
-console.log("Starting web-api... process.env:");
-console.log(process.env);
+console.log("Starting web-api..");
+// console.log(process.env);
 const port = Number(process.env.PORT ?? 3000);
 
 const server = app.listen(port, () => {

@@ -55,8 +55,12 @@ function placeTradeData(
   console.log(jsonData);
 
   if (jsonData.channel === "trade" && Array.isArray(jsonData.data)) {
-    jsonData.data.forEach((trade: KrakenTradeData) => {
-      tradeBuffer.push({ ...trade, exchange: "kraken" });
+    jsonData.data.forEach((trade: unknown) => {
+      if (typeof trade !== "object" || trade === null) {
+        console.warn("Skipping invalid trade data:", trade);
+        return;
+      }
+      tradeBuffer.push({ ...trade, exchange: "kraken" } as KrakenTradeData);
     });
   }
 }

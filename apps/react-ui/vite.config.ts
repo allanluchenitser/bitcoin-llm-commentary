@@ -24,10 +24,14 @@ export default defineConfig(({ mode }) => {
           target: 'https://www.randomnumberapi.com',
           changeOrigin: true,
         },
-        '/sse/ticker': {
+        '/sse/trades': {
           target: `http://localhost:${localWebApiPort}`,
           changeOrigin: true,
         },
+        '/db/history': {
+          target: `http://localhost:${localWebApiPort}`,
+          changeOrigin: true,
+        }
       },
     }
   }

@@ -1,5 +1,5 @@
 import { Pool, PoolConfig, QueryResult } from 'pg';
-import { type OHLCV } from "@blc/contracts";
+import { type OHLCVRow, type OHLCV } from "@blc/contracts";
 
 export class PostgresClient {
   private pool: Pool;
@@ -49,6 +49,18 @@ export class PostgresClient {
     } catch (err) {
       console.error('Error inserting OHLCV data:', err);
     }
+  }
+
+  async getInstrumentHistory(
+    exchange: string = "kraken",
+    symbol: string = "BTC/USD"):
+    Promise<OHLCVRow[]>
+  {
+    const result = await this.query(
+      `SELECT * FROM ohlcv WHERE exchange = $1 AND symbol = $2 ORDER BY ts DESC LIMIT 100`,
+      [exchange, symbol]
+    );
+    return result.rows;
   }
 }
 

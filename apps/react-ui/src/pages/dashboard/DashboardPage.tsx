@@ -4,7 +4,8 @@ import LiveEvents from './LiveEvents';
 
 import {
   CHANNEL_TICKER_GENERIC,
-  type KrakenEvent
+  type KrakenEvent,
+  type OHLCVRow
 } from '@blc/contracts';
 
 import { type KrakenTickerEvent } from './dashboard-types';
@@ -23,8 +24,21 @@ const DashboardPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    async function fetchHistory() {
+      const res = await fetch('/db/history');
+      const history = await res.json();
+
+      console.log('Fetched history:', history as OHLCVRow[]);
+      // setTickerEvents(history); // or process as needed
+      // setAllEvents(history);    // or process as needed
+    }
+    fetchHistory();
+  }, []);
+
+  useEffect(() => {
     // SSE connection with web-api
-    const es = new EventSource('/sse/ticker');
+
+    const es = new EventSource('/sse/trades');
 
     const onOpen = () => setSseStatus('open');
     const onError = () => setSseStatus('error');
@@ -34,9 +48,9 @@ const DashboardPage: React.FC = () => {
 
       try {
         const parsed = JSON.parse(subData)
-        setAllEvents(prev => [parsed, ...prev].slice(0, 300))
+        setAllEvents(prev => [parsed, ...prev])
         if(parsed.channel === "ticker") {
-          setTickerEvents(prev => [parsed as KrakenTickerEvent, ...prev].slice(0, 300))
+          setTickerEvents(prev => [parsed as KrakenTickerEvent, ...prev])
         }
       } catch {}
     }
@@ -64,7 +78,7 @@ const DashboardPage: React.FC = () => {
             <PriceChart events={tickerEvents} />
           </div>
           <div className="mt-4">
-            <LiveEvents events={allEvents} />
+            {/* <LiveEvents events={allEvents} /> */}
           </div>
         </div>
 

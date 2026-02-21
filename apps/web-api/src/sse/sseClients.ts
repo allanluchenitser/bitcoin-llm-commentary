@@ -35,7 +35,7 @@ export class SseClients {
     for (const c of this.clients.values()) {
       c.res.write(payload);
     }
-    console.log(`broadcasted event "${event}" to ${this.clients.size} clients`);
+    // console.log(`broadcasted event "${event}" to ${this.clients.size} clients`);
   }
 
   heartbeat(comment = "keepalive") {
