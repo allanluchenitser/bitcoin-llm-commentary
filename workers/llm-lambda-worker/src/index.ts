@@ -46,6 +46,5 @@ catch (error) {
     process.exit(0);
 }
 
-// console.log(response);
 
 

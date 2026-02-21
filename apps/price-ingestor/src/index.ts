@@ -1,18 +1,22 @@
 import "@blc/env";
 import { WebSocket } from 'ws';
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
+
+import { connectWs } from "./ws/wsSetup.js";
+import { rawDataToUtf8 } from "./ws/wsHelpers.js";
+import { color } from "@blc/color-logger";
+
 import {
   CHANNEL_TICKER_GENERIC,
-  type OHLCV,
   type KrakenTradeData,
 } from "@blc/contracts";
-import { connectWs } from "./ws/wsSetup.js";
-import { color } from "@blc/color-logger";
-import { rawDataToUtf8 } from "./ws/wsHelpers.js";
+
 import {
   type KrakenTradeSubscriptionRequest,
   type CleanUpFunctionParams
 } from "./ws/wsTypes.js";
+
+import { calculateOHLCV } from "./ingestorHelpers.js";
 
 /*
   Kraken WebSocket API v2 documentation:
@@ -26,33 +30,9 @@ import {
 const tradeBuffer: KrakenTradeData[] = [];
 const intervalMs = Number(process.env.INGRESS_BUFFER_INTERVAL_MS) || 60000; // 1-minute interval
 
-function calculateOHLCV(trades: KrakenTradeData[]): OHLCV | null {
-  if (trades.length === 0) return null;
-
-  const interval = intervalMs;
-  const time = Math.floor(Math.ceil(Date.now() / interval) * interval);
-
-  const open = trades[0].price;
-  const close = trades[trades.length - 1].price;
-  const high = Math.max(...trades.map((trade) => trade.price));
-  const low = Math.min(...trades.map((trade) => trade.price));
-
-  const volume = trades.reduce((sum, trade) => sum + trade.qty, 0);
-
-  return {
-    interval,
-    time,
-    open,
-    high,
-    low,
-    close,
-    volume,
-  };
-}
-
 function processBufferedTrades() {
   console.log(tradeBuffer.length, "trades in buffer, processing...");
-  const ohlcv = calculateOHLCV(tradeBuffer);
+  const ohlcv = calculateOHLCV(tradeBuffer, intervalMs);
   if (ohlcv) {
     redis.publish(CHANNEL_TICKER_GENERIC, JSON.stringify(ohlcv));
     console.log("Published OHLCV:", ohlcv);

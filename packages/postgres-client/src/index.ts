@@ -1,6 +1,5 @@
 import { Pool, PoolConfig, QueryResult } from 'pg';
 
-
 export class PostgresClient {
   private pool: Pool;
 
