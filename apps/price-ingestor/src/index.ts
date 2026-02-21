@@ -56,7 +56,7 @@ function placeTradeData(
 
   if (jsonData.channel === "trade" && Array.isArray(jsonData.data)) {
     jsonData.data.forEach((trade: KrakenTradeData) => {
-      tradeBuffer.push(trade);
+      tradeBuffer.push({ ...trade, exchange: "kraken" });
     });
   }
 }
