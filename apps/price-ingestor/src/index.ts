@@ -1,6 +1,8 @@
 import "@blc/env";
 import { WebSocket } from 'ws';
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
+import PostgresClient from "@blc/postgres-client";
+
 
 import { connectWs } from "./ws/wsSetup.js";
 import { rawDataToUtf8 } from "./ws/wsHelpers.js";
@@ -35,6 +37,7 @@ function processBufferedTrades() {
   const ohlcv = calculateOHLCV(tradeBuffer, intervalMs);
   if (ohlcv) {
     redis.publish(CHANNEL_TICKER_GENERIC, JSON.stringify(ohlcv));
+    pgClient.insertOHLCV(ohlcv);
     console.log("Published OHLCV:", ohlcv);
   }
   tradeBuffer.length = 0; // Clear the buffer
@@ -108,12 +111,25 @@ try {
   process.exit(1);
 }
 
+const pgConfig = {
+  host: process.env.POSTGRES_HOST || "localhost",
+  port: Number(process.env.POSTGRES_PORT) || 5432,
+  user: process.env.POSTGRES_USER || "blc",
+  password: process.env.POSTGRES_PASSWORD || "blc",
+  database: process.env.POSTGRES_DB || "blc",
+};
+
+export const pgClient = new PostgresClient(pgConfig);
+
 const { getSocket } = await connectWs({
   url: socketUrl,
   messageFunction: placeTradeData,
   openFunction: sendTickerSubscriptionRequest,
   fatal: cleanUpFunction,
 });
+
+const postgresConnectionString = process.env.POSTGRES_CONNECTION_STRING || "postgresql://blc:blc@localhost:5432/blc";
+
 
 if (getSocket()) {
   console.log('---------- PARENT websocket connected!');

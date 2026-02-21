@@ -7,7 +7,6 @@ export type Instrument = {
   symbol: string;
 };
 
-// for general, UI
 export type OHLCV = {
   ohlcvId?: number;
   instrumentId: number;
@@ -23,7 +22,7 @@ export type OHLCV = {
   volume: number;
 };
 
-// for DB
+// possibly for reading DB
 export type OHLCVRow = {
   ohlcvId: number;
   instrumentId: number;
