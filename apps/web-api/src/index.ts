@@ -38,6 +38,7 @@ app.use((err: unknown, _req: any, res: any, _next: any) => {
 });
 
 /* ------ http server ------ */
+
 console.log("Starting web-api..");
 const port = Number(process.env.PORT ?? 3000);
 
@@ -52,7 +53,6 @@ async function shutdown(signal: string) {
 
   server.close();
 
-  // catch and ignore, in case any of these are closing/closed already.
   await stopPrices().catch(() => undefined);
   await redis.quit().catch(() => undefined);
 

@@ -12,7 +12,7 @@ export async function priceSubscription_fanOut(
   sseClients: SseClients
 ): Promise<{ stopPrices: () => Promise<void> }> {
 
-  // a redis connect can pub-sub or key-store, not both
+  // one redis connection can pub-sub or key-store, not both
   const sub = redis.duplicate();
   await sub.connect();
 

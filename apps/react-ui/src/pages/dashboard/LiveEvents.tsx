@@ -6,44 +6,26 @@ import { formatUtcMonthDayTime } from "./dashboardHelpers";
 
 
 type ChildProps = {
-  events: OHLCVRow[];
+  ohlcvData: OHLCVRow[];
 };
 
-const LiveEvents: React.FC<ChildProps> = ({ events }) => {
+const LiveEvents: React.FC<ChildProps> = ({ ohlcvData }) => {
   const [showUpdates, setShowUpdates] = useState<boolean>(true);
   const [showSnapshots, setShowSnapshots] = useState<boolean>(false);
-  const [showHeartBeats, setShowHeartBeats] = useState<boolean>(false);
 
   const [tableMode, setTableMode] = useState<boolean>(true)
 
   const processedTickerEvents: OHLCVRow[] = useMemo(() =>  {
-    return events
-      .filter(ev => ev.channel !== "heartbeat")
-      .map((ev) => {
-        try {
-          if (!ev.data?.[0] || ev.data.length === 0) return ev
+    return ohlcvData
+      .map((ohclv) => {
+          const ts = formatUtcMonthDayTime(ohclv.ts);
 
-          if (ev.channel === "ticker") {
-            const t = formatUtcMonthDayTime(ev.data[0].timestamp);
-
-            // prevent mutating the prop
-            return {
-              ...ev,
-              data: [{ ...ev.data[0], timestamp: t }]
-            }
+          return {
+            ...ohclv,
+            ts
           }
-          return ev;
-        } catch {
-          return ev;
-        }
       })
-      .filter((eb) => {
-        console.log(eb.data[0]?.timestamp);
-        if (showUpdates && eb.channel === "ticker" && eb.type === "update") return true;
-        if (showSnapshots && eb.channel === "ticker" && eb.type === "snapshot") return true;
-        return false
-      })
-  }, [events, showHeartBeats, showUpdates, showSnapshots]);
+  }, [ohlcvData, showUpdates, showSnapshots]);
 
   return (
     <div className="h-full text-lg font-semibold">
@@ -63,13 +45,6 @@ const LiveEvents: React.FC<ChildProps> = ({ events }) => {
               >
                 Snapshots
               </ButtonOne>
-              <ButtonOne
-                onClick={() => setShowHeartBeats(!showHeartBeats)}
-                isActive={showHeartBeats}
-              >
-                HeartBeats
-              </ButtonOne>
-
             </div>
             <div className="flex items-center">
               <ButtonOne
@@ -83,7 +58,7 @@ const LiveEvents: React.FC<ChildProps> = ({ events }) => {
         </div>
         <div className="border rounded p-2 h-60 overflow-auto bg-white">
           {
-            events.length === 0
+            ohlcvData.length === 0
               ? <div className="text-gray-500">No events yet…</div>
               : (
                 <table className="text-xs space-y-1 w-full">
@@ -91,9 +66,9 @@ const LiveEvents: React.FC<ChildProps> = ({ events }) => {
                     tableMode && (
                       <thead>
                         <tr className="text-left [&>th]:pb-1">
-                          <th>type</th>
+                          <th>ex</th>
                           <th>symbol</th>
-                          <th>last</th>
+                          <th>close</th>
                           <th>time</th>
                           <th>high</th>
                           <th>low</th>
@@ -105,25 +80,22 @@ const LiveEvents: React.FC<ChildProps> = ({ events }) => {
                   {
                     tableMode
                       ? // <table> view
-                      processedTickerEvents.map((ev, i) => {
-                        if (ev.channel === "heartbeat") {
-                          return <tr><td key={i} className="font-mono text-center">❤️ heartbeat ❤️</td></tr>
-                        }
-                        else if(ev.channel === "ticker") return (
+                      processedTickerEvents.map((price, i) => {
+                        return (
                           <tr key={i} className="font-mono">
-                              <td>{ ev.type ?? "" }</td>
-                              <td>{ ev.data[0]?.symbol ?? "" }</td>
-                              <td>{ ev.data[0]?.last ?? "" }</td>
-                              <td>{ ev.data[0]?.timestamp ?? "" }</td>
-                              <td>{ ev.data[0]?.high ?? "" }</td>
-                              <td>{ ev.data[0]?.low ?? "" }</td>
+                              <td>{ price.exchange ?? "" }</td>
+                              <td>{ price.symbol ?? "" }</td>
+                              <td>{ price.close ?? "" }</td>
+                              <td>{ price.ts ?? "" }</td>
+                              <td>{ price.high ?? "" }</td>
+                              <td>{ price.low ?? "" }</td>
                           </tr>
                         );
                       })
                       : // JSON view
-                      processedTickerEvents.map((ev, i) => (
+                      processedTickerEvents.map((price, i) => (
                         <tr key={i} className="font-mono">
-                          <td key={i} className="font-mono text-[0.65rem]"><pre>{JSON.stringify(ev, null, 2)}</pre></td>
+                          <td key={i} className="font-mono text-[0.65rem]"><pre>{JSON.stringify(price, null, 2)}</pre></td>
                         </tr>
                       ))
                   }

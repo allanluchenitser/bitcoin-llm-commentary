@@ -14,8 +14,7 @@ const DashboardPage: React.FC = () => {
   const [sseStatus, setSseStatus] = useState<'connecting' | 'open' | 'closed' | 'error'>('connecting');
 
   // const [rawEvents, setRawEvents] = useState<string[]>([]);
-  const [tickerEvents, setTickerEvents] = useState<OHLCVRow[]>([]);
-  const [allEvents, setAllEvents] = useState<OHLCVRow[]>([]);
+  const [ohlcvData, setOhlcvData] = useState<OHLCVRow[]>([]);
 
   useEffect(() => {
     document.title = "Dashboard - Bitcoin LLM Commentary";
@@ -26,9 +25,8 @@ const DashboardPage: React.FC = () => {
       const res = await fetch('/db/history');
       const history = await res.json();
 
-      console.log('Fetched history:', history as OHLCVRow[]);
-      // setTickerEvents(history); // or process as needed
-      // setAllEvents(history);    // or process as needed
+      console.log('Fetched historic trades:', history as OHLCVRow[]);
+      setOhlcvData(history as OHLCVRow[]);
     }
     fetchHistory();
   }, []);
@@ -46,9 +44,14 @@ const DashboardPage: React.FC = () => {
 
       try {
         const parsed = JSON.parse(subData)
-        setAllEvents(prev => [parsed, ...prev])
-        if(parsed.channel === "ticker") {
-          setTickerEvents(prev => [parsed as OHLCVRow, ...prev])
+
+        if (parsed.type === "heartbeat") {
+          console.log("Received heartbeat from server");
+          return;
+        }
+        else {
+          console.log("Received data event:", parsed);
+          setOhlcvData(prev => [parsed as OHLCVRow, ...prev])
         }
       } catch {}
     }
@@ -73,10 +76,10 @@ const DashboardPage: React.FC = () => {
       <div className="flex mt-4">
         <div className="w-3/5">
           <div>
-            <PriceChart events={tickerEvents} />
+            <PriceChart ohlcvData={ohlcvData} />
           </div>
           <div className="mt-4">
-            <LiveEvents events={allEvents} />
+            <LiveEvents ohlcvData={ohlcvData} />
           </div>
         </div>
 

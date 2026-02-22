@@ -13,9 +13,10 @@ import {
   toUTCTimestamp,
 } from "./dashboardHelpers";
 
-import { type KrakenTickerEvent } from './dashboard-types';
+// import { type KrakenTickerEvent } from './dashboard-types';
+import type { OHLCVRow } from "@blc/contracts";
 
-const PriceChart: React.FC<{ events: KrakenTickerEvent[] }> = ({ events }) => {
+const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Line"> | ISeriesApi<"Candlestick"> | null >(null);
@@ -69,18 +70,17 @@ const PriceChart: React.FC<{ events: KrakenTickerEvent[] }> = ({ events }) => {
   const lineData: LineData[] = useMemo(() => {
     const bySec = new Map<UTCTimestamp, LineData>();
 
-    for (const e of events) {
-      const data = e.data[0];
-      const t = toUTCTimestamp(data.timestamp)
-      const lastPrice = toFiniteNumber(data.last);
+    for (const data of ohlcvData) {
+      const ts = toUTCTimestamp(data.ts)
+      const lastPrice = toFiniteNumber(data.close);
       if (lastPrice === null) continue;
-      bySec.set(t, { time: t, value: lastPrice });
+      bySec.set(ts, { time: ts, value: lastPrice });
     }
 
     return [...bySec.values()].sort(
       (a, b) => Number(a.time) - Number(b.time)
     );
-  }, [events]);
+  }, [ohlcvData]);
 
   /* ------ update chart ------ */
 
