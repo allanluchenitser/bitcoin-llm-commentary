@@ -1,15 +1,9 @@
 import ButtonOne from "@/shared-components/ButtonOne";
 import { useState, useMemo } from "react";
-import type { KrakenEvent, OHLCVRow } from '@blc/contracts';
+import { type OHLCVRow } from '@blc/contracts';
 import { formatUtcMonthDayTime } from "./dashboardHelpers";
 
-
-
-type ChildProps = {
-  ohlcvData: OHLCVRow[];
-};
-
-const LiveEvents: React.FC<ChildProps> = ({ ohlcvData }) => {
+const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
   const [showUpdates, setShowUpdates] = useState<boolean>(true);
   const [showSnapshots, setShowSnapshots] = useState<boolean>(false);
 
@@ -85,10 +79,10 @@ const LiveEvents: React.FC<ChildProps> = ({ ohlcvData }) => {
                           <tr key={i} className="font-mono">
                               <td>{ price.exchange ?? "" }</td>
                               <td>{ price.symbol ?? "" }</td>
-                              <td>{ price.close ?? "" }</td>
+                              <td>{ price.close ? Number(price.close).toFixed(1) : "" }</td>
                               <td>{ price.ts ?? "" }</td>
-                              <td>{ price.high ?? "" }</td>
-                              <td>{ price.low ?? "" }</td>
+                              <td>{ price.high ? Number(price.high).toFixed(1) : "" }</td>
+                              <td>{ price.low ? Number(price.low).toFixed(1) : "" }</td>
                           </tr>
                         );
                       })
