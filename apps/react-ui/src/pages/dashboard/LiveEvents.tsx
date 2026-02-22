@@ -13,19 +13,15 @@ const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
     return ohlcvData
       .map((ohclv) => {
           const ts = formatUtcMonthDayTime(ohclv.ts);
-
-          return {
-            ...ohclv,
-            ts
-          }
+          return { ...ohclv, ts }
       })
   }, [ohlcvData]);
 
   return (
     <div className="h-full text-lg font-semibold">
         <div>
-          <h3>Live Events</h3>
           <div className="buttons-menu flex justify-between">
+            <h3>Live Events</h3>
             <div className="event-filters my-1 flex gap-1">
               {/* <ButtonOne
                 onClick={() => setShowUpdates(!showUpdates)}
@@ -64,8 +60,9 @@ const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
                           <th>symbol</th>
                           <th>close</th>
                           <th>time</th>
-                          <th>high</th>
-                          <th>low</th>
+                          {/* <th>high</th>
+                          <th>low</th> */}
+                          <th>vol</th>
                         </tr>
                       </thead>
                     )
@@ -81,8 +78,9 @@ const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
                               <td>{ price.symbol ?? "" }</td>
                               <td>{ price.close ? Number(price.close).toFixed(1) : "" }</td>
                               <td>{ price.ts ?? "" }</td>
-                              <td>{ price.high ? Number(price.high).toFixed(1) : "" }</td>
-                              <td>{ price.low ? Number(price.low).toFixed(1) : "" }</td>
+                              {/* <td>{ price.high ? Number(price.high).toFixed(1) : "" }</td>
+                              <td>{ price.low ? Number(price.low).toFixed(1) : "" }</td> */}
+                              <td>{ price.volume ? Number(price.volume).toFixed(1) : "" }</td>
                           </tr>
                         );
                       })

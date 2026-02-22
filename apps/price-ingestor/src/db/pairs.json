@@ -1,0 +1,3136 @@
+{
+  "EURC/USDC":
+    { "longName": "", "description": "" },
+
+  "EUR/GBP":
+    { "longName": "", "description": "" },
+
+  "EUR/JPY":
+    { "longName": "", "description": "" },
+
+  "EUROP/EUR":
+    { "longName": "", "description": "" },
+
+  "EUROP/USD":
+    { "longName": "", "description": "" },
+
+  "EUROP/USDC":
+    { "longName": "", "description": "" },
+
+  "EURQ/EUR":
+    { "longName": "", "description": "" },
+
+  "EURQ/USD":
+    { "longName": "", "description": "" },
+
+  "EURR/EUR":
+    { "longName": "", "description": "" },
+
+  "EURR/USD":
+    { "longName": "", "description": "" },
+
+  "EURR/USDC":
+    { "longName": "", "description": "" },
+
+  "EURR/USDT":
+    { "longName": "", "description": "" },
+
+  "EVAA/USD":
+    { "longName": "", "description": "" },
+
+  "EWT/EUR":
+    { "longName": "", "description": "" },
+
+  "EWT/USD":
+    { "longName": "", "description": "" },
+
+  "FARM/EUR":
+    { "longName": "", "description": "" },
+
+  "FARM/USD":
+    { "longName": "", "description": "" },
+
+  "FARTCOIN/EUR":
+    { "longName": "", "description": "" },
+
+  "FARTCOIN/USD":
+    { "longName": "", "description": "" },
+
+  "FARTCOIN/USDC":
+    { "longName": "", "description": "" },
+
+  "FARTCOIN/USDT":
+    { "longName": "", "description": "" },
+
+  "FET/EUR":
+    { "longName": "", "description": "" },
+
+  "FET/USD":
+    { "longName": "", "description": "" },
+
+  "FF/EUR":
+    { "longName": "", "description": "" },
+
+  "FF/USD":
+    { "longName": "", "description": "" },
+
+  "FHE/EUR":
+    { "longName": "", "description": "" },
+
+  "FHE/USD":
+    { "longName": "", "description": "" },
+
+  "FIDA/EUR":
+    { "longName": "", "description": "" },
+
+  "FIDA/USD":
+    { "longName": "", "description": "" },
+
+  "FIDD/USD":
+    { "longName": "", "description": "" },
+
+  "FIDD/USDC":
+    { "longName": "", "description": "" },
+
+  "FIDD/USDT":
+    { "longName": "", "description": "" },
+
+  "FIGHT/EUR":
+    { "longName": "", "description": "" },
+
+  "FIGHT/USD":
+    { "longName": "", "description": "" },
+
+  "FIL/ETH":
+    { "longName": "", "description": "" },
+
+  "FIL/EUR":
+    { "longName": "", "description": "" },
+
+  "FIL/GBP":
+    { "longName": "", "description": "" },
+
+  "FIL/USD":
+    { "longName": "", "description": "" },
+
+  "FIL/XBT":
+    { "longName": "", "description": "" },
+
+  "FIS/EUR":
+    { "longName": "", "description": "" },
+
+  "FIS/USD":
+    { "longName": "", "description": "" },
+
+  "FLOCK/EUR":
+    { "longName": "", "description": "" },
+
+  "FLOCK/USD":
+    { "longName": "", "description": "" },
+
+  "FLOKI/EUR":
+    { "longName": "", "description": "" },
+
+  "FLOKI/USD":
+    { "longName": "", "description": "" },
+
+  "FLOW/EUR":
+    { "longName": "", "description": "" },
+
+  "FLOW/USD":
+    { "longName": "", "description": "" },
+
+  "FLR/EUR":
+    { "longName": "", "description": "" },
+
+  "FLR/USD":
+    { "longName": "", "description": "" },
+
+  "FLUX/EUR":
+    { "longName": "", "description": "" },
+
+  "FLUX/USD":
+    { "longName": "", "description": "" },
+
+  "FLY/EUR":
+    { "longName": "", "description": "" },
+
+  "FLY/USD":
+    { "longName": "", "description": "" },
+
+  "FOLKS/EUR":
+    { "longName": "", "description": "" },
+
+  "FOLKS/USD":
+    { "longName": "", "description": "" },
+
+  "FOREST/EUR":
+    { "longName": "", "description": "" },
+
+  "FOREST/USD":
+    { "longName": "", "description": "" },
+
+  "FORTH/EUR":
+    { "longName": "", "description": "" },
+
+  "FORTH/USD":
+    { "longName": "", "description": "" },
+
+  "FRNT/USD":
+    { "longName": "", "description": "" },
+
+  "FRNT/USDC":
+    { "longName": "", "description": "" },
+
+  "FUN/EUR":
+    { "longName": "", "description": "" },
+
+  "FUN/USD":
+    { "longName": "", "description": "" },
+
+  "FWOG/EUR":
+    { "longName": "", "description": "" },
+
+  "FWOG/USD":
+    { "longName": "", "description": "" },
+
+  "FXS/EUR":
+    { "longName": "", "description": "" },
+
+  "FXS/USD":
+    { "longName": "", "description": "" },
+
+  "GAIA/EUR":
+    { "longName": "", "description": "" },
+
+  "GAIA/USD":
+    { "longName": "", "description": "" },
+
+  "GAIB/EUR":
+    { "longName": "", "description": "" },
+
+  "GAIB/USD":
+    { "longName": "", "description": "" },
+
+  "GALA/EUR":
+    { "longName": "", "description": "" },
+
+  "GALA/USD":
+    { "longName": "", "description": "" },
+
+  "GAME2/EUR":
+    { "longName": "", "description": "" },
+
+  "GAME2/USD":
+    { "longName": "", "description": "" },
+
+  "GARI/EUR":
+    { "longName": "", "description": "" },
+
+  "GARI/USD":
+    { "longName": "", "description": "" },
+
+  "G/EUR":
+    { "longName": "", "description": "" },
+
+  "GFI/EUR":
+    { "longName": "", "description": "" },
+
+  "GFI/USD":
+    { "longName": "", "description": "" },
+
+  "GHIBLI/EUR":
+    { "longName": "", "description": "" },
+
+  "GHIBLI/USD":
+    { "longName": "", "description": "" },
+
+  "GHST/EUR":
+    { "longName": "", "description": "" },
+
+  "GHST/USD":
+    { "longName": "", "description": "" },
+
+  "GIGA/EUR":
+    { "longName": "", "description": "" },
+
+  "GIGA/USD":
+    { "longName": "", "description": "" },
+
+  "GLMR/EUR":
+    { "longName": "", "description": "" },
+
+  "GLMR/USD":
+    { "longName": "", "description": "" },
+
+  "GMT/EUR":
+    { "longName": "", "description": "" },
+
+  "GMT/USD":
+    { "longName": "", "description": "" },
+
+  "GMX/EUR":
+    { "longName": "", "description": "" },
+
+  "GMX/USD":
+    { "longName": "", "description": "" },
+
+  "GNO/EUR":
+    { "longName": "", "description": "" },
+
+  "GNO/USD":
+    { "longName": "", "description": "" },
+
+  "GOAT/EUR":
+    { "longName": "", "description": "" },
+
+  "GOAT/USD":
+    { "longName": "", "description": "" },
+
+  "GOMINING/EUR":
+    { "longName": "", "description": "" },
+
+  "GOMINING/USD":
+    { "longName": "", "description": "" },
+
+  "GRASS/EUR":
+    { "longName": "", "description": "" },
+
+  "GRASS/USD":
+    { "longName": "", "description": "" },
+
+  "GRIFFAIN/EUR":
+    { "longName": "", "description": "" },
+
+  "GRIFFAIN/USD":
+    { "longName": "", "description": "" },
+
+  "GRT/EUR":
+    { "longName": "", "description": "" },
+
+  "GRT/GBP":
+    { "longName": "", "description": "" },
+
+  "GRT/USD":
+    { "longName": "", "description": "" },
+
+  "GRT/XBT":
+    { "longName": "", "description": "" },
+
+  "GST/EUR":
+    { "longName": "", "description": "" },
+
+  "GST/USD":
+    { "longName": "", "description": "" },
+
+  "GTC/EUR":
+    { "longName": "", "description": "" },
+
+  "GTC/USD":
+    { "longName": "", "description": "" },
+
+  "GUN/EUR":
+    { "longName": "", "description": "" },
+
+  "GUN/USD":
+    { "longName": "", "description": "" },
+
+  "G/USD":
+    { "longName": "", "description": "" },
+
+  "GWEI/EUR":
+    { "longName": "", "description": "" },
+
+  "GWEI/USD":
+    { "longName": "", "description": "" },
+
+  "HBAR/EUR":
+    { "longName": "", "description": "" },
+
+  "HBAR/USD":
+    { "longName": "", "description": "" },
+
+  "HDX/EUR":
+    { "longName": "", "description": "" },
+
+  "HDX/USD":
+    { "longName": "", "description": "" },
+
+  "H/EUR":
+    { "longName": "", "description": "" },
+
+  "HFT/EUR":
+    { "longName": "", "description": "" },
+
+  "HFT/USD":
+    { "longName": "", "description": "" },
+
+  "HIPPO/EUR":
+    { "longName": "", "description": "" },
+
+  "HIPPO/USD":
+    { "longName": "", "description": "" },
+
+  "HMSTR/EUR":
+    { "longName": "", "description": "" },
+
+  "HMSTR/USD":
+    { "longName": "", "description": "" },
+
+  "HNT/EUR":
+    { "longName": "", "description": "" },
+
+  "HNT/USD":
+    { "longName": "", "description": "" },
+
+  "HOLO/EUR":
+    { "longName": "", "description": "" },
+
+  "HOLO/USD":
+    { "longName": "", "description": "" },
+
+  "HONEY/EUR":
+    { "longName": "", "description": "" },
+
+  "HONEY/USD":
+    { "longName": "", "description": "" },
+
+  "HOUSE/EUR":
+    { "longName": "", "description": "" },
+
+  "HOUSE/USD":
+    { "longName": "", "description": "" },
+
+  "HPOS10I/EUR":
+    { "longName": "", "description": "" },
+
+  "HPOS10I/USD":
+    { "longName": "", "description": "" },
+
+  "HSK/EUR":
+    { "longName": "", "description": "" },
+
+  "HSK/USD":
+    { "longName": "", "description": "" },
+
+  "H/USD":
+    { "longName": "", "description": "" },
+
+  "HYPE/EUR":
+    { "longName": "", "description": "" },
+
+  "HYPE/USD":
+    { "longName": "", "description": "" },
+
+  "IAG/EUR":
+    { "longName": "", "description": "" },
+
+  "IAG/USD":
+    { "longName": "", "description": "" },
+
+  "ICNT/EUR":
+    { "longName": "", "description": "" },
+
+  "ICNT/USD":
+    { "longName": "", "description": "" },
+
+  "ICP/EUR":
+    { "longName": "", "description": "" },
+
+  "ICP/USD":
+    { "longName": "", "description": "" },
+
+  "ICX/EUR":
+    { "longName": "", "description": "" },
+
+  "ICX/USD":
+    { "longName": "", "description": "" },
+
+  "IDEX/EUR":
+    { "longName": "", "description": "" },
+
+  "IDEX/USD":
+    { "longName": "", "description": "" },
+
+  "IMX/EUR":
+    { "longName": "", "description": "" },
+
+  "IMX/USD":
+    { "longName": "", "description": "" },
+
+  "IN/EUR":
+    { "longName": "", "description": "" },
+
+  "INIT/EUR":
+    { "longName": "", "description": "" },
+
+  "INIT/USD":
+    { "longName": "", "description": "" },
+
+  "INJ/EUR":
+    { "longName": "", "description": "" },
+
+  "INJ/USD":
+    { "longName": "", "description": "" },
+
+  "IN/USD":
+    { "longName": "", "description": "" },
+
+  "INX/EUR":
+    { "longName": "", "description": "" },
+
+  "INX/USD":
+    { "longName": "", "description": "" },
+
+  "IP/EUR":
+    { "longName": "", "description": "" },
+
+  "IP/USD":
+    { "longName": "", "description": "" },
+
+  "IR/EUR":
+    { "longName": "", "description": "" },
+
+  "IR/USD":
+    { "longName": "", "description": "" },
+
+  "JAILSTOOL/EUR":
+    { "longName": "", "description": "" },
+
+  "JAILSTOOL/USD":
+    { "longName": "", "description": "" },
+
+  "JASMY/EUR":
+    { "longName": "", "description": "" },
+
+  "JASMY/USD":
+    { "longName": "", "description": "" },
+
+  "JITOSOL/EUR":
+    { "longName": "", "description": "" },
+
+  "JITOSOL/SOL":
+    { "longName": "", "description": "" },
+
+  "JITOSOL/USD":
+    { "longName": "", "description": "" },
+
+  "JOE/EUR":
+    { "longName": "", "description": "" },
+
+  "JOE/USD":
+    { "longName": "", "description": "" },
+
+  "JST/EUR":
+    { "longName": "", "description": "" },
+
+  "JST/USD":
+    { "longName": "", "description": "" },
+
+  "JTO/EUR":
+    { "longName": "", "description": "" },
+
+  "JTO/USD":
+    { "longName": "", "description": "" },
+
+  "JUNO/EUR":
+    { "longName": "", "description": "" },
+
+  "JUNO/USD":
+    { "longName": "", "description": "" },
+
+  "JUP/EUR":
+    { "longName": "", "description": "" },
+
+  "JUP/USD":
+    { "longName": "", "description": "" },
+
+  "KAITO/EUR":
+    { "longName": "", "description": "" },
+
+  "KAITO/USD":
+    { "longName": "", "description": "" },
+
+  "KAS/EUR":
+    { "longName": "", "description": "" },
+
+  "KAS/USD":
+    { "longName": "", "description": "" },
+
+  "KAS/USDT":
+    { "longName": "", "description": "" },
+
+  "KAVA/EUR":
+    { "longName": "", "description": "" },
+
+  "KAVA/USD":
+    { "longName": "", "description": "" },
+
+  "KEEP/EUR":
+    { "longName": "", "description": "" },
+
+  "KEEP/USD":
+    { "longName": "", "description": "" },
+
+  "KERNEL/EUR":
+    { "longName": "", "description": "" },
+
+  "KERNEL/USD":
+    { "longName": "", "description": "" },
+
+  "KET/EUR":
+    { "longName": "", "description": "" },
+
+  "KET/USD":
+    { "longName": "", "description": "" },
+
+  "KEY/EUR":
+    { "longName": "", "description": "" },
+
+  "KEY/USD":
+    { "longName": "", "description": "" },
+
+  "KGEN/EUR":
+    { "longName": "", "description": "" },
+
+  "KGEN/USD":
+    { "longName": "", "description": "" },
+
+  "KIN/EUR":
+    { "longName": "", "description": "" },
+
+  "KIN/USD":
+    { "longName": "", "description": "" },
+
+  "KMNO/EUR":
+    { "longName": "", "description": "" },
+
+  "KMNO/USD":
+    { "longName": "", "description": "" },
+
+  "KNC/EUR":
+    { "longName": "", "description": "" },
+
+  "KNC/USD":
+    { "longName": "", "description": "" },
+
+  "KOBAN/EUR":
+    { "longName": "", "description": "" },
+
+  "KOBAN/USD":
+    { "longName": "", "description": "" },
+
+  "KP3R/EUR":
+    { "longName": "", "description": "" },
+
+  "KP3R/USD":
+    { "longName": "", "description": "" },
+
+  "KSM/EUR":
+    { "longName": "", "description": "" },
+
+  "KSM/GBP":
+    { "longName": "", "description": "" },
+
+  "KSM/USD":
+    { "longName": "", "description": "" },
+
+  "KTA/EUR":
+    { "longName": "", "description": "" },
+
+  "KTA/USD":
+    { "longName": "", "description": "" },
+
+  "KULA/EUR":
+    { "longName": "", "description": "" },
+
+  "KULA/USD":
+    { "longName": "", "description": "" },
+
+  "L3/EUR":
+    { "longName": "", "description": "" },
+
+  "L3/USD":
+    { "longName": "", "description": "" },
+
+  "LAVA/EUR":
+    { "longName": "", "description": "" },
+
+  "LAVA/USD":
+    { "longName": "", "description": "" },
+
+  "LAYER/EUR":
+    { "longName": "", "description": "" },
+
+  "LAYER/USD":
+    { "longName": "", "description": "" },
+
+  "LCAP/EUR":
+    { "longName": "", "description": "" },
+
+  "LCAP/USD":
+    { "longName": "", "description": "" },
+
+  "LCX/EUR":
+    { "longName": "", "description": "" },
+
+  "LCX/USD":
+    { "longName": "", "description": "" },
+
+  "LDO/EUR":
+    { "longName": "", "description": "" },
+
+  "LDO/USD":
+    { "longName": "", "description": "" },
+
+  "LINEA/EUR":
+    { "longName": "", "description": "" },
+
+  "LINEA/USD":
+    { "longName": "", "description": "" },
+
+  "LINK/AUD":
+    { "longName": "", "description": "" },
+
+  "LINK/ETH":
+    { "longName": "", "description": "" },
+
+  "LINK/EUR":
+    { "longName": "", "description": "" },
+
+  "LINK/GBP":
+    { "longName": "", "description": "" },
+
+  "LINK/JPY":
+    { "longName": "", "description": "" },
+
+  "LINK/USD":
+    { "longName": "", "description": "" },
+
+  "LINK/USDC":
+    { "longName": "", "description": "" },
+
+  "LINK/USDT":
+    { "longName": "", "description": "" },
+
+  "LINK/XBT":
+    { "longName": "", "description": "" },
+
+  "LION/EUR":
+    { "longName": "", "description": "" },
+
+  "LION/USD":
+    { "longName": "", "description": "" },
+
+  "LIT/EUR":
+    { "longName": "", "description": "" },
+
+  "LIT/USD":
+    { "longName": "", "description": "" },
+
+  "LMWR/EUR":
+    { "longName": "", "description": "" },
+
+  "LMWR/USD":
+    { "longName": "", "description": "" },
+
+  "LOBO/EUR":
+    { "longName": "", "description": "" },
+
+  "LOBO/USD":
+    { "longName": "", "description": "" },
+
+  "LOCKIN/EUR":
+    { "longName": "", "description": "" },
+
+  "LOCKIN/USD":
+    { "longName": "", "description": "" },
+
+  "LOFI/EUR":
+    { "longName": "", "description": "" },
+
+  "LOFI/USD":
+    { "longName": "", "description": "" },
+
+  "LPT/EUR":
+    { "longName": "", "description": "" },
+
+  "LPT/USD":
+    { "longName": "", "description": "" },
+
+  "LQTY/EUR":
+    { "longName": "", "description": "" },
+
+  "LQTY/USD":
+    { "longName": "", "description": "" },
+
+  "LRC/EUR":
+    { "longName": "", "description": "" },
+
+  "LRC/USD":
+    { "longName": "", "description": "" },
+
+  "LSETH/ETH":
+    { "longName": "", "description": "" },
+
+  "LSETH/EUR":
+    { "longName": "", "description": "" },
+
+  "LSETH/USD":
+    { "longName": "", "description": "" },
+
+  "LSK/EUR":
+    { "longName": "", "description": "" },
+
+  "LSK/USD":
+    { "longName": "", "description": "" },
+
+  "LSSOL/EUR":
+    { "longName": "", "description": "" },
+
+  "LSSOL/SOL":
+    { "longName": "", "description": "" },
+
+  "LSSOL/USD":
+    { "longName": "", "description": "" },
+
+  "LTC/AUD":
+    { "longName": "", "description": "" },
+
+  "LTC/ETH":
+    { "longName": "", "description": "" },
+
+  "LTC/GBP":
+    { "longName": "", "description": "" },
+
+  "LTC/USDC":
+    { "longName": "", "description": "" },
+
+  "LTC/USDT":
+    { "longName": "", "description": "" },
+
+  "LUNA2/EUR":
+    { "longName": "", "description": "" },
+
+  "LUNA2/USD":
+    { "longName": "", "description": "" },
+
+  "LUNA/EUR":
+    { "longName": "", "description": "" },
+
+  "LUNA/USD":
+    { "longName": "", "description": "" },
+
+  "MANA/EUR":
+    { "longName": "", "description": "" },
+
+  "MANA/USD":
+    { "longName": "", "description": "" },
+
+  "MANA/USDC":
+    { "longName": "", "description": "" },
+
+  "MANA/USDT":
+    { "longName": "", "description": "" },
+
+  "MANA/XBT":
+    { "longName": "", "description": "" },
+
+  "MASK/EUR":
+    { "longName": "", "description": "" },
+
+  "MASK/USD":
+    { "longName": "", "description": "" },
+
+  "MAT/EUR":
+    { "longName": "", "description": "" },
+
+  "MAT/USD":
+    { "longName": "", "description": "" },
+
+  "ME/EUR":
+    { "longName": "", "description": "" },
+
+  "MELANIA/EUR":
+    { "longName": "", "description": "" },
+
+  "MELANIA/USD":
+    { "longName": "", "description": "" },
+
+  "MELANIA/USDC":
+    { "longName": "", "description": "" },
+
+  "MELANIA/USDT":
+    { "longName": "", "description": "" },
+
+  "MEME/EUR":
+    { "longName": "", "description": "" },
+
+  "MEME/USD":
+    { "longName": "", "description": "" },
+
+  "MERL/EUR":
+    { "longName": "", "description": "" },
+
+  "MERL/USD":
+    { "longName": "", "description": "" },
+
+  "MET/EUR":
+    { "longName": "", "description": "" },
+
+  "METH/ETH":
+    { "longName": "", "description": "" },
+
+  "METH/USD":
+    { "longName": "", "description": "" },
+
+  "METIS/EUR":
+    { "longName": "", "description": "" },
+
+  "METIS/USD":
+    { "longName": "", "description": "" },
+
+  "MET/USD":
+    { "longName": "", "description": "" },
+
+  "M/EUR":
+    { "longName": "", "description": "" },
+
+  "ME/USD":
+    { "longName": "", "description": "" },
+
+  "MEW/EUR":
+    { "longName": "", "description": "" },
+
+  "MEW/USD":
+    { "longName": "", "description": "" },
+
+  "MF/EUR":
+    { "longName": "", "description": "" },
+
+  "MF/USD":
+    { "longName": "", "description": "" },
+
+  "MICHI/EUR":
+    { "longName": "", "description": "" },
+
+  "MICHI/USD":
+    { "longName": "", "description": "" },
+
+  "MIM/EUR":
+    { "longName": "", "description": "" },
+
+  "MIM/USD":
+    { "longName": "", "description": "" },
+
+  "MINA/EUR":
+    { "longName": "", "description": "" },
+
+  "MINA/GBP":
+    { "longName": "", "description": "" },
+
+  "MINA/USD":
+    { "longName": "", "description": "" },
+
+  "MINA/XBT":
+    { "longName": "", "description": "" },
+
+  "MIRA/EUR":
+    { "longName": "", "description": "" },
+
+  "MIRA/USD":
+    { "longName": "", "description": "" },
+
+  "MIR/EUR":
+    { "longName": "", "description": "" },
+
+  "MIRROR/EUR":
+    { "longName": "", "description": "" },
+
+  "MIRROR/USD":
+    { "longName": "", "description": "" },
+
+  "MIR/USD":
+    { "longName": "", "description": "" },
+
+  "MNGO/EUR":
+    { "longName": "", "description": "" },
+
+  "MNGO/USD":
+    { "longName": "", "description": "" },
+
+  "MNT/EUR":
+    { "longName": "", "description": "" },
+
+  "MNT/USD":
+    { "longName": "", "description": "" },
+
+  "MOCA/EUR":
+    { "longName": "", "description": "" },
+
+  "MOCA/USD":
+    { "longName": "", "description": "" },
+
+  "MOG/EUR":
+    { "longName": "", "description": "" },
+
+  "MOG/USD":
+    { "longName": "", "description": "" },
+
+  "MON/AUSD":
+    { "longName": "", "description": "" },
+
+  "MON/EUR":
+    { "longName": "", "description": "" },
+
+  "MON/USD":
+    { "longName": "", "description": "" },
+
+  "MOODENG/EUR":
+    { "longName": "", "description": "" },
+
+  "MOODENG/USD":
+    { "longName": "", "description": "" },
+
+  "MOON/EUR":
+    { "longName": "", "description": "" },
+
+  "MOON/USD":
+    { "longName": "", "description": "" },
+
+  "MORPHO/EUR":
+    { "longName": "", "description": "" },
+
+  "MORPHO/USD":
+    { "longName": "", "description": "" },
+
+  "MOVE/EUR":
+    { "longName": "", "description": "" },
+
+  "MOVE/USD":
+    { "longName": "", "description": "" },
+
+  "MOVR/EUR":
+    { "longName": "", "description": "" },
+
+  "MOVR/USD":
+    { "longName": "", "description": "" },
+
+  "MSOL/EUR":
+    { "longName": "", "description": "" },
+
+  "MSOL/USD":
+    { "longName": "", "description": "" },
+
+  "MUBARAK/EUR":
+    { "longName": "", "description": "" },
+
+  "MUBARAK/USD":
+    { "longName": "", "description": "" },
+
+  "MULTI/EUR":
+    { "longName": "", "description": "" },
+
+  "MULTI/USD":
+    { "longName": "", "description": "" },
+
+  "M/USD":
+    { "longName": "", "description": "" },
+
+  "MV/EUR":
+    { "longName": "", "description": "" },
+
+  "MV/USD":
+    { "longName": "", "description": "" },
+
+  "MXC/EUR":
+    { "longName": "", "description": "" },
+
+  "MXC/USD":
+    { "longName": "", "description": "" },
+
+  "MXNB/USD":
+    { "longName": "", "description": "" },
+
+  "MYX/EUR":
+    { "longName": "", "description": "" },
+
+  "MYX/USD":
+    { "longName": "", "description": "" },
+
+  "NANO/EUR":
+    { "longName": "", "description": "" },
+
+  "NANO/USD":
+    { "longName": "", "description": "" },
+
+  "NEAR/EUR":
+    { "longName": "", "description": "" },
+
+  "NEAR/USD":
+    { "longName": "", "description": "" },
+
+  "NEIRO/EUR":
+    { "longName": "", "description": "" },
+
+  "NEIRO/USD":
+    { "longName": "", "description": "" },
+
+  "NIGHT/EUR":
+    { "longName": "", "description": "" },
+
+  "NIGHT/USD":
+    { "longName": "", "description": "" },
+
+  "NIL/EUR":
+    { "longName": "", "description": "" },
+
+  "NIL/USD":
+    { "longName": "", "description": "" },
+
+  "NMR/EUR":
+    { "longName": "", "description": "" },
+
+  "NMR/USD":
+    { "longName": "", "description": "" },
+
+  "NOBODY/EUR":
+    { "longName": "", "description": "" },
+
+  "NOBODY/USD":
+    { "longName": "", "description": "" },
+
+  "NODE/EUR":
+    { "longName": "", "description": "" },
+
+  "NODE/USD":
+    { "longName": "", "description": "" },
+
+  "NODL/EUR":
+    { "longName": "", "description": "" },
+
+  "NODL/USD":
+    { "longName": "", "description": "" },
+
+  "NOS/EUR":
+    { "longName": "", "description": "" },
+
+  "NOS/USD":
+    { "longName": "", "description": "" },
+
+  "NOT/EUR":
+    { "longName": "", "description": "" },
+
+  "NOT/USD":
+    { "longName": "", "description": "" },
+
+  "NPC/EUR":
+    { "longName": "", "description": "" },
+
+  "NPC/USD":
+    { "longName": "", "description": "" },
+
+  "NTRN/EUR":
+    { "longName": "", "description": "" },
+
+  "NTRN/USD":
+    { "longName": "", "description": "" },
+
+  "NYM/EUR":
+    { "longName": "", "description": "" },
+
+  "NYM/USD":
+    { "longName": "", "description": "" },
+
+  "OBOL/EUR":
+    { "longName": "", "description": "" },
+
+  "OBOL/USD":
+    { "longName": "", "description": "" },
+
+  "OBOL/USDT":
+    { "longName": "", "description": "" },
+
+  "OCEAN/EUR":
+    { "longName": "", "description": "" },
+
+  "OCEAN/USD":
+    { "longName": "", "description": "" },
+
+  "ODOS/EUR":
+    { "longName": "", "description": "" },
+
+  "ODOS/USD":
+    { "longName": "", "description": "" },
+
+  "OGN/EUR":
+    { "longName": "", "description": "" },
+
+  "OGN/USD":
+    { "longName": "", "description": "" },
+
+  "OM/EUR":
+    { "longName": "", "description": "" },
+
+  "OMG/EUR":
+    { "longName": "", "description": "" },
+
+  "OMG/USD":
+    { "longName": "", "description": "" },
+
+  "OMI/EUR":
+    { "longName": "", "description": "" },
+
+  "OMI/USD":
+    { "longName": "", "description": "" },
+
+  "OMNI/EUR":
+    { "longName": "", "description": "" },
+
+  "OMNI/USD":
+    { "longName": "", "description": "" },
+
+  "OM/USD":
+    { "longName": "", "description": "" },
+
+  "ONDO/EUR":
+    { "longName": "", "description": "" },
+
+  "ONDO/USD":
+    { "longName": "", "description": "" },
+
+  "OOB/EUR":
+    { "longName": "", "description": "" },
+
+  "OOB/USD":
+    { "longName": "", "description": "" },
+
+  "OPEN/EUR":
+    { "longName": "", "description": "" },
+
+  "OPEN/USD":
+    { "longName": "", "description": "" },
+
+  "OP/EUR":
+    { "longName": "", "description": "" },
+
+  "OP/USD":
+    { "longName": "", "description": "" },
+
+  "ORCA/EUR":
+    { "longName": "", "description": "" },
+
+  "ORCA/USD":
+    { "longName": "", "description": "" },
+
+  "ORDER/EUR":
+    { "longName": "", "description": "" },
+
+  "ORDER/USD":
+    { "longName": "", "description": "" },
+
+  "OSMO/EUR":
+    { "longName": "", "description": "" },
+
+  "OSMO/USD":
+    { "longName": "", "description": "" },
+
+  "OXT/EUR":
+    { "longName": "", "description": "" },
+
+  "OXT/USD":
+    { "longName": "", "description": "" },
+
+  "PARTI/EUR":
+    { "longName": "", "description": "" },
+
+  "PARTI/USD":
+    { "longName": "", "description": "" },
+
+  "PAXG/ETH":
+    { "longName": "", "description": "" },
+
+  "PAXG/EUR":
+    { "longName": "", "description": "" },
+
+  "PAXG/USD":
+    { "longName": "", "description": "" },
+
+  "PAXG/XBT":
+    { "longName": "", "description": "" },
+
+  "PDA/EUR":
+    { "longName": "", "description": "" },
+
+  "PDA/USD":
+    { "longName": "", "description": "" },
+
+  "PEAQ/EUR":
+    { "longName": "", "description": "" },
+
+  "PEAQ/USD":
+    { "longName": "", "description": "" },
+
+  "PEAQ/USDC":
+    { "longName": "", "description": "" },
+
+  "PENDLE/EUR":
+    { "longName": "", "description": "" },
+
+  "PENDLE/USD":
+    { "longName": "", "description": "" },
+
+  "PENGU/EUR":
+    { "longName": "", "description": "" },
+
+  "PENGU/USD":
+    { "longName": "", "description": "" },
+
+  "PENGU/USDC":
+    { "longName": "", "description": "" },
+
+  "PENGU/USDT":
+    { "longName": "", "description": "" },
+
+  "PEPE/AUD":
+    { "longName": "", "description": "" },
+
+  "PEPE/CAD":
+    { "longName": "", "description": "" },
+
+  "PEPECOIN/USD":
+    { "longName": "", "description": "" },
+
+  "PEPE/EUR":
+    { "longName": "", "description": "" },
+
+  "PEPE/GBP":
+    { "longName": "", "description": "" },
+
+  "PEP/EUR":
+    { "longName": "", "description": "" },
+
+  "PEPE/USD":
+    { "longName": "", "description": "" },
+
+  "PEP/USD":
+    { "longName": "", "description": "" },
+
+  "PERP/EUR":
+    { "longName": "", "description": "" },
+
+  "PERP/USD":
+    { "longName": "", "description": "" },
+
+  "PHA/EUR":
+    { "longName": "", "description": "" },
+
+  "PHA/USD":
+    { "longName": "", "description": "" },
+
+  "PIPE/EUR":
+    { "longName": "", "description": "" },
+
+  "PIPE/USD":
+    { "longName": "", "description": "" },
+
+  "PLANCK/EUR":
+    { "longName": "", "description": "" },
+
+  "PLANCK/USD":
+    { "longName": "", "description": "" },
+
+  "PLAY/EUR":
+    { "longName": "", "description": "" },
+
+  "PLAY/USD":
+    { "longName": "", "description": "" },
+
+  "PLUME/EUR":
+    { "longName": "", "description": "" },
+
+  "PLUME/USD":
+    { "longName": "", "description": "" },
+
+  "PNUT/EUR":
+    { "longName": "", "description": "" },
+
+  "PNUT/USD":
+    { "longName": "", "description": "" },
+
+  "POL/EUR":
+    { "longName": "", "description": "" },
+
+  "POLIS/EUR":
+    { "longName": "", "description": "" },
+
+  "POLIS/USD":
+    { "longName": "", "description": "" },
+
+  "POLS/EUR":
+    { "longName": "", "description": "" },
+
+  "POLS/USD":
+    { "longName": "", "description": "" },
+
+  "POL/USD":
+    { "longName": "", "description": "" },
+
+  "POND/EUR":
+    { "longName": "", "description": "" },
+
+  "POND/USD":
+    { "longName": "", "description": "" },
+
+  "PONKE/EUR":
+    { "longName": "", "description": "" },
+
+  "PONKE/USD":
+    { "longName": "", "description": "" },
+
+  "POPCAT/EUR":
+    { "longName": "", "description": "" },
+
+  "POPCAT/GBP":
+    { "longName": "", "description": "" },
+
+  "POPCAT/USD":
+    { "longName": "", "description": "" },
+
+  "PORTAL/EUR":
+    { "longName": "", "description": "" },
+
+  "PORTAL/USD":
+    { "longName": "", "description": "" },
+
+  "POWR/EUR":
+    { "longName": "", "description": "" },
+
+  "POWR/USD":
+    { "longName": "", "description": "" },
+
+  "PRCL/EUR":
+    { "longName": "", "description": "" },
+
+  "PRCL/USD":
+    { "longName": "", "description": "" },
+
+  "PRIME/EUR":
+    { "longName": "", "description": "" },
+
+  "PRIME/USD":
+    { "longName": "", "description": "" },
+
+  "PRO/EUR":
+    { "longName": "", "description": "" },
+
+  "PROMPT/EUR":
+    { "longName": "", "description": "" },
+
+  "PROMPT/USD":
+    { "longName": "", "description": "" },
+
+  "PRO/USD":
+    { "longName": "", "description": "" },
+
+  "PROVE/EUR":
+    { "longName": "", "description": "" },
+
+  "PROVE/USD":
+    { "longName": "", "description": "" },
+
+  "PTB/EUR":
+    { "longName": "", "description": "" },
+
+  "PTB/USD":
+    { "longName": "", "description": "" },
+
+  "PUFFER/EUR":
+    { "longName": "", "description": "" },
+
+  "PUFFER/USD":
+    { "longName": "", "description": "" },
+
+  "PUMP/EUR":
+    { "longName": "", "description": "" },
+
+  "PUMP/SOL":
+    { "longName": "", "description": "" },
+
+  "PUMP/USD":
+    { "longName": "", "description": "" },
+
+  "PUPS/EUR":
+    { "longName": "", "description": "" },
+
+  "PUPS/USD":
+    { "longName": "", "description": "" },
+
+  "PYTH/EUR":
+    { "longName": "", "description": "" },
+
+  "PYTH/USD":
+    { "longName": "", "description": "" },
+
+  "PYUSD/EUR":
+    { "longName": "", "description": "" },
+
+  "PYUSD/USD":
+    { "longName": "", "description": "" },
+
+  "Q/EUR":
+    { "longName": "", "description": "" },
+
+  "QI/EUR":
+    { "longName": "", "description": "" },
+
+  "QI/USD":
+    { "longName": "", "description": "" },
+
+  "QNT/EUR":
+    { "longName": "", "description": "" },
+
+  "QNT/USD":
+    { "longName": "", "description": "" },
+
+  "QTUM/EUR":
+    { "longName": "", "description": "" },
+
+  "QTUM/USD":
+    { "longName": "", "description": "" },
+
+  "Q/USD":
+    { "longName": "", "description": "" },
+
+  "RAD/EUR":
+    { "longName": "", "description": "" },
+
+  "RAD/USD":
+    { "longName": "", "description": "" },
+
+  "RAIIN/EUR":
+    { "longName": "", "description": "" },
+
+  "RAIIN/USD":
+    { "longName": "", "description": "" },
+
+  "RAILS/EUR":
+    { "longName": "", "description": "" },
+
+  "RAILS/USD":
+    { "longName": "", "description": "" },
+
+  "RAIN/EUR":
+    { "longName": "", "description": "" },
+
+  "RAIN/USD":
+    { "longName": "", "description": "" },
+
+  "RARE/EUR":
+    { "longName": "", "description": "" },
+
+  "RARE/USD":
+    { "longName": "", "description": "" },
+
+  "RARI/EUR":
+    { "longName": "", "description": "" },
+
+  "RARI/USD":
+    { "longName": "", "description": "" },
+
+  "RAVE/EUR":
+    { "longName": "", "description": "" },
+
+  "RAVE/USD":
+    { "longName": "", "description": "" },
+
+  "RAY/EUR":
+    { "longName": "", "description": "" },
+
+  "RAY/USD":
+    { "longName": "", "description": "" },
+
+  "RBC/EUR":
+    { "longName": "", "description": "" },
+
+  "RBC/USD":
+    { "longName": "", "description": "" },
+
+  "RED/EUR":
+    { "longName": "", "description": "" },
+
+  "RED/USD":
+    { "longName": "", "description": "" },
+
+  "REKT/EUR":
+    { "longName": "", "description": "" },
+
+  "REKT/USD":
+    { "longName": "", "description": "" },
+
+  "RENDER/EUR":
+    { "longName": "", "description": "" },
+
+  "RENDER/USD":
+    { "longName": "", "description": "" },
+
+  "REN/EUR":
+    { "longName": "", "description": "" },
+
+  "REN/USD":
+    { "longName": "", "description": "" },
+
+  "REPV2/EUR":
+    { "longName": "", "description": "" },
+
+  "REPV2/USD":
+    { "longName": "", "description": "" },
+
+  "REQ/EUR":
+    { "longName": "", "description": "" },
+
+  "REQ/USD":
+    { "longName": "", "description": "" },
+
+  "RETARDIO/EUR":
+    { "longName": "", "description": "" },
+
+  "RETARDIO/USD":
+    { "longName": "", "description": "" },
+
+  "REZ/EUR":
+    { "longName": "", "description": "" },
+
+  "REZ/USD":
+    { "longName": "", "description": "" },
+
+  "RHEA/EUR":
+    { "longName": "", "description": "" },
+
+  "RHEA/USD":
+    { "longName": "", "description": "" },
+
+  "RIVER/EUR":
+    { "longName": "", "description": "" },
+
+  "RIVER/USD":
+    { "longName": "", "description": "" },
+
+  "RIZE/EUR":
+    { "longName": "", "description": "" },
+
+  "RIZE/USD":
+    { "longName": "", "description": "" },
+
+  "RLC/EUR":
+    { "longName": "", "description": "" },
+
+  "RLC/USD":
+    { "longName": "", "description": "" },
+
+  "RLS/EUR":
+    { "longName": "", "description": "" },
+
+  "RLS/USD":
+    { "longName": "", "description": "" },
+
+  "RLUSD/EUR":
+    { "longName": "", "description": "" },
+
+  "RLUSD/USD":
+    { "longName": "", "description": "" },
+
+  "RLUSD/USDC":
+    { "longName": "", "description": "" },
+
+  "RLUSD/USDT":
+    { "longName": "", "description": "" },
+
+  "RNBW/EUR":
+    { "longName": "", "description": "" },
+
+  "RNBW/USD":
+    { "longName": "", "description": "" },
+
+  "ROLL/EUR":
+    { "longName": "", "description": "" },
+
+  "ROLL/USD":
+    { "longName": "", "description": "" },
+
+  "RPL/EUR":
+    { "longName": "", "description": "" },
+
+  "RPL/USD":
+    { "longName": "", "description": "" },
+
+  "RSC/EUR":
+    { "longName": "", "description": "" },
+
+  "RSC/USD":
+    { "longName": "", "description": "" },
+
+  "RSR/EUR":
+    { "longName": "", "description": "" },
+
+  "RSR/USD":
+    { "longName": "", "description": "" },
+
+  "RUJI/EUR":
+    { "longName": "", "description": "" },
+
+  "RUJI/USD":
+    { "longName": "", "description": "" },
+
+  "RUNE/EUR":
+    { "longName": "", "description": "" },
+
+  "RUNE/USD":
+    { "longName": "", "description": "" },
+
+  "RVV/USD":
+    { "longName": "", "description": "" },
+
+  "SAFE/EUR":
+    { "longName": "", "description": "" },
+
+  "SAFE/USD":
+    { "longName": "", "description": "" },
+
+  "SAGA/EUR":
+    { "longName": "", "description": "" },
+
+  "SAGA/USD":
+    { "longName": "", "description": "" },
+
+  "SAHARA/EUR":
+    { "longName": "", "description": "" },
+
+  "SAHARA/USD":
+    { "longName": "", "description": "" },
+
+  "SAMO/EUR":
+    { "longName": "", "description": "" },
+
+  "SAMO/USD":
+    { "longName": "", "description": "" },
+
+  "SAND/EUR":
+    { "longName": "", "description": "" },
+
+  "SAND/GBP":
+    { "longName": "", "description": "" },
+
+  "SAND/USD":
+    { "longName": "", "description": "" },
+
+  "SAND/XBT":
+    { "longName": "", "description": "" },
+
+  "SAPIEN/EUR":
+    { "longName": "", "description": "" },
+
+  "SAPIEN/USD":
+    { "longName": "", "description": "" },
+
+  "SAROS/EUR":
+    { "longName": "", "description": "" },
+
+  "SAROS/USD":
+    { "longName": "", "description": "" },
+
+  "SBR/EUR":
+    { "longName": "", "description": "" },
+
+  "SBR/USD":
+    { "longName": "", "description": "" },
+
+  "SCA/EUR":
+    { "longName": "", "description": "" },
+
+  "SCA/USD":
+    { "longName": "", "description": "" },
+
+  "SC/EUR":
+    { "longName": "", "description": "" },
+
+  "SCRT/EUR":
+    { "longName": "", "description": "" },
+
+  "SCRT/USD":
+    { "longName": "", "description": "" },
+
+  "SC/USD":
+    { "longName": "", "description": "" },
+
+  "SC/XBT":
+    { "longName": "", "description": "" },
+
+  "SDN/EUR":
+    { "longName": "", "description": "" },
+
+  "SDN/USD":
+    { "longName": "", "description": "" },
+
+  "SEI/EUR":
+    { "longName": "", "description": "" },
+
+  "SEI/USD":
+    { "longName": "", "description": "" },
+
+  "SENT/EUR":
+    { "longName": "", "description": "" },
+
+  "SENT/USD":
+    { "longName": "", "description": "" },
+
+  "S/EUR":
+    { "longName": "", "description": "" },
+
+  "SGB/EUR":
+    { "longName": "", "description": "" },
+
+  "SGB/USD":
+    { "longName": "", "description": "" },
+
+  "SHIB/EUR":
+    { "longName": "", "description": "" },
+
+  "SHIB/USD":
+    { "longName": "", "description": "" },
+
+  "SHIB/USDC":
+    { "longName": "", "description": "" },
+
+  "SHIB/USDT":
+    { "longName": "", "description": "" },
+
+  "SHX/EUR":
+    { "longName": "", "description": "" },
+
+  "SHX/USD":
+    { "longName": "", "description": "" },
+
+  "SIDEKICK/EUR":
+    { "longName": "", "description": "" },
+
+  "SIDEKICK/USD":
+    { "longName": "", "description": "" },
+
+  "SIDEKICK/USDT":
+    { "longName": "", "description": "" },
+
+  "SIGMA/EUR":
+    { "longName": "", "description": "" },
+
+  "SIGMA/USD":
+    { "longName": "", "description": "" },
+
+  "SKR/EUR":
+    { "longName": "", "description": "" },
+
+  "SKR/USD":
+    { "longName": "", "description": "" },
+
+  "SKY/EUR":
+    { "longName": "", "description": "" },
+
+  "SKY/USD":
+    { "longName": "", "description": "" },
+
+  "SLAY/EUR":
+    { "longName": "", "description": "" },
+
+  "SLAY/USD":
+    { "longName": "", "description": "" },
+
+  "SNEK/EUR":
+    { "longName": "", "description": "" },
+
+  "SNEK/USD":
+    { "longName": "", "description": "" },
+
+  "SNX/EUR":
+    { "longName": "", "description": "" },
+
+  "SNX/USD":
+    { "longName": "", "description": "" },
+
+  "SNX/XBT":
+    { "longName": "", "description": "" },
+
+  "SOGNI/EUR":
+    { "longName": "", "description": "" },
+
+  "SOGNI/USD":
+    { "longName": "", "description": "" },
+
+  "SOL/AUD":
+    { "longName": "", "description": "" },
+
+  "SOL/CAD":
+    { "longName": "", "description": "" },
+
+  "SOL/ETH":
+    { "longName": "", "description": "" },
+
+  "SOL/EUR":
+    { "longName": "", "description": "" },
+
+  "SOL/EURC":
+    { "longName": "", "description": "" },
+
+  "SOL/GBP":
+    { "longName": "", "description": "" },
+
+  "SOL/USD":
+    { "longName": "", "description": "" },
+
+  "SOL/USD1":
+    { "longName": "", "description": "" },
+
+  "SOL/USDC":
+    { "longName": "", "description": "" },
+
+  "SOL/USDT":
+    { "longName": "", "description": "" },
+
+  "SOLV/EUR":
+    { "longName": "", "description": "" },
+
+  "SOLV/USD":
+    { "longName": "", "description": "" },
+
+  "SOL/XBT":
+    { "longName": "", "description": "" },
+
+  "SOMI/EUR":
+    { "longName": "", "description": "" },
+
+  "SOMI/USD":
+    { "longName": "", "description": "" },
+
+  "SONIC/EUR":
+    { "longName": "", "description": "" },
+
+  "SONIC/USD":
+    { "longName": "", "description": "" },
+
+  "SOON/EUR":
+    { "longName": "", "description": "" },
+
+  "SOON/USD":
+    { "longName": "", "description": "" },
+
+  "SOSO/EUR":
+    { "longName": "", "description": "" },
+
+  "SOSO/USD":
+    { "longName": "", "description": "" },
+
+  "SPACE/EUR":
+    { "longName": "", "description": "" },
+
+  "SPACE/USD":
+    { "longName": "", "description": "" },
+
+  "SPELL/EUR":
+    { "longName": "", "description": "" },
+
+  "SPELL/USD":
+    { "longName": "", "description": "" },
+
+  "SPICE/EUR":
+    { "longName": "", "description": "" },
+
+  "SPICE/USD":
+    { "longName": "", "description": "" },
+
+  "SPK/EUR":
+    { "longName": "", "description": "" },
+
+  "SPK/USD":
+    { "longName": "", "description": "" },
+
+  "SPX/EUR":
+    { "longName": "", "description": "" },
+
+  "SPX/USD":
+    { "longName": "", "description": "" },
+
+  "SRM/EUR":
+    { "longName": "", "description": "" },
+
+  "SRM/USD":
+    { "longName": "", "description": "" },
+
+  "SSV/EUR":
+    { "longName": "", "description": "" },
+
+  "SSV/USD":
+    { "longName": "", "description": "" },
+
+  "STABLE/EUR":
+    { "longName": "", "description": "" },
+
+  "STABLE/USD":
+    { "longName": "", "description": "" },
+
+  "STBL/EUR":
+    { "longName": "", "description": "" },
+
+  "STBL/USD":
+    { "longName": "", "description": "" },
+
+  "STEP/EUR":
+    { "longName": "", "description": "" },
+
+  "STEP/USD":
+    { "longName": "", "description": "" },
+
+  "STG/EUR":
+    { "longName": "", "description": "" },
+
+  "STG/USD":
+    { "longName": "", "description": "" },
+
+  "STORJ/EUR":
+    { "longName": "", "description": "" },
+
+  "STORJ/USD":
+    { "longName": "", "description": "" },
+
+  "STRD/EUR":
+    { "longName": "", "description": "" },
+
+  "STRD/USD":
+    { "longName": "", "description": "" },
+
+  "STRK/EUR":
+    { "longName": "", "description": "" },
+
+  "STRK/USD":
+    { "longName": "", "description": "" },
+
+  "STX/EUR":
+    { "longName": "", "description": "" },
+
+  "STX/USD":
+    { "longName": "", "description": "" },
+
+  "SUI/EUR":
+    { "longName": "", "description": "" },
+
+  "SUI/GBP":
+    { "longName": "", "description": "" },
+
+  "SUI/USD":
+    { "longName": "", "description": "" },
+
+  "SUKU/EUR":
+    { "longName": "", "description": "" },
+
+  "SUKU/USD":
+    { "longName": "", "description": "" },
+
+  "SUNDOG/EUR":
+    { "longName": "", "description": "" },
+
+  "SUNDOG/USD":
+    { "longName": "", "description": "" },
+
+  "SUN/EUR":
+    { "longName": "", "description": "" },
+
+  "SUN/USD":
+    { "longName": "", "description": "" },
+
+  "SUPER/EUR":
+    { "longName": "", "description": "" },
+
+  "SUPER/USD":
+    { "longName": "", "description": "" },
+
+  "SUP/EUR":
+    { "longName": "", "description": "" },
+
+  "SUP/USD":
+    { "longName": "", "description": "" },
+
+  "S/USD":
+    { "longName": "", "description": "" },
+
+  "S/USDC":
+    { "longName": "", "description": "" },
+
+  "S/USDT":
+    { "longName": "", "description": "" },
+
+  "SUSHI/EUR":
+    { "longName": "", "description": "" },
+
+  "SUSHI/USD":
+    { "longName": "", "description": "" },
+
+  "SWARMS/EUR":
+    { "longName": "", "description": "" },
+
+  "SWARMS/USD":
+    { "longName": "", "description": "" },
+
+  "SWEAT/EUR":
+    { "longName": "", "description": "" },
+
+  "SWEAT/USD":
+    { "longName": "", "description": "" },
+
+  "SWELL/EUR":
+    { "longName": "", "description": "" },
+
+  "SWELL/USD":
+    { "longName": "", "description": "" },
+
+  "SXT/EUR":
+    { "longName": "", "description": "" },
+
+  "SXT/USD":
+    { "longName": "", "description": "" },
+
+  "SYND/EUR":
+    { "longName": "", "description": "" },
+
+  "SYND/USD":
+    { "longName": "", "description": "" },
+
+  "SYN/EUR":
+    { "longName": "", "description": "" },
+
+  "SYN/USD":
+    { "longName": "", "description": "" },
+
+  "SYRUP/EUR":
+    { "longName": "", "description": "" },
+
+  "SYRUP/USD":
+    { "longName": "", "description": "" },
+
+  "TAC/EUR":
+    { "longName": "", "description": "" },
+
+  "TAC/USD":
+    { "longName": "", "description": "" },
+
+  "TAKE/EUR":
+    { "longName": "", "description": "" },
+
+  "TAKE/USD":
+    { "longName": "", "description": "" },
+
+  "TANSSI/EUR":
+    { "longName": "", "description": "" },
+
+  "TANSSI/USD":
+    { "longName": "", "description": "" },
+
+  "TAO/EUR":
+    { "longName": "", "description": "" },
+
+  "TAO/USD":
+    { "longName": "", "description": "" },
+
+  "TBTC/EUR":
+    { "longName": "", "description": "" },
+
+  "TBTC/USD":
+    { "longName": "", "description": "" },
+
+  "TBTC/XBT":
+    { "longName": "", "description": "" },
+
+  "TEA/EUR":
+    { "longName": "", "description": "" },
+
+  "TEA/USD":
+    { "longName": "", "description": "" },
+
+  "TEER/EUR":
+    { "longName": "", "description": "" },
+
+  "TEER/USD":
+    { "longName": "", "description": "" },
+
+  "TEL/EUR":
+    { "longName": "", "description": "" },
+
+  "TEL/USD":
+    { "longName": "", "description": "" },
+
+  "TERM/EUR":
+    { "longName": "", "description": "" },
+
+  "TERM/USD":
+    { "longName": "", "description": "" },
+
+  "T/EUR":
+    { "longName": "", "description": "" },
+
+  "TGBP/GBP":
+    { "longName": "", "description": "" },
+
+  "TGBP/USD":
+    { "longName": "", "description": "" },
+
+  "THQ/EUR":
+    { "longName": "", "description": "" },
+
+  "THQ/USD":
+    { "longName": "", "description": "" },
+
+  "TIA/EUR":
+    { "longName": "", "description": "" },
+
+  "TIA/USD":
+    { "longName": "", "description": "" },
+
+  "TITCOIN/EUR":
+    { "longName": "", "description": "" },
+
+  "TITCOIN/USD":
+    { "longName": "", "description": "" },
+
+  "TLM/EUR":
+    { "longName": "", "description": "" },
+
+  "TLM/USD":
+    { "longName": "", "description": "" },
+
+  "TNSR/EUR":
+    { "longName": "", "description": "" },
+
+  "TNSR/USD":
+    { "longName": "", "description": "" },
+
+  "TOKE/EUR":
+    { "longName": "", "description": "" },
+
+  "TOKEN/EUR":
+    { "longName": "", "description": "" },
+
+  "TOKEN/USD":
+    { "longName": "", "description": "" },
+
+  "TOKE/USD":
+    { "longName": "", "description": "" },
+
+  "TON/EUR":
+    { "longName": "", "description": "" },
+
+  "TON/USD":
+    { "longName": "", "description": "" },
+
+  "TON/USDC":
+    { "longName": "", "description": "" },
+
+  "TON/USDT":
+    { "longName": "", "description": "" },
+
+  "TOSHI/EUR":
+    { "longName": "", "description": "" },
+
+  "TOSHI/USD":
+    { "longName": "", "description": "" },
+
+  "TRAC/EUR":
+    { "longName": "", "description": "" },
+
+  "TRAC/USD":
+    { "longName": "", "description": "" },
+
+  "TREE/EUR":
+    { "longName": "", "description": "" },
+
+  "TREE/USD":
+    { "longName": "", "description": "" },
+
+  "TREMP/EUR":
+    { "longName": "", "description": "" },
+
+  "TREMP/USD":
+    { "longName": "", "description": "" },
+
+  "TRIA/EUR":
+    { "longName": "", "description": "" },
+
+  "TRIA/USD":
+    { "longName": "", "description": "" },
+
+  "TRU/EUR":
+    { "longName": "", "description": "" },
+
+  "TRUMP/EUR":
+    { "longName": "", "description": "" },
+
+  "TRUMP/USD":
+    { "longName": "", "description": "" },
+
+  "TRUMP/USDC":
+    { "longName": "", "description": "" },
+
+  "TRUMP/USDT":
+    { "longName": "", "description": "" },
+
+  "TRUST/EUR":
+    { "longName": "", "description": "" },
+
+  "TRUST/USD":
+    { "longName": "", "description": "" },
+
+  "TRU/USD":
+    { "longName": "", "description": "" },
+
+  "TRX/ETH":
+    { "longName": "", "description": "" },
+
+  "TRX/EUR":
+    { "longName": "", "description": "" },
+
+  "TRX/USD":
+    { "longName": "", "description": "" },
+
+  "TRX/USDD":
+    { "longName": "", "description": "" },
+
+  "TRX/XBT":
+    { "longName": "", "description": "" },
+
+  "TURBO/EUR":
+    { "longName": "", "description": "" },
+
+  "TURBO/USD":
+    { "longName": "", "description": "" },
+
+  "T/USD":
+    { "longName": "", "description": "" },
+
+  "TUSD/EUR":
+    { "longName": "", "description": "" },
+
+  "TUSD/USD":
+    { "longName": "", "description": "" },
+
+  "TVK/EUR":
+    { "longName": "", "description": "" },
+
+  "TVK/USD":
+    { "longName": "", "description": "" },
+
+  "U2U/EUR":
+    { "longName": "", "description": "" },
+
+  "U2U/USD":
+    { "longName": "", "description": "" },
+
+  "UAI/EUR":
+    { "longName": "", "description": "" },
+
+  "UAI/USD":
+    { "longName": "", "description": "" },
+
+  "U/EUR":
+    { "longName": "", "description": "" },
+
+  "UFD/EUR":
+    { "longName": "", "description": "" },
+
+  "UFD/USD":
+    { "longName": "", "description": "" },
+
+  "UMA/EUR":
+    { "longName": "", "description": "" },
+
+  "UMA/USD":
+    { "longName": "", "description": "" },
+
+  "UNFI/EUR":
+    { "longName": "", "description": "" },
+
+  "UNFI/USD":
+    { "longName": "", "description": "" },
+
+  "UNI/ETH":
+    { "longName": "", "description": "" },
+
+  "UNI/EUR":
+    { "longName": "", "description": "" },
+
+  "UNITE/EUR":
+    { "longName": "", "description": "" },
+
+  "UNITE/USD":
+    { "longName": "", "description": "" },
+
+  "UNI/USD":
+    { "longName": "", "description": "" },
+
+  "UNI/XBT":
+    { "longName": "", "description": "" },
+
+  "UP/EUR":
+    { "longName": "", "description": "" },
+
+  "UP/USD":
+    { "longName": "", "description": "" },
+
+  "USAT/USD":
+    { "longName": "", "description": "" },
+
+  "USAT/USDT":
+    { "longName": "", "description": "" },
+
+  "USD1/USD":
+    { "longName": "", "description": "" },
+
+  "USD1/USDC":
+    { "longName": "", "description": "" },
+
+  "USDC/AUD":
+    { "longName": "", "description": "" },
+
+  "USDC/CAD":
+    { "longName": "", "description": "" },
+
+  "USDC/CHF":
+    { "longName": "", "description": "" },
+
+  "USDC/EUR":
+    { "longName": "", "description": "" },
+
+  "USDC/GBP":
+    { "longName": "", "description": "" },
+
+  "USD/CHF":
+    { "longName": "", "description": "" },
+
+  "USDC/USD":
+    { "longName": "", "description": "" },
+
+  "USDC/USDT":
+    { "longName": "", "description": "" },
+
+  "USDD/EUR":
+    { "longName": "", "description": "" },
+
+  "USDD/USD":
+    { "longName": "", "description": "" },
+
+  "USDE/EUR":
+    { "longName": "", "description": "" },
+
+  "USDE/USD":
+    { "longName": "", "description": "" },
+
+  "USDE/USDC":
+    { "longName": "", "description": "" },
+
+  "USDE/USDT":
+    { "longName": "", "description": "" },
+
+  "USDG/USD":
+    { "longName": "", "description": "" },
+
+  "USDG/USDC":
+    { "longName": "", "description": "" },
+
+  "USDG/USDT":
+    { "longName": "", "description": "" },
+
+  "USDQ/EUR":
+    { "longName": "", "description": "" },
+
+  "USDQ/USD":
+    { "longName": "", "description": "" },
+
+  "USDQ/USDC":
+    { "longName": "", "description": "" },
+
+  "USDQ/USDT":
+    { "longName": "", "description": "" },
+
+  "USDR/EUR":
+    { "longName": "", "description": "" },
+
+  "USDR/USD":
+    { "longName": "", "description": "" },
+
+  "USDR/USDC":
+    { "longName": "", "description": "" },
+
+  "USDR/USDT":
+    { "longName": "", "description": "" },
+
+  "USDS/EUR":
+    { "longName": "", "description": "" },
+
+  "USDS/USD":
+    { "longName": "", "description": "" },
+
+  "USDT/AUD":
+    { "longName": "", "description": "" },
+
+  "USDT/CAD":
+    { "longName": "", "description": "" },
+
+  "USDT/CHF":
+    { "longName": "", "description": "" },
+
+  "USDT/EUR":
+    { "longName": "", "description": "" },
+
+  "USDT/GBP":
+    { "longName": "", "description": "" },
+
+  "USDT/JPY":
+    { "longName": "", "description": "" },
+
+  "USDT/USD":
+    { "longName": "", "description": "" },
+
+  "USDUC/EUR":
+    { "longName": "", "description": "" },
+
+  "USDUC/USD":
+    { "longName": "", "description": "" },
+
+  "USELESS/EUR":
+    { "longName": "", "description": "" },
+
+  "USELESS/USD":
+    { "longName": "", "description": "" },
+
+  "US/EUR":
+    { "longName": "", "description": "" },
+
+  "UST/EUR":
+    { "longName": "", "description": "" },
+
+  "UST/USD":
+    { "longName": "", "description": "" },
+
+  "UST/USDC":
+    { "longName": "", "description": "" },
+
+  "UST/USDT":
+    { "longName": "", "description": "" },
+
+  "USUAL/EUR":
+    { "longName": "", "description": "" },
+
+  "USUAL/USD":
+    { "longName": "", "description": "" },
+
+  "US/USD":
+    { "longName": "", "description": "" },
+
+  "U/USD":
+    { "longName": "", "description": "" },
+
+  "UXLINK/EUR":
+    { "longName": "", "description": "" },
+
+  "UXLINK/USD":
+    { "longName": "", "description": "" },
+
+  "VANRY/EUR":
+    { "longName": "", "description": "" },
+
+  "VANRY/USD":
+    { "longName": "", "description": "" },
+
+  "VELODROME/EUR":
+    { "longName": "", "description": "" },
+
+  "VELODROME/USD":
+    { "longName": "", "description": "" },
+
+  "VELVET/EUR":
+    { "longName": "", "description": "" },
+
+  "VELVET/USD":
+    { "longName": "", "description": "" },
+
+  "VERSE/EUR":
+    { "longName": "", "description": "" },
+
+  "VERSE/USD":
+    { "longName": "", "description": "" },
+
+  "VET/EUR":
+    { "longName": "", "description": "" },
+
+  "VET/USD":
+    { "longName": "", "description": "" },
+
+  "VET/USDC":
+    { "longName": "", "description": "" },
+
+  "VET/USDT":
+    { "longName": "", "description": "" },
+
+  "VFY/EUR":
+    { "longName": "", "description": "" },
+
+  "VFY/USD":
+    { "longName": "", "description": "" },
+
+  "VINE/EUR":
+    { "longName": "", "description": "" },
+
+  "VINE/USD":
+    { "longName": "", "description": "" },
+
+  "VIRTUAL/EUR":
+    { "longName": "", "description": "" },
+
+  "VIRTUAL/USD":
+    { "longName": "", "description": "" },
+
+  "VIRTUAL/USDC":
+    { "longName": "", "description": "" },
+
+  "VIRTUAL/USDT":
+    { "longName": "", "description": "" },
+
+  "VOOI/USD":
+    { "longName": "", "description": "" },
+
+  "VSN/EUR":
+    { "longName": "", "description": "" },
+
+  "VSN/USD":
+    { "longName": "", "description": "" },
+
+  "VTHO/EUR":
+    { "longName": "", "description": "" },
+
+  "VTHO/USD":
+    { "longName": "", "description": "" },
+
+  "VULT/EUR":
+    { "longName": "", "description": "" },
+
+  "VULT/USD":
+    { "longName": "", "description": "" },
+
+  "VVV/EUR":
+    { "longName": "", "description": "" },
+
+  "VVV/USD":
+    { "longName": "", "description": "" },
+
+  "WAL/EUR":
+    { "longName": "", "description": "" },
+
+  "WAL/USD":
+    { "longName": "", "description": "" },
+
+  "WARD/EUR":
+    { "longName": "", "description": "" },
+
+  "WARD/USD":
+    { "longName": "", "description": "" },
+
+  "WAXL/EUR":
+    { "longName": "", "description": "" },
+
+  "WAXL/USD":
+    { "longName": "", "description": "" },
+
+  "WBTC/EUR":
+    { "longName": "", "description": "" },
+
+  "WBTC/USD":
+    { "longName": "", "description": "" },
+
+  "WBTC/XBT":
+    { "longName": "", "description": "" },
+
+  "WCT/EUR":
+    { "longName": "", "description": "" },
+
+  "WCT/USD":
+    { "longName": "", "description": "" },
+
+  "WELL/EUR":
+    { "longName": "", "description": "" },
+
+  "WELL/USD":
+    { "longName": "", "description": "" },
+
+  "WEN/EUR":
+    { "longName": "", "description": "" },
+
+  "WEN/USD":
+    { "longName": "", "description": "" },
+
+  "W/EUR":
+    { "longName": "", "description": "" },
+
+  "WIF/EUR":
+    { "longName": "", "description": "" },
+
+  "WIF/GBP":
+    { "longName": "", "description": "" },
+
+  "WIF/USD":
+    { "longName": "", "description": "" },
+
+  "WIN/EUR":
+    { "longName": "", "description": "" },
+
+  "WIN/USD":
+    { "longName": "", "description": "" },
+
+  "WLD/EUR":
+    { "longName": "", "description": "" },
+
+  "WLD/USD":
+    { "longName": "", "description": "" },
+
+  "WLFI/EUR":
+    { "longName": "", "description": "" },
+
+  "WLFI/USD":
+    { "longName": "", "description": "" },
+
+  "WMTX/EUR":
+    { "longName": "", "description": "" },
+
+  "WMTX/USD":
+    { "longName": "", "description": "" },
+
+  "WOO/EUR":
+    { "longName": "", "description": "" },
+
+  "WOO/USD":
+    { "longName": "", "description": "" },
+
+  "W/USD":
+    { "longName": "", "description": "" },
+
+  "XAN/EUR":
+    { "longName": "", "description": "" },
+
+  "XAN/USD":
+    { "longName": "", "description": "" },
+
+  "XAUT/USD":
+    { "longName": "", "description": "" },
+
+  "XAUT/USDT":
+    { "longName": "", "description": "" },
+
+  "XBT/AUD":
+    { "longName": "", "description": "" },
+
+  "XBT/AUSD":
+    { "longName": "", "description": "" },
+
+  "XBT/CHF":
+    { "longName": "", "description": "" },
+
+  "XBT/DAI":
+    { "longName": "", "description": "" },
+
+  "XBT/EURC":
+    { "longName": "", "description": "" },
+
+  "XBT/FIDD":
+    { "longName": "", "description": "" },
+
+  "XBT/PYUSD":
+    { "longName": "", "description": "" },
+
+  "XBT/USD1":
+    { "longName": "", "description": "" },
+
+  "XBT/USDC":
+    { "longName": "", "description": "" },
+
+  "XBT/USDT":
+    { "longName": "", "description": "" },
+
+  "XCN/EUR":
+    { "longName": "", "description": "" },
+
+  "XCN/USD":
+    { "longName": "", "description": "" },
+
+  "XDC/CAD":
+    { "longName": "", "description": "" },
+
+  "XDC/EUR":
+    { "longName": "", "description": "" },
+
+  "XDC/USD":
+    { "longName": "", "description": "" },
+
+  "XDC/USDC":
+    { "longName": "", "description": "" },
+
+  "XDG/AUD":
+    { "longName": "", "description": "" },
+
+  "XDG/CAD":
+    { "longName": "", "description": "" },
+
+  "XDG/EUR":
+    { "longName": "", "description": "" },
+
+  "XDG/GBP":
+    { "longName": "", "description": "" },
+
+  "XDG/USD":
+    { "longName": "", "description": "" },
+
+  "XDG/USDC":
+    { "longName": "", "description": "" },
+
+  "XDG/USDT":
+    { "longName": "", "description": "" },
+
+  "ETC/ETH":
+    { "longName": "", "description": "" },
+
+  "ETC/XBT":
+    { "longName": "", "description": "" },
+
+  "ETC/EUR":
+    { "longName": "", "description": "" },
+
+  "ETC/USD":
+    { "longName": "", "description": "" },
+
+  "ETH/XBT":
+    { "longName": "", "description": "" },
+
+  "ETH/CAD":
+    { "longName": "", "description": "" },
+
+  "ETH/EUR":
+    { "longName": "", "description": "" },
+
+  "ETH/GBP":
+    { "longName": "", "description": "" },
+
+  "ETH/JPY":
+    { "longName": "", "description": "" },
+
+  "ETH/USD":
+    { "longName": "", "description": "" },
+
+  "XION/EUR":
+    { "longName": "", "description": "" },
+
+  "XION/USD":
+    { "longName": "", "description": "" },
+
+  "XL1/EUR":
+    { "longName": "", "description": "" },
+
+  "XL1/USD":
+    { "longName": "", "description": "" },
+
+  "LTC/XBT":
+    { "longName": "", "description": "" },
+
+  "LTC/EUR":
+    { "longName": "", "description": "" },
+
+  "LTC/JPY":
+    { "longName": "", "description": "" },
+
+  "LTC/USD":
+    { "longName": "", "description": "" },
+
+  "MLN/XBT":
+    { "longName": "", "description": "" },
+
+  "MLN/EUR":
+    { "longName": "", "description": "" },
+
+  "MLN/USD":
+    { "longName": "", "description": "" },
+
+  "XMN/EUR":
+    { "longName": "", "description": "" },
+
+  "XMN/USD":
+    { "longName": "", "description": "" },
+
+  "XMR/USDC":
+    { "longName": "", "description": "" },
+
+  "XMR/USDT":
+    { "longName": "", "description": "" },
+
+  "XNAP/EUR":
+    { "longName": "", "description": "" },
+
+  "XNAP/USD":
+    { "longName": "", "description": "" },
+
+  "XNY/EUR":
+    { "longName": "", "description": "" },
+
+  "XNY/USD":
+    { "longName": "", "description": "" },
+
+  "XPL/EUR":
+    { "longName": "", "description": "" },
+
+  "XPL/USD":
+    { "longName": "", "description": "" },
+
+  "REP/EUR":
+    { "longName": "", "description": "" },
+
+  "REP/USD":
+    { "longName": "", "description": "" },
+
+  "XRP/AUD":
+    { "longName": "", "description": "" },
+
+  "XRP/ETH":
+    { "longName": "", "description": "" },
+
+  "XRP/GBP":
+    { "longName": "", "description": "" },
+
+  "XRP/RLUSD":
+    { "longName": "", "description": "" },
+
+  "XRP/USDC":
+    { "longName": "", "description": "" },
+
+  "XRP/USDT":
+    { "longName": "", "description": "" },
+
+  "XRT/EUR":
+    { "longName": "", "description": "" },
+
+  "XRT/USD":
+    { "longName": "", "description": "" },
+
+  "XTER/EUR":
+    { "longName": "", "description": "" },
+
+  "XTER/USD":
+    { "longName": "", "description": "" },
+
+  "XTZ/EUR":
+    { "longName": "", "description": "" },
+
+  "XTZ/USD":
+    { "longName": "", "description": "" },
+
+  "XTZ/USDC":
+    { "longName": "", "description": "" },
+
+  "XTZ/USDT":
+    { "longName": "", "description": "" },
+
+  "XBT/EUROP":
+    { "longName": "", "description": "" },
+
+  "XBT/USDQ":
+    { "longName": "", "description": "" },
+
+  "XBT/USDR":
+    { "longName": "", "description": "" },
+
+  "XBT/CAD":
+    { "longName": "", "description": "" },
+
+  "XBT/EUR":
+    { "longName": "", "description": "" },
+
+  "XBT/GBP":
+    { "longName": "", "description": "" },
+
+  "XBT/JPY":
+    { "longName": "", "description": "" },
+
+  "XBT/USD":
+    { "longName": "", "description": "" },
+
+  "XDG/XBT":
+    { "longName": "", "description": "" },
+
+  "XLM/XBT":
+    { "longName": "", "description": "" },
+
+  "XLM/EUR":
+    { "longName": "", "description": "" },
+
+  "XLM/GBP":
+    { "longName": "", "description": "" },
+
+  "XLM/USD":
+    { "longName": "", "description": "" },
+
+  "XMR/XBT":
+    { "longName": "", "description": "" },
+
+  "XMR/EUR":
+    { "longName": "", "description": "" },
+
+  "XMR/USD":
+    { "longName": "", "description": "" },
+
+  "XRP/XBT":
+    { "longName": "", "description": "" },
+
+  "XRP/CAD":
+    { "longName": "", "description": "" },
+
+  "XRP/EUR":
+    { "longName": "", "description": "" },
+
+  "XRP/USD":
+    { "longName": "", "description": "" },
+
+  "XYO/EUR":
+    { "longName": "", "description": "" },
+
+  "XYO/USD":
+    { "longName": "", "description": "" },
+
+  "ZEC/EUR":
+    { "longName": "", "description": "" },
+
+  "ZEC/USD":
+    { "longName": "", "description": "" },
+
+  "YALA/EUR":
+    { "longName": "", "description": "" },
+
+  "YALA/USD":
+    { "longName": "", "description": "" },
+
+  "YB/EUR":
+    { "longName": "", "description": "" },
+
+  "YB/USD":
+    { "longName": "", "description": "" },
+
+  "YFI/EUR":
+    { "longName": "", "description": "" },
+
+  "YFI/USD":
+    { "longName": "", "description": "" },
+
+  "YGG/EUR":
+    { "longName": "", "description": "" },
+
+  "YGG/USD":
+    { "longName": "", "description": "" },
+
+  "ZAMA/EUR":
+    { "longName": "", "description": "" },
+
+  "ZAMA/USD":
+    { "longName": "", "description": "" },
+
+  "ZBCN/EUR":
+    { "longName": "", "description": "" },
+
+  "ZBCN/USD":
+    { "longName": "", "description": "" },
+
+  "ZBT/EUR":
+    { "longName": "", "description": "" },
+
+  "ZBT/USD":
+    { "longName": "", "description": "" },
+
+  "ZEREBRO/EUR":
+    { "longName": "", "description": "" },
+
+  "ZEREBRO/USD":
+    { "longName": "", "description": "" },
+
+  "ZETA/EUR":
+    { "longName": "", "description": "" },
+
+  "ZETA/USD":
+    { "longName": "", "description": "" },
+
+  "EUR/USD":
+    { "longName": "", "description": "" },
+
+  "ZEUS/EUR":
+    { "longName": "", "description": "" },
+
+  "ZEUS/USD":
+    { "longName": "", "description": "" },
+
+  "ZEX/EUR":
+    { "longName": "", "description": "" },
+
+  "ZEX/USD":
+    { "longName": "", "description": "" },
+
+  "GBP/USD":
+    { "longName": "", "description": "" },
+
+  "ZIG/EUR":
+    { "longName": "", "description": "" },
+
+  "ZIG/USD":
+    { "longName": "", "description": "" },
+
+  "ZK/EUR":
+    { "longName": "", "description": "" },
+
+  "ZKP/EUR":
+    { "longName": "", "description": "" },
+
+  "ZKP/USD":
+    { "longName": "", "description": "" },
+
+  "ZK/USD":
+    { "longName": "", "description": "" },
+
+  "ZORA/EUR":
+    { "longName": "", "description": "" },
+
+  "ZORA/USD":
+    { "longName": "", "description": "" },
+
+  "ZRC/EUR":
+    { "longName": "", "description": "" },
+
+  "ZRC/USD":
+    { "longName": "", "description": "" },
+
+  "ZRO/EUR":
+    { "longName": "", "description": "" },
+
+  "ZRO/USD":
+    { "longName": "", "description": "" },
+
+  "ZRX/EUR":
+    { "longName": "", "description": "" },
+
+  "ZRX/USD":
+    { "longName": "", "description": "" },
+
+  "ZRX/XBT":
+    { "longName": "", "description": "" },
+
+  "USD/CAD":
+    { "longName": "", "description": "" },
+
+  "USD/JPY":
+    { "longName": "", "description": "" }
+}

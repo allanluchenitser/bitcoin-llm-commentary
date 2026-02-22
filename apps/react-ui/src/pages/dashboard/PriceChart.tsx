@@ -37,8 +37,8 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
         attributionLogo: false,
       },
       grid: {
-        vertLines: { color: "#e5e7eb" },
-        horzLines: { color: "#e5e7eb" },
+        // vertLines: { color: "#e5e7eb" },
+        // horzLines: { color: "#e5e7eb" },
       },
       rightPriceScale: {
         borderColor: "#e5e7eb",

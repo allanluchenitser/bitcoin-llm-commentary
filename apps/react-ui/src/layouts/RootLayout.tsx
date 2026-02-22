@@ -1,10 +1,11 @@
-import NavBar from '@/shared-components/NavBar'
+// import NavBarOne from '@/shared-components/NavBarOne'
+import NavBarTwo from '@/shared-components/NavBarTwo'
 import { Outlet } from 'react-router-dom';
 
 const RootLayout: React.FC = () => {
   return (
     <>
-      <NavBar />
+      <NavBarTwo />
       <main className="container mx-auto px-4">
         <Outlet />
       </main>

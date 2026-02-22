@@ -71,8 +71,7 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4">
-      <span className="font-semibold">SSE:</span> {sseStatus}
-
+      <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseStatus}</span>
       <div className="flex mt-4">
         <div className="w-3/5">
           <div>
