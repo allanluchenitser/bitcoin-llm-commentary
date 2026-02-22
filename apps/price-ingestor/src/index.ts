@@ -1,8 +1,9 @@
 import "@blc/env";
-import { WebSocket } from 'ws';
-import { createRedisClient, type RedisClient } from "@blc/redis-client";
+
 import PostgresClient from "@blc/postgres-client";
 
+import { WebSocket } from 'ws';
+import { createRedisClient, type RedisClient } from "@blc/redis-client";
 
 import { connectWs } from "./ws/wsSetup.js";
 import { rawDataToUtf8 } from "./ws/wsHelpers.js";
@@ -35,6 +36,9 @@ const tradeBuffer: KrakenTradeData[] = [];
 const heartBeats: { channel: "heartbeat" }[] = [];
 const intervalMs = Number(process.env.INGRESS_BUFFER_INTERVAL_MS) || 60000; // 1-minute interval
 
+let bufferTimer: NodeJS.Timeout | null = null;
+let pgClient: PostgresClient;
+
 // publishes, stores buffer of trades per setInterval
 function processBufferedTrades() {
 
@@ -66,15 +70,14 @@ function processBufferedTrades() {
   heartBeats.length = 0;
 }
 
-setInterval(processBufferedTrades, intervalMs);
 
-// buffers trade via websockets message events
+
+// places incoming trades into a buffer
 async function placeTradeData(
   data: WebSocket.RawData,
 ) {
   const utf8Data = rawDataToUtf8(data);
   const jsonData = JSON.parse(utf8Data);
-
 
   // grabs what's usually just one trade, but could be multiple if Kraken batches them
   if (jsonData.channel === "trade" && Array.isArray(jsonData.data)) {
@@ -124,6 +127,11 @@ async function cleanUpFunction({ socket, code, reason }: CleanUpFunctionParams) 
     sendTickerUnsubscriptionRequest(socket);
   }
 
+  if (bufferTimer) {
+    clearInterval(bufferTimer);
+    bufferTimer = null;
+  }
+
   await redis.quit();
   console.log('cleanup completed, exiting process');
   process.exit(0);
@@ -135,6 +143,7 @@ const socketUrl: string = process.env.KRAKEN_WS_URL ?? "wss://ws.kraken.com/v2";
 
 const redis: RedisClient = createRedisClient();
 try {
+  console.log("[redis] connecting client...");
   await redis.connect();
   color.success("[redis] connected");
 } catch (err) {
@@ -150,7 +159,12 @@ const pgConfig = {
   database: process.env.POSTGRES_DB || "blc",
 };
 
-export const pgClient = new PostgresClient(pgConfig);
+try {
+  pgClient = new PostgresClient(pgConfig);
+} catch (err) {
+  color.error(`[postgres] failed to connect: ${String(err)}`);
+  process.exit(1);
+}
 
 const { getSocket } = await connectWs({
   url: socketUrl,
@@ -159,8 +173,6 @@ const { getSocket } = await connectWs({
   fatal: cleanUpFunction,
 });
 
-const postgresConnectionString = process.env.POSTGRES_CONNECTION_STRING || "postgresql://blc:blc@localhost:5432/blc";
-
 
 if (getSocket()) {
   console.log('---------- PARENT websocket connected!');
@@ -168,6 +180,8 @@ if (getSocket()) {
   console.log('---------- PARENT websocket connection failed');
   process.exit(1);
 }
+
+bufferTimer = setInterval(processBufferedTrades, intervalMs);
 
 process.on('SIGINT', async () => {
   await cleanUpFunction({

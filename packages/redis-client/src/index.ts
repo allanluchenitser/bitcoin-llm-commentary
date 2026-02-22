@@ -7,6 +7,7 @@ export function createRedisClient() {
   const client = createClient({
     url: `redis://${host}:${port}`,
     name: "price-ingestor-client",
+    socket: { reconnectStrategy: () => false }, // Disable auto-reconnect to handle it manually
   });
 
   client.on("connect", () => {
@@ -18,7 +19,8 @@ export function createRedisClient() {
   });
 
   client.on("error", (err) => {
-      console.error("[redis] client error:", err);
+      console.error("[redis] client event error..");
+      // console.error("[redis] client event error:", err);
   });
 
   client.on("end", () => {
