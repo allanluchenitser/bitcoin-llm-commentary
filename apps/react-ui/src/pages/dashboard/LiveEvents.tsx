@@ -4,8 +4,8 @@ import { type OHLCVRow } from '@blc/contracts';
 import { formatUtcMonthDayTime } from "./dashboardHelpers";
 
 const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
-  const [showUpdates, setShowUpdates] = useState<boolean>(true);
-  const [showSnapshots, setShowSnapshots] = useState<boolean>(false);
+  // const [showUpdates, setShowUpdates] = useState<boolean>(true);
+  // const [showSnapshots, setShowSnapshots] = useState<boolean>(false);
 
   const [tableMode, setTableMode] = useState<boolean>(true)
 
@@ -19,7 +19,7 @@ const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
             ts
           }
       })
-  }, [ohlcvData, showUpdates, showSnapshots]);
+  }, [ohlcvData]);
 
   return (
     <div className="h-full text-lg font-semibold">
@@ -27,7 +27,7 @@ const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
           <h3>Live Events</h3>
           <div className="buttons-menu flex justify-between">
             <div className="event-filters my-1 flex gap-1">
-              <ButtonOne
+              {/* <ButtonOne
                 onClick={() => setShowUpdates(!showUpdates)}
                 isActive={showUpdates}
               >
@@ -38,9 +38,9 @@ const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
                 isActive={showSnapshots}
               >
                 Snapshots
-              </ButtonOne>
+              </ButtonOne> */}
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center mb-1">
               <ButtonOne
                 onClick={() => setTableMode(!tableMode)}
                 variant="clear"
