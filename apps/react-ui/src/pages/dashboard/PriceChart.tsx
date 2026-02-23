@@ -1,12 +1,14 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import ButtonOne from "@/shared-components/ButtonOne";
 
 import {
   createChart,
   LineSeries,
+  CandlestickSeries,
   type IChartApi,
   type ISeriesApi,
   type LineData,
+  type CandlestickData,
   type UTCTimestamp
 } from "lightweight-charts";
 
@@ -22,6 +24,8 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Line"> | ISeriesApi<"Candlestick"> | null >(null);
+
+  const [graphType, setGraphType] = useState<"Line" | "Candlestick">("Line");
 
   /* ------ init chart library ------ */
 
@@ -88,20 +92,70 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
     );
   }, [ohlcvData]);
 
+  const candleData: CandlestickData[] = useMemo(() => {
+    const byTime = new Map<UTCTimestamp, CandlestickData>();
+
+    for (const data of ohlcvData) {
+      const time = toUTCTimestamp(data.ts);
+      const open = toFiniteNumber(data.open);
+      const high = toFiniteNumber(data.high);
+      const low = toFiniteNumber(data.low);
+      const close = toFiniteNumber(data.close);
+
+      if ([open, high, low, close].some(x => x === null)) continue;
+
+      byTime.set(time, {
+        time,
+        open: open!,
+        high: high!,
+        low: low!,
+        close: close!,
+      });
+    }
+
+    return [...byTime.values()].sort((a, b) => Number(a.time) - Number(b.time));
+  }, [ohlcvData])
+
+
   /* ------ update chart ------ */
 
   useEffect(() => {
     if (!chartRef.current) return;
+    let series;
+    let data;
 
-    if (!seriesRef.current) {
-      seriesRef.current = chartRef.current.addSeries(LineSeries, {
+
+    if (graphType === "Line") {
+      data = lineData;
+      series = LineSeries;
+    }
+
+    if (graphType === "Candlestick") {
+      data = candleData;
+      series = CandlestickSeries;
+    }
+
+
+    if(!seriesRef.current) {
+      seriesRef.current = chartRef.current.addSeries(series, {
         color: "#2563eb",
         lineWidth: 2,
       });
     }
 
-    seriesRef.current.setData(lineData);
-  }, [lineData]);
+    // seriesRef.current.setData(data);
+
+
+
+    // if (!seriesRef.current) {
+    //   seriesRef.current = chartRef.current.addSeries(Series, {
+    //     color: "#2563eb",
+    //     lineWidth: 2,
+    //   });
+    // }
+
+    // seriesRef.current.setData(data);
+  }, [lineData, candleData, graphType]);
 
   return (
     <div className="h-full p-2 border rounded ">
@@ -109,8 +163,9 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
           <ButtonOne
             variant="clear"
             className="ml-auto font-semibold"
+            onClick={() => setGraphType(prev => prev === "Line" ? "Candlestick" : "Line")}
           >
-            LINE
+            {graphType}
           </ButtonOne>
       </header>
       <div ref={containerRef} />
