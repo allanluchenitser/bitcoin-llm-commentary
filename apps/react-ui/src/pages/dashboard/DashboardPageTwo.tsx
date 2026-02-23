@@ -1,6 +1,8 @@
 import PriceChart from './PriceChart'
 import BotSummary from './BotSummary';
 import LiveEvents from './LiveEvents';
+import Resizer from '@/shared-components/Resizer';
+import './resizer-grid.css';
 
 import {
   CHANNEL_TICKER_GENERIC,
@@ -12,9 +14,11 @@ import { useEffect, useState } from 'react';
 
 const DashboardPage: React.FC = () => {
   const [sseStatus, setSseStatus] = useState<'connecting' | 'open' | 'closed' | 'error'>('connecting');
-
-  // const [rawEvents, setRawEvents] = useState<string[]>([]);
   const [ohlcvData, setOhlcvData] = useState<OHLCVRow[]>([]);
+
+  // Resizer state
+  const [leftWidth, setLeftWidth] = useState(60); // percent
+  const [topHeight, setTopHeight] = useState(60); // percent
 
   useEffect(() => {
     document.title = "Dashboard - Bitcoin LLM Commentary";
@@ -72,17 +76,40 @@ const DashboardPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4">
       <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseStatus}</span>
-      <div className="resizer-grid flex mt-4">
-        <div className="w-3/5">
-          <div>
+      <div className="resizer-grid mt-4" style={{ height: '70vh' }}>
+        <div style={{ width: `${leftWidth}%`, transition: 'width 0.1s', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ height: `${topHeight}%`, transition: 'height 0.1s', minHeight: 100 }}>
             <PriceChart ohlcvData={ohlcvData} />
           </div>
-          <div className="mt-4">
+          <Resizer
+            direction="horizontal"
+            onResize={delta => {
+              setTopHeight(h => {
+                const container = document.querySelector('.resizer-grid');
+                if (!container) return h;
+                const totalHeight = container.clientHeight;
+                const newHeight = Math.max(10, Math.min(90, h + (delta / totalHeight) * 100));
+                return newHeight;
+              });
+            }}
+          />
+          <div style={{ flex: 1, minHeight: 100 }}>
             <LiveEvents ohlcvData={ohlcvData} />
           </div>
         </div>
-
-        <div className="w-2/5 ml-4 text-center">
+        <Resizer
+          direction="vertical"
+          onResize={delta => {
+            setLeftWidth(w => {
+              const container = document.querySelector('.resizer-grid');
+              if (!container) return w;
+              const totalWidth = container.clientWidth;
+              const newWidth = Math.max(20, Math.min(80, w + (delta / totalWidth) * 100));
+              return newWidth;
+            });
+          }}
+        />
+        <div style={{ width: `${100 - leftWidth}%`, transition: 'width 0.1s', minWidth: 100 }} className="ml-4 text-center">
           <div className="h-full">
             <BotSummary />
           </div>
