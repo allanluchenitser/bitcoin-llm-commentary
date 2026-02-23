@@ -121,27 +121,58 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
 
   useEffect(() => {
     if (!chartRef.current) return;
-    let series;
-    let data;
-
+    let data: LineData[] | CandlestickData[] = [];
 
     if (graphType === "Line") {
       data = lineData;
-      series = LineSeries;
     }
-
-    if (graphType === "Candlestick") {
+    else if (graphType === "Candlestick") {
       data = candleData;
-      series = CandlestickSeries;
+    }
+
+    console.log(data);
+
+    if (seriesRef.current && graphType === seriesRef.current.seriesType()) {
+      seriesRef.current.setData(data);
+    }
+
+    if (seriesRef.current && graphType !== seriesRef.current.seriesType()) {
+      chartRef.current.removeSeries(seriesRef.current);
+      seriesRef.current = null;
+    }
+
+    if (!seriesRef.current) {
+      const series: ISeriesApi<"Line"> | ISeriesApi<"Candlestick"> = graphType === "Line" ? LineSeries : CandlestickSeries;
+
+
+      const options = graphType === "Line"
+        ?
+        {
+          color: "#2563eb",
+          lineWidth: 2,
+        }
+        :
+        {
+          upColor: "#16a34a",
+          downColor: "#dc2626",
+          borderVisible: false,
+        }
+
+      seriesRef.current = chartRef.current.addSeries(series, options)
     }
 
 
-    if(!seriesRef.current) {
-      seriesRef.current = chartRef.current.addSeries(series, {
-        color: "#2563eb",
-        lineWidth: 2,
-      });
-    }
+
+    // series = LineSeries;
+    // series = CandlestickSeries;
+
+
+    // if(!seriesRef.current) {
+    //   seriesRef.current = chartRef.current.addSeries(series, {
+    //     color: "#2563eb",
+    //     lineWidth: 2,
+    //   });
+    // }
 
     // seriesRef.current.setData(data);
 
