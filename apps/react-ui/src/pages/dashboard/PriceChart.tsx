@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useRef } from "react";
+import ButtonOne from "@/shared-components/ButtonOne";
+
 import {
   createChart,
   LineSeries,
@@ -21,7 +23,7 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Line"> | ISeriesApi<"Candlestick"> | null >(null);
 
-  /* ------ setup chart ------ */
+  /* ------ init chart library ------ */
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -37,8 +39,12 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
         attributionLogo: false,
       },
       grid: {
-        // vertLines: { color: "#e5e7eb" },
-        // horzLines: { color: "#e5e7eb" },
+        vertLines: { color: "transparent" },
+        horzLines: { color: "transparent" },
+      },
+      crosshair: {
+        vertLine: { color: "transparent" },
+        horzLine: { color: "transparent" },
       },
       rightPriceScale: {
         borderColor: "#e5e7eb",
@@ -85,39 +91,28 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
   /* ------ update chart ------ */
 
   useEffect(() => {
-    const chart = chartRef.current;
-    if (!chart) return;
+    if (!chartRef.current) return;
 
-    let series = seriesRef.current;
-
-    if (!series) {
-      series = chart.addSeries(LineSeries, {
+    if (!seriesRef.current) {
+      seriesRef.current = chartRef.current.addSeries(LineSeries, {
         color: "#2563eb",
         lineWidth: 2,
       });
-      seriesRef.current = series;
     }
 
-    series.setData(lineData);
-
-    chart.timeScale().fitContent();
+    seriesRef.current.setData(lineData);
   }, [lineData]);
 
   return (
-    <div className="h-full p-4 border rounded ">
-      <header className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="font-semibold">Price</h2>
-
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className="px-2 py-1 rounded border text-sm bg-gray-900 text-white border-gray-900"
+    <div className="h-full p-2 border rounded ">
+      <header className="mb-3 flex items-center justify-between gap-3 relative">
+          <ButtonOne
+            variant="clear"
+            className="ml-auto font-semibold"
           >
-            Line
-          </button>
-        </div>
+            LINE
+          </ButtonOne>
       </header>
-
       <div ref={containerRef} />
     </div>
   );

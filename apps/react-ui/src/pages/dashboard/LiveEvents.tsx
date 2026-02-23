@@ -4,10 +4,15 @@ import { type OHLCVRow } from '@blc/contracts';
 import { formatUtcMonthDayTime } from "./dashboardHelpers";
 
 const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
-  // const [showUpdates, setShowUpdates] = useState<boolean>(true);
-  // const [showSnapshots, setShowSnapshots] = useState<boolean>(false);
+  const [tableMode, setTableMode] = useState<boolean>(true);
 
-  const [tableMode, setTableMode] = useState<boolean>(true)
+  const widths = {
+    exchange: "16%",
+    symbol: "16%",
+    close: "16%",
+    time: "24%",
+    volume: "20%"
+  }
 
   const processedTickerEvents: OHLCVRow[] = useMemo(() =>  {
     return ohlcvData
@@ -19,31 +24,16 @@ const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
 
   return (
     <div className="h-full text-lg font-semibold">
-        <div>
-          <div className="buttons-menu flex justify-between">
-            <h3>Live Events</h3>
-            <div className="event-filters my-1 flex gap-1">
-              {/* <ButtonOne
-                onClick={() => setShowUpdates(!showUpdates)}
-                isActive={showUpdates}
-              >
-                Updates
-              </ButtonOne>
-              <ButtonOne
-                onClick={() => setShowSnapshots(!showSnapshots)}
-                isActive={showSnapshots}
-              >
-                Snapshots
-              </ButtonOne> */}
-            </div>
-            <div className="flex items-center mb-1">
-              <ButtonOne
-                onClick={() => setTableMode(!tableMode)}
-                variant="clear"
-              >
-                { tableMode ? 'TABLE' : 'JSON' }
-              </ButtonOne>
-            </div>
+        <div className="buttons-menu flex justify-between">
+          <h3>Live Events</h3>
+
+          <div className="flex items-center mb-1">
+            <ButtonOne
+              onClick={() => setTableMode(!tableMode)}
+              variant="clear"
+            >
+              { tableMode ? 'TABLE' : 'JSON' }
+            </ButtonOne>
           </div>
         </div>
         <div className="border rounded p-2 h-60 overflow-auto bg-white">
@@ -56,13 +46,11 @@ const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
                     tableMode && (
                       <thead>
                         <tr className="text-left [&>th]:pb-1">
-                          <th>ex</th>
-                          <th>symbol</th>
-                          <th>close</th>
-                          <th>time</th>
-                          {/* <th>high</th>
-                          <th>low</th> */}
-                          <th>vol</th>
+                          <th style={{ width: widths.exchange }}>ex</th>
+                          <th style={{ width: widths.symbol }}>symbol</th>
+                          <th style={{ width: widths.close }}>close</th>
+                          <th style={{ width: widths.time }}>time</th>
+                          <th style={{ width: widths.volume }}>vol</th>
                         </tr>
                       </thead>
                     )
@@ -74,13 +62,11 @@ const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
                       processedTickerEvents.map((price, i) => {
                         return (
                           <tr key={i} className="font-mono">
-                              <td>{ price.exchange ?? "" }</td>
-                              <td>{ price.symbol ?? "" }</td>
-                              <td>{ price.close ? Number(price.close).toFixed(1) : "" }</td>
-                              <td>{ price.ts ?? "" }</td>
-                              {/* <td>{ price.high ? Number(price.high).toFixed(1) : "" }</td>
-                              <td>{ price.low ? Number(price.low).toFixed(1) : "" }</td> */}
-                              <td>{ price.volume ? Number(price.volume).toFixed(1) : "" }</td>
+                              <td style={{ width: widths.exchange }}>{ price.exchange ?? "" }</td>
+                              <td style={{ width: widths.symbol }}>{ price.symbol ?? "" }</td>
+                              <td style={{ width: widths.close }}>{ price.close ? Number(price.close).toFixed(1) : "" }</td>
+                              <td style={{ width: widths.time }}>{ price.ts ?? "" }</td>
+                              <td style={{ width: widths.volume }}>{ price.volume ? price.volume : "" }</td>
                           </tr>
                         );
                       })
