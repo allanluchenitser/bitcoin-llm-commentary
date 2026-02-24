@@ -32,7 +32,7 @@ const DashboardPage: React.FC = () => {
 
         const history = await res.json();
 
-        console.log('Fetched historic trades:', history as OHLCVRow[]);
+        // console.log('Fetched historic trades:', history as OHLCVRow[]);
         setOhlcvData(history as OHLCVRow[]);
       } catch (error) {
         throw error;

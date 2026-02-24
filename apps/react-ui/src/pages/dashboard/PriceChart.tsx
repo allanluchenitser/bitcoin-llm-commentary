@@ -5,11 +5,14 @@ import {
   createChart,
   LineSeries,
   CandlestickSeries,
+  HistogramSeries,
   type IChartApi,
   type ISeriesApi,
   type LineData,
   type CandlestickData,
-  type UTCTimestamp
+  type HistogramData,
+  type UTCTimestamp,
+  CrosshairMode
 } from "lightweight-charts";
 
 import {
@@ -25,8 +28,9 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Line"> | ISeriesApi<"Candlestick"> | null >(null);
+  const volumeSeriesRef = useRef<ISeriesApi<"Histogram"> | null >(null);
 
-  const [intervalSelection, setIntervalSelection] = useState<"1m" | "15m" | "1h" | "1d">("1m");
+  const [intervalSelection, setIntervalSelection] = useState<"1m" | "15m" | "60m" | "1440m">("1m");
 
   const [graphType, setGraphType] = useState<"Line" | "Candlestick">("Line");
 
@@ -51,14 +55,22 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
       crosshair: {
         vertLine: { color: "transparent" },
         horzLine: { color: "transparent" },
+        mode: CrosshairMode.Normal
       },
       rightPriceScale: {
         borderColor: "#e5e7eb",
+        scaleMargins: { top: 0.2, bottom: 0.2 },
+      },
+      leftPriceScale: { // <-- add this
+        borderColor: "#e5e7eb",
+        visible: false,
+        scaleMargins: { top: 0.2, bottom: 0 },
       },
       timeScale: {
         borderColor: "#e5e7eb",
         timeVisible: true,
       },
+
     });
 
     chartRef.current = chart;
@@ -74,17 +86,22 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
       chart.remove();
       chartRef.current = null;
       seriesRef.current = null;
+      volumeSeriesRef.current = null;
     };
   }, []);
 
   /* ------ chart data ------ */
 
-  //  select granularity from a base of 1m intervals
-  const aggregateData = useMemo(() => {
-  const interval = parseInt(intervalSelection);
-  if (interval === 1) return ohlcvData;
 
-  const aggArray: OHLCV[] = [];
+  // aggregate raw data based on selected interval
+  const aggregateData = useMemo(() => {
+    const interval = parseInt(intervalSelection);
+    if (interval === 1) {
+      const sorted = [...ohlcvData].sort((a, b) => Date.parse(a.ts) - Date.parse(b.ts));
+      return sorted;
+    }
+
+    const aggArray: OHLCV[] = [];
     for (let i = 0; i < ohlcvData.length; i += interval) {
       const group = ohlcvData.slice(i, i + interval);
       if (group.length === 0) continue;
@@ -107,7 +124,8 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
       });
     }
 
-    return aggArray || [];
+    const sorted = aggArray.sort((a, b) => Date.parse(a.ts) - Date.parse(b.ts));
+    return sorted;
   }, [ohlcvData, intervalSelection]);
 
   const lineData: LineData[] = useMemo(() => {
@@ -116,13 +134,10 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
     for (const data of aggregateData) {
       const ts = toUTCTimestamp(data.ts)
       const lastPrice = toFiniteNumber(data.close);
-      if (lastPrice === null) continue;
-      bySec.set(ts, { time: ts, value: lastPrice });
+      bySec.set(ts, { time: ts, value: lastPrice || 0 });
     }
 
-    return [...bySec.values()].sort(
-      (a, b) => Number(a.time) - Number(b.time)
-    );
+    return [...bySec.values()];
   }, [aggregateData]);
 
   const candleData: CandlestickData[] = useMemo(() => {
@@ -145,13 +160,19 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
         close: close!,
       }
 
-      console.log("Processed candle data:", ob);
-
       byTime.set(time, ob);
     }
 
-    return [...byTime.values()].sort((a, b) => Number(a.time) - Number(b.time));
-  }, [aggregateData])
+    return [...byTime.values()];
+  }, [aggregateData]);
+
+  const volumeData: HistogramData[] = useMemo(() => {
+    return aggregateData.map((data) => ({
+      time: toUTCTimestamp(data.ts),
+      value: toFiniteNumber(data.volume) ?? 0,
+      color: "#a3a3a3", // or use green/red based on price movement if you want
+    }));
+  }, [aggregateData]);
 
   /* ------ update chart ------ */
 
@@ -163,6 +184,26 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
     if (seriesRef.current && isGraphTypeChange) {
       chartRef.current.removeSeries(seriesRef.current);
       seriesRef.current = null;
+    }
+
+    if (volumeSeriesRef.current && isGraphTypeChange) {
+      chartRef.current.removeSeries(volumeSeriesRef.current);
+      volumeSeriesRef.current = null;
+    }
+
+    // always a volume series histo in the back brah
+    if (!volumeSeriesRef.current || isGraphTypeChange) {
+      volumeSeriesRef.current = chartRef.current.addSeries(HistogramSeries, {
+        color: "#a3a3a3",
+        priceFormat: { type: "volume" },
+        priceScaleId: "left",
+        lastValueVisible: false,
+        priceLineVisible: false,
+      });
+      volumeSeriesRef.current.setData(volumeData);
+    }
+    else if (volumeSeriesRef.current) {
+      volumeSeriesRef.current.setData(volumeData);
     }
 
     if ((!seriesRef.current || isGraphTypeChange) && graphType === "Line") {
@@ -188,7 +229,7 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
     else if (seriesRef.current && graphType === "Candlestick") {
       seriesRef.current.setData(candleData);
     }
-  }, [lineData, candleData, graphType]);
+  }, [lineData, candleData, volumeData, graphType]);
 
   const buttonBasicTw = "px-1 py-0.5 rounded text-gray-500";
   return (
@@ -223,10 +264,10 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
             className={
               clsx(
                 buttonBasicTw,
-                { "bg-gray-900 text-white": intervalSelection === "1h" }
+                { "bg-gray-900 text-white": intervalSelection === "60m" }
               )
             }
-            onClick={() => setIntervalSelection("1h")}
+            onClick={() => setIntervalSelection("60m")}
           >
               1h
           </button>
@@ -234,10 +275,10 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
             className={
               clsx(
                 buttonBasicTw,
-                { "bg-gray-900 text-white": intervalSelection === "1d" }
+                { "bg-gray-900 text-white": intervalSelection === "1440m" }
               )
             }
-            onClick={() => setIntervalSelection("1d")}>
+            onClick={() => setIntervalSelection("1440m")}>
               1d
           </button>
         </div>
