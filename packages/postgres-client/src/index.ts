@@ -18,7 +18,7 @@ export class PostgresClient {
 
   async insertOHLCV(ohlcv: OHLCV): Promise<void> {
     const queryText = `
-      INSERT INTO ohlcv (
+      INSERT INTO ohlcv_1m (
         exchange,
         symbol,
         ts,
@@ -26,9 +26,9 @@ export class PostgresClient {
         high,
         low,
         close,
-        volume,
+        volume
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       ON CONFLICT (exchange, symbol, ts) DO NOTHING
     `;
     const queryValues = [

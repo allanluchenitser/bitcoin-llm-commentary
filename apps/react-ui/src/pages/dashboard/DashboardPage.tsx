@@ -26,8 +26,7 @@ const DashboardPage: React.FC = () => {
         const res = await fetch('/db/history');
 
         if(res.status !== 200) {
-          console.error('Failed fetch historic trades, status:', res.status);
-          console.error(res);
+          console.log(res);
           throw new Error(`Failed to fetch historic trades, status: ${res.status}`);
         }
 
@@ -36,8 +35,7 @@ const DashboardPage: React.FC = () => {
         console.log('Fetched historic trades:', history as OHLCVRow[]);
         setOhlcvData(history as OHLCVRow[]);
       } catch (error) {
-        console.error('Error fetching historic trades:', error);
-        throw new Error("something got WHACKED");
+        throw error;
       }
     }
     fetchHistory();

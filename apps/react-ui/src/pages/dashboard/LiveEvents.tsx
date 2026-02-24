@@ -7,10 +7,13 @@ const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
   const [tableMode, setTableMode] = useState<boolean>(true);
 
   const widths = {
-    exchange: "16%",
-    symbol: "16%",
-    close: "16%",
-    time: "24%",
+    exchange: "10%",
+    symbol: "10%",
+    open: "10%",
+    high: "10%",
+    low: "10%",
+    close: "10%",
+    time: "20%",
     volume: "20%"
   }
 
@@ -48,6 +51,9 @@ const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
                         <tr className="text-left [&>th]:pb-1">
                           <th style={{ width: widths.exchange }}>ex</th>
                           <th style={{ width: widths.symbol }}>symbol</th>
+                          <th style={{ width: widths.open }}>open</th>
+                          <th style={{ width: widths.high }}>high</th>
+                          <th style={{ width: widths.low }}>low</th>
                           <th style={{ width: widths.close }}>close</th>
                           <th style={{ width: widths.time }}>time</th>
                           <th style={{ width: widths.volume }}>vol</th>
@@ -64,6 +70,9 @@ const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
                           <tr key={i} className="font-mono">
                               <td style={{ width: widths.exchange }}>{ price.exchange ?? "" }</td>
                               <td style={{ width: widths.symbol }}>{ price.symbol ?? "" }</td>
+                              <td style={{ width: widths.open }}>{ price.open ? Number(price.open).toFixed(1) : "" }</td>
+                              <td style={{ width: widths.high }}>{ price.high ? Number(price.high).toFixed(1) : "" }</td>
+                              <td style={{ width: widths.low }}>{ price.low ? Number(price.low).toFixed(1) : "" }</td>
                               <td style={{ width: widths.close }}>{ price.close ? Number(price.close).toFixed(1) : "" }</td>
                               <td style={{ width: widths.time }}>{ price.ts ?? "" }</td>
                               <td style={{ width: widths.volume }}>{ price.volume ? price.volume : "" }</td>

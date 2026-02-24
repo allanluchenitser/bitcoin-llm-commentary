@@ -13,8 +13,12 @@ export function createDbRouter(path: string) {
     // const { exchange, symbol } = req.params;
     try {
       const history = await pgClient.getInstrumentHistory('kraken', 'BTC/USD');
-      res.json(history);
+      console.log('history rows returned', history.length);
+      let json = res.json(history);
+      return json;
+
     } catch (err) {
+      console.log('Error fetching history:', err);
       res.status(500).json({ error: "Database error" });
     }
   });
