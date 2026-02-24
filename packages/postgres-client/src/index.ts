@@ -55,7 +55,7 @@ export class PostgresClient {
     startTs?: string,
     endTs?: string
   ): Promise<OHLCVRow[]> {
-    let queryText = `SELECT * FROM ohlcv WHERE exchange = $1 AND symbol = $2`;
+    let queryText = `SELECT * FROM ohlcv_1m WHERE exchange = $1 AND symbol = $2`;
     const params: any[] = [exchange, symbol];
     if (startTs) {
       queryText += ` AND ts >= $3`;

@@ -21,28 +21,6 @@ import {
 import type { OHLCV, OHLCVRow } from "@blc/contracts";
 import clsx from "clsx";
 
-function clearOHLCV(obj: OHLCV) {
-  obj.ts = "";
-  obj.exchange = "";
-  obj.symbol = "";
-  obj.open = 0;
-  obj.high = 0;
-  obj.low = 0;
-  obj.close = 0;
-  obj.volume = 0;
-}
-
-const aggObject: OHLCV = {
-  ts: "",
-  exchange: "",
-  symbol: "",
-  open: 0,
-  high: 0,
-  low: 0,
-  close: 0,
-  volume: 0,
-};
-
 const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
@@ -56,7 +34,6 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
 
   useEffect(() => {
     if (!containerRef.current) return;
-
     const container = containerRef.current;
 
     const chart = createChart(container, {
@@ -102,50 +79,35 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
 
   /* ------ chart data ------ */
 
-  /*
-    if interval selection === 1m, use original
-    if interval selection === 15m, aggregate 15 minutes into 1 element
-    if interval selection === 1h, aggregate 1h into 1 element
-    if interval selection === 1d, aggregate 1d into 1 element
-  */
+  //  select granularity from a base of 1m intervals
   const aggregateData = useMemo(() => {
-    const interval = parseInt(intervalSelection);
-    if (interval === 1) return ohlcvData;
+  const interval = parseInt(intervalSelection);
+  if (interval === 1) return ohlcvData;
 
-    const aggArray: OHLCV[] = [];
+  const aggArray: OHLCV[] = [];
+    for (let i = 0; i < ohlcvData.length; i += interval) {
+      const group = ohlcvData.slice(i, i + interval);
+      if (group.length === 0) continue;
 
-    for (const [index, data] of ohlcvData.entries()) {
+      const open = parseInt(group[0].open);
+      const close = parseInt(group[group.length - 1].close);
+      const high = Math.max(...group.map(d => parseInt(d.high)));
+      const low = Math.min(...group.map(d => parseInt(d.low)));
+      const volume = group.reduce((sum, d) => sum + parseInt(d.volume), 0);
 
-      /* --- for all subintervals --- */
+      aggArray.push({
+        ts: group[0].ts,
+        exchange: group[0].exchange,
+        symbol: group[0].symbol,
+        open,
+        close,
+        high,
+        low,
+        volume,
+      });
+    }
 
-      const low = parseInt(data.low);
-      const high = parseInt(data.high);
-
-      if (high > aggObject.high) aggObject.high = high;
-      if (low < aggObject.low) aggObject.low = low;
-      aggObject.volume += parseInt(data.volume);
-
-      /* --- for special subintervals --- */
-
-      const isFirstSub = index % interval === 0;
-      const isLastSub = index % interval === interval - 1;
-      const noMoreElements = (index + 1) in ohlcvData === false;
-
-      if (isFirstSub) {
-        aggObject.exchange = data.exchange;
-        aggObject.symbol = data.symbol;
-        aggObject.ts = data.ts;
-        aggObject.open = parseInt(data.open);
-      }
-
-      if (isLastSub || noMoreElements) {
-        aggObject.close = parseInt(data.close)
-        aggArray.push({ ...aggObject })
-        clearOHLCV(aggObject);
-      }
-    } // end for
-
-    return aggArray;
+    return aggArray || [];
   }, [ohlcvData, intervalSelection]);
 
   const lineData: LineData[] = useMemo(() => {
@@ -190,7 +152,6 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
 
     return [...byTime.values()].sort((a, b) => Number(a.time) - Number(b.time));
   }, [aggregateData])
-
 
   /* ------ update chart ------ */
 

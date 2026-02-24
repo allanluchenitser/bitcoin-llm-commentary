@@ -22,11 +22,23 @@ const DashboardPage: React.FC = () => {
 
   useEffect(() => {
     async function fetchHistory() {
-      const res = await fetch('/db/history');
-      const history = await res.json();
+      try {
+        const res = await fetch('/db/history');
 
-      console.log('Fetched historic trades:', history as OHLCVRow[]);
-      setOhlcvData(history as OHLCVRow[]);
+        if(res.status !== 200) {
+          console.error('Failed fetch historic trades, status:', res.status);
+          console.error(res);
+          throw new Error(`Failed to fetch historic trades, status: ${res.status}`);
+        }
+
+        const history = await res.json();
+
+        console.log('Fetched historic trades:', history as OHLCVRow[]);
+        setOhlcvData(history as OHLCVRow[]);
+      } catch (error) {
+        console.error('Error fetching historic trades:', error);
+        throw new Error("something got WHACKED");
+      }
     }
     fetchHistory();
   }, []);
