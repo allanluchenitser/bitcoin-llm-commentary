@@ -12,10 +12,9 @@ export function calculateOHLCV(trades: KrakenTradeData[], intervalMs: number): O
   const close = trades[trades.length - 1].price;
 
   const volume = trades.reduce((sum, trade) => sum + trade.qty, 0);
-  const interval_s = intervalMs / 1000;
 
   return {
     exchange, symbol, ts, open, high, low,
-    close, volume, interval_s
+    close, volume
   };
 }

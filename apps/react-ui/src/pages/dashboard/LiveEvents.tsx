@@ -16,9 +16,9 @@ const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
 
   const processedTickerEvents: OHLCVRow[] = useMemo(() =>  {
     return ohlcvData
-      .map((ohclv) => {
-          const ts = formatUtcMonthDayTime(ohclv.ts);
-          return { ...ohclv, ts }
+      .map((ohlcv) => {
+          const ts = formatUtcMonthDayTime(ohlcv.ts);
+          return { ...ohlcv, ts }
       })
   }, [ohlcvData]);
 

@@ -18,8 +18,30 @@ import {
 } from "./dashboardHelpers";
 
 // import { type KrakenTickerEvent } from './dashboard-types';
-import type { OHLCVRow } from "@blc/contracts";
+import type { OHLCV, OHLCVRow } from "@blc/contracts";
 import clsx from "clsx";
+
+function clearOHLCV(obj: OHLCV) {
+  obj.ts = "";
+  obj.exchange = "";
+  obj.symbol = "";
+  obj.open = 0;
+  obj.high = 0;
+  obj.low = 0;
+  obj.close = 0;
+  obj.volume = 0;
+}
+
+const aggObject: OHLCV = {
+  ts: "",
+  exchange: "",
+  symbol: "",
+  open: 0,
+  high: 0,
+  low: 0,
+  close: 0,
+  volume: 0,
+};
 
 const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -86,20 +108,50 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
     if interval selection === 1h, aggregate 1h into 1 element
     if interval selection === 1d, aggregate 1d into 1 element
   */
-  // const aggregateData = useMemo(() => {
-  //   let counter = 0;
-  //   let ary = [];
-  //   let interval = parseInt(intervalSelection);
+  const aggregateData = useMemo(() => {
+    const interval = parseInt(intervalSelection);
+    if (interval === 1) return ohlcvData;
 
+    const aggArray: OHLCV[] = [];
 
+    for (const [index, data] of ohlcvData.entries()) {
 
-  //   return ohlcvData;
-  // }, [ohlcvData, intervalSelection]);
+      /* --- for all subintervals --- */
+
+      const low = parseInt(data.low);
+      const high = parseInt(data.high);
+
+      if (high > aggObject.high) aggObject.high = high;
+      if (low < aggObject.low) aggObject.low = low;
+      aggObject.volume += parseInt(data.volume);
+
+      /* --- for special subintervals --- */
+
+      const isFirstSub = index % interval === 0;
+      const isLastSub = index % interval === interval - 1;
+      const noMoreElements = (index + 1) in ohlcvData === false;
+
+      if (isFirstSub) {
+        aggObject.exchange = data.exchange;
+        aggObject.symbol = data.symbol;
+        aggObject.ts = data.ts;
+        aggObject.open = parseInt(data.open);
+      }
+
+      if (isLastSub || noMoreElements) {
+        aggObject.close = parseInt(data.close)
+        aggArray.push({ ...aggObject })
+        clearOHLCV(aggObject);
+      }
+    } // end for
+
+    return aggArray;
+  }, [ohlcvData, intervalSelection]);
 
   const lineData: LineData[] = useMemo(() => {
     const bySec = new Map<UTCTimestamp, LineData>();
 
-    for (const data of ohlcvData) {
+    for (const data of aggregateData) {
       const ts = toUTCTimestamp(data.ts)
       const lastPrice = toFiniteNumber(data.close);
       if (lastPrice === null) continue;
@@ -109,12 +161,12 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
     return [...bySec.values()].sort(
       (a, b) => Number(a.time) - Number(b.time)
     );
-  }, [ohlcvData]);
+  }, [aggregateData]);
 
   const candleData: CandlestickData[] = useMemo(() => {
     const byTime = new Map<UTCTimestamp, CandlestickData>();
 
-    for (const data of ohlcvData) {
+    for (const data of aggregateData) {
       const time = toUTCTimestamp(data.ts);
       const open = toFiniteNumber(data.open);
       const high = toFiniteNumber(data.high);
@@ -137,7 +189,7 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
     }
 
     return [...byTime.values()].sort((a, b) => Number(a.time) - Number(b.time));
-  }, [ohlcvData])
+  }, [aggregateData])
 
 
   /* ------ update chart ------ */

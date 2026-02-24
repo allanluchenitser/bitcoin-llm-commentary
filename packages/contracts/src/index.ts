@@ -17,7 +17,6 @@ export type OHLCV = {
   low: number;
   close: number;
   volume: number;
-  interval_s: number; // size of interval
 };
 
 // possibly for reading DB
@@ -30,6 +29,5 @@ export type OHLCVRow = {
   low: string;
   close: string;
   volume: string;
-  interval_s: string;
 };
 

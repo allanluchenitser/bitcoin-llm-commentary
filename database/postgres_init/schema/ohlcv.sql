@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS instrument (
 );
 
 
-CREATE TABLE IF NOT EXISTS ohlcv (
+CREATE TABLE IF NOT EXISTS ohlcv_1m (
   exchange   TEXT NOT NULL,
   symbol     TEXT NOT NULL,       -- same format as instrument.symbol
   ts         TIMESTAMPTZ NOT NULL,
@@ -17,16 +17,15 @@ CREATE TABLE IF NOT EXISTS ohlcv (
   low        NUMERIC(20,10) NOT NULL,
   close      NUMERIC(20,10) NOT NULL,
   volume     NUMERIC(20,10) NOT NULL,
-  interval_s INTEGER NOT NULL,
 
-  PRIMARY KEY (exchange, symbol, ts, interval_s),
+  PRIMARY KEY (exchange, symbol, ts),
   FOREIGN KEY (exchange, symbol)
     REFERENCES instrument (exchange, symbol)
     ON DELETE RESTRICT
 );
 
-CREATE INDEX IF NOT EXISTS idx_ohlcv_instrument_interval_ts
-  ON ohlcv (exchange, symbol, interval_s, ts DESC);
+CREATE INDEX IF NOT EXISTS idx_ohlcv_1m_instrument_ts
+  ON ohlcv_1m (exchange, symbol, ts DESC);
 
 
 

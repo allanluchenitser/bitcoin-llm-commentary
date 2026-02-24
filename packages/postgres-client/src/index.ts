@@ -27,10 +27,9 @@ export class PostgresClient {
         low,
         close,
         volume,
-        interval_s
       )
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      ON CONFLICT (exchange, symbol, ts, interval_s) DO NOTHING
+      ON CONFLICT (exchange, symbol, ts) DO NOTHING
     `;
     const queryValues = [
       ohlcv.exchange,
@@ -41,7 +40,6 @@ export class PostgresClient {
       ohlcv.low,
       ohlcv.close,
       ohlcv.volume,
-      ohlcv.interval_s
     ];
 
     try {
