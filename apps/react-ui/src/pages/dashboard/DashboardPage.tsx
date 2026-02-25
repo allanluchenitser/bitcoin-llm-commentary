@@ -48,8 +48,14 @@ const DashboardPage: React.FC = () => {
 
     const es = new EventSource('/sse/trades');
 
-    const onOpen = () => setSseStatus('open');
-    const onError = () => setSseStatus('error');
+    const onOpen = () => {
+      console.log('SSE connection opened');
+      setSseStatus('open');
+    }
+    const onError = () => {
+      console.log('SSE connection error');
+      setSseStatus('error');
+    }
 
     const onTicker = (sseEvent: MessageEvent) => {
       const subData = sseEvent.data; // SSE native data
