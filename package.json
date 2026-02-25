@@ -22,8 +22,7 @@
   },
   "workspaces": [
     "packages/*",
-    "apps/*",
-    "workers/*"
+    "apps/*"
   ],
   "devDependencies": {
     "@blc/price-ingestor": "^1.0.0",

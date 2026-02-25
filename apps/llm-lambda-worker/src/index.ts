@@ -2,7 +2,7 @@ import "@blc/env";
 import OpenAI from "openai";
 
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
-import { subscribeTickers } from "./subscribe.js";
+import { subscriberLLM } from "./subscriberLLM.js";
 
 console.log('LLM Lambda Worker starting...');
 
@@ -34,7 +34,6 @@ const client = new OpenAI({
 try {
   const response = await client.responses.create({
       model: process.env.LLM_MODEL_NAME || "gpt-5-nano",
-      // reasoning: { effort: "low"},
       instructions: "Answer the question as concisely as possible.",
       input: "Please explain the concept of Bitcoin in simple terms.",
   });

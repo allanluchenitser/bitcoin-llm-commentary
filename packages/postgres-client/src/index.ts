@@ -1,6 +1,15 @@
 import { Pool, PoolConfig, QueryResult } from 'pg';
 import { type OHLCVRow, type OHLCV } from "@blc/contracts";
 
+type LLMCommentaryParams = {
+  exchange?: string;
+  symbol?: string;
+  ts?: string;
+  commentary: string;
+  summaryType?: string;
+  llmUsed?: string;
+}
+
 export class PostgresClient {
   private pool: Pool;
 
@@ -81,6 +90,34 @@ export class PostgresClient {
       [instrumentId, startTs, endTs, intervalText]
     );
     return result.rows;
+  }
+
+  async saveLLMCommentary({
+    exchange = "kraken",
+    symbol = "BTC/USD",
+    ts = new Date().toISOString(),
+    commentary,
+    summaryType = "commentary",
+    llmUsed = "gpt-4"
+  }: LLMCommentaryParams): Promise<void> {
+    const queryText = `
+      INSERT INTO llm_price_summaries (
+        exchange,
+        symbol,
+        timestamp,
+        summary,
+        summary_type,
+        llm_used
+      )
+      VALUES ($1, $2, $3, $4, $5, $6)
+    `;
+    const queryValues = [exchange, symbol, ts, commentary, summaryType, llmUsed];
+
+    try {
+      await this.query(queryText, queryValues);
+    } catch (err) {
+      console.error('Error inserting LLM price summary:', err);
+    }
   }
 
   private getAggregationQuery(): string {
