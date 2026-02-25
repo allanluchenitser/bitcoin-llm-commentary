@@ -1,9 +1,9 @@
 import ButtonOne from "@/shared-components/ButtonOne";
 import { useState, useMemo } from "react";
-import { type OHLCVRow } from '@blc/contracts';
+import { type OHLCV } from '@blc/contracts';
 import { formatUtcMonthDayTime } from "./dashboardHelpers";
 
-const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
+const LiveEvents: React.FC<{ ohlcvData: OHLCV[] }> = ({ ohlcvData }) => {
   const [tableMode, setTableMode] = useState<boolean>(true);
 
   const widths = {
@@ -17,7 +17,7 @@ const LiveEvents: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
     volume: "20%"
   }
 
-  const processedTickerEvents: OHLCVRow[] = useMemo(() =>  {
+  const processedTickerEvents: OHLCV[] = useMemo(() =>  {
     return ohlcvData
       .map((ohlcv) => {
           const ts = formatUtcMonthDayTime(ohlcv.ts);

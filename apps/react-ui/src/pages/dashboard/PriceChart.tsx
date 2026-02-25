@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import ButtonOne from "@/shared-components/ButtonOne";
 
 import {
@@ -21,18 +21,35 @@ import {
 } from "./dashboardHelpers";
 
 // import { type KrakenTickerEvent } from './dashboard-types';
-import type { OHLCV, OHLCVRow } from "@blc/contracts";
+import type { OHLCV } from "@blc/contracts";
 import clsx from "clsx";
 
-const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
+type PriceChartProps = {
+  ohlcvData: OHLCV[];
+
+  intervalSelection: "1m" | "15m" | "60m" | "1440m";
+  onChangeInterval: (interval: "1m" | "15m" | "60m" | "1440m") => void;
+
+  graphType: "Line" | "Candlestick";
+  onChangeGraphType: (graphType: "Line" | "Candlestick") => void;
+}
+
+const PriceChart: React.FC<PriceChartProps> = ({
+  ohlcvData,
+  intervalSelection,
+  graphType,
+  onChangeInterval,
+  onChangeGraphType
+}) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
+
   const seriesRef = useRef<ISeriesApi<"Line"> | ISeriesApi<"Candlestick"> | null >(null);
   const volumeSeriesRef = useRef<ISeriesApi<"Histogram"> | null >(null);
 
-  const [intervalSelection, setIntervalSelection] = useState<"1m" | "15m" | "60m" | "1440m">("1m");
+  // const [intervalSelection, setIntervalSelection] = useState<"1m" | "15m" | "60m" | "1440m">("1m");
 
-  const [graphType, setGraphType] = useState<"Line" | "Candlestick">("Line");
+  // const [graphType, setGraphType] = useState<"Line" | "Candlestick">("Line");
 
   /* ------ init chart library ------ */
 
@@ -92,58 +109,22 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
 
   /* ------ chart data ------ */
 
-
-  // aggregate raw data based on selected interval
-  const aggregateData = useMemo(() => {
-    const interval = parseInt(intervalSelection);
-    if (interval === 1) {
-      const sorted = [...ohlcvData].sort((a, b) => Date.parse(a.ts) - Date.parse(b.ts));
-      return sorted;
-    }
-
-    const aggArray: OHLCV[] = [];
-    for (let i = 0; i < ohlcvData.length; i += interval) {
-      const group = ohlcvData.slice(i, i + interval);
-      if (group.length === 0) continue;
-
-      const open = parseInt(group[0].open);
-      const close = parseInt(group[group.length - 1].close);
-      const high = Math.max(...group.map(d => parseInt(d.high)));
-      const low = Math.min(...group.map(d => parseInt(d.low)));
-      const volume = group.reduce((sum, d) => sum + parseInt(d.volume), 0);
-
-      aggArray.push({
-        ts: group[0].ts,
-        exchange: group[0].exchange,
-        symbol: group[0].symbol,
-        open,
-        close,
-        high,
-        low,
-        volume,
-      });
-    }
-
-    const sorted = aggArray.sort((a, b) => Date.parse(a.ts) - Date.parse(b.ts));
-    return sorted;
-  }, [ohlcvData, intervalSelection]);
-
   const lineData: LineData[] = useMemo(() => {
     const bySec = new Map<UTCTimestamp, LineData>();
 
-    for (const data of aggregateData) {
+    for (const data of ohlcvData) {
       const ts = toUTCTimestamp(data.ts)
       const lastPrice = toFiniteNumber(data.close);
       bySec.set(ts, { time: ts, value: lastPrice || 0 });
     }
 
     return [...bySec.values()];
-  }, [aggregateData]);
+  }, [ohlcvData]);
 
   const candleData: CandlestickData[] = useMemo(() => {
     const byTime = new Map<UTCTimestamp, CandlestickData>();
 
-    for (const data of aggregateData) {
+    for (const data of ohlcvData) {
       const time = toUTCTimestamp(data.ts);
       const open = toFiniteNumber(data.open);
       const high = toFiniteNumber(data.high);
@@ -164,15 +145,15 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
     }
 
     return [...byTime.values()];
-  }, [aggregateData]);
+  }, [ohlcvData]);
 
   const volumeData: HistogramData[] = useMemo(() => {
-    return aggregateData.map((data) => ({
+    return ohlcvData.map((data) => ({
       time: toUTCTimestamp(data.ts),
       value: toFiniteNumber(data.volume) ?? 0,
       color: "#a3a3a3", // or use green/red based on price movement if you want
     }));
-  }, [aggregateData]);
+  }, [ohlcvData]);
 
   /* ------ update chart ------ */
 
@@ -247,7 +228,7 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
                 { "bg-gray-900 text-white": intervalSelection === "1m" }
               )
             }
-            onClick={() => setIntervalSelection("1m")}>
+            onClick={() => onChangeInterval("1m")}>
               1m
           </button>
           <button
@@ -257,7 +238,7 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
                 { "bg-gray-900 text-white": intervalSelection === "15m" }
               )
             }
-            onClick={() => setIntervalSelection("15m")}>
+            onClick={() => onChangeInterval("15m")}>
               15m
           </button>
           <button
@@ -267,7 +248,7 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
                 { "bg-gray-900 text-white": intervalSelection === "60m" }
               )
             }
-            onClick={() => setIntervalSelection("60m")}
+            onClick={() => onChangeInterval("60m")}
           >
               1h
           </button>
@@ -278,7 +259,7 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
                 { "bg-gray-900 text-white": intervalSelection === "1440m" }
               )
             }
-            onClick={() => setIntervalSelection("1440m")}>
+            onClick={() => onChangeInterval("1440m")}>
               1d
           </button>
         </div>
@@ -286,7 +267,7 @@ const PriceChart: React.FC<{ ohlcvData: OHLCVRow[] }> = ({ ohlcvData }) => {
           <ButtonOne
             variant="clear"
             className="ml-auto font-semibold"
-            onClick={() => setGraphType(prev => prev === "Line" ? "Candlestick" : "Line")}
+            onClick={() => onChangeGraphType(graphType === "Line" ? "Candlestick" : "Line")}
           >
             {graphType}
           </ButtonOne>
