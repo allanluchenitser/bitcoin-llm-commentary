@@ -17,14 +17,19 @@ export async function priceSubscription_fanOut(
   await sub.connect();
 
   await sub.subscribe(CHANNEL_TICKER_GENERIC, (message: string) => {
+    try {
     const json = JSON.parse(message);
-    if (json.type === "heartbeat") {
-      sseClients.heartbeat();
-      return;
+      if (json.type === "heartbeat") {
+        sseClients.heartbeat();
+        return;
+      }
+      if (json.exchange && json.symbol && json.ts) {
+        // looks like an OHLCV tick, fan it out to SSE clients
+        sseClients.messageAll(CHANNEL_TICKER_GENERIC, json);
+      }
     }
-    if (json.exchange && json.symbol && json.ts) {
-      // looks like an OHLCV tick, fan it out to SSE clients
-      sseClients.messageAll(CHANNEL_TICKER_GENERIC, json);
+    catch (error) {
+      console.error("SSE failed to parse message:", message, error);
     }
   });
 
