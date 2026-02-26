@@ -3,10 +3,6 @@ import { CHANNEL_TICKER_GENERIC } from "@blc/contracts";
 import type { RedisClient } from "@blc/redis-client";
 import type { SseClients } from "@blc/sse-client";
 
-const intervalMs = process.env.KRAKEN_TICKER_INTERVAL_MS
-  ? parseInt(process.env.KRAKEN_TICKER_INTERVAL_MS)
-  : 1000;
-
 export async function priceSubscription_fanOut(
   redis: RedisClient,
   sseClients: SseClients

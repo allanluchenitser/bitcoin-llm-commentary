@@ -2,16 +2,19 @@ import "@blc/env";
 import OpenAI from "openai";
 import express from "express";
 
+import { color } from "@blc/color-logger";
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
 import { subscriberLLM } from "./subscribe/subscriberLLM.js";
 import { OHLCV, OHLCVRow } from "@blc/contracts";
-import { createSseRouter } from "@blc/sse-client";
 
 import { pgConfig } from "./db/config.js";
 import { PostgresClient } from "@blc/postgres-client";
-import { differenceInMinutes, parseISO } from "date-fns";
 
-import { SseClients } from "@blc/sse-client";
+import {
+  SseClients,
+  createSseRouter,
+  priceSubscription_fanOut
+} from "@blc/sse-client";
 
 console.log('LLM Lambda Worker starting...');
 
@@ -37,6 +40,8 @@ catch (error) {
 }
 
 const sseClients = new SseClients();
+const { stopPrices } = await priceSubscription_fanOut(redis, sseClients);
+
 const app = express();
 
 app.use(express.json());
@@ -85,7 +90,6 @@ const client = new OpenAI({
 //     { role, name, input }
 //     - function
 //   */
-
 
 const REGULAR_INTERVAL_MINUTES = 30;
 const SPIKE_INTERVAL_MINUTES = 10;
@@ -157,8 +161,9 @@ async function generateSummary(
   }
 }
 
-// --- INTERVAL LOGIC ---
-// Regular 30-minute summary
+/* ------ Begin Program ------ */
+
+// scheduled summary every 30-minutes
 setInterval(async () => {
   if (!pgClient) return;
   const last30 = getIntervalCandles(candleDataBuffer, REGULAR_INTERVAL_MINUTES);
@@ -176,8 +181,22 @@ setInterval(async () => {
   }
 }, 60 * 1000);
 
-function shutdown() {
+
+console.log("Starting web-api..");
+const port = Number(process.env.PORT ?? 3000);
+
+const server = app.listen(port, () => {
+  color.info(`web-api listening on http://localhost:${port}`);
+});
+
+async function shutdown() {
   console.log('LLM Lambda Worker shutting down...');
+
+  server.close(() => {
+    console.log('LLM Lambda Worker server closed.');
+  });
+
+  stopPrices().catch(err => console.error('Error stopping price subscription:', err));
   Promise.all([
     redis?.disconnect().catch(err => console.error('Error disconnecting Redis:', err)),
     pgClient?.end().catch(err => console.error('Error closing Postgres client:', err))
