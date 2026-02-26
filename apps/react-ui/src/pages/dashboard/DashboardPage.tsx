@@ -4,13 +4,12 @@ import LiveEvents from './LiveEvents';
 
 import {
   CHANNEL_TICKER_GENERIC,
+  ohclvRows2Numbers,
   type OHLCVRow,
   type OHLCV
 } from '@blc/contracts';
 
 import { useEffect, useState, useMemo } from 'react';
-
-import { ohclvRows2Numbers } from './dashboardHelpers';
 
 const DashboardPage: React.FC = () => {
   const [sseStatus, setSseStatus] = useState<'connecting' | 'open' | 'closed' | 'error'>('connecting');

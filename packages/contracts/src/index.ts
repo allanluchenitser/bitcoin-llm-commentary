@@ -31,3 +31,15 @@ export type OHLCVRow = {
   volume: string;
 };
 
+export function ohclvRows2Numbers(rows: OHLCVRow[]): OHLCV[] {
+  return rows.map(row => ({
+    ts: row.ts,
+    exchange: row.exchange,
+    symbol: row.symbol,
+    open: Number(row.open),
+    close: Number(row.close),
+    high: Number(row.high),
+    low: Number(row.low),
+    volume: Number(row.volume),
+  }));
+}

@@ -92,7 +92,7 @@ export class PostgresClient {
     return result.rows;
   }
 
-  async saveLLMCommentary({
+  async insertLLMCommentary({
     exchange = "kraken",
     symbol = "BTC/USD",
     ts = new Date().toISOString(),

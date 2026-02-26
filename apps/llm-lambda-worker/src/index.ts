@@ -2,7 +2,7 @@ import "@blc/env";
 import OpenAI from "openai";
 
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
-import { subscriberLLM } from "./subscriberLLM.js";
+import { subscriberLLM } from "./subscribe.js";
 
 console.log('LLM Lambda Worker starting...');
 
