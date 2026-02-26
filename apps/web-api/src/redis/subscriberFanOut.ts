@@ -1,7 +1,7 @@
 import { CHANNEL_TICKER_GENERIC } from "@blc/contracts";
 
 import type { RedisClient } from "@blc/redis-client";
-import type { SseClients } from "../sse/sseClients.js";
+import type { SseClients } from "@blc/sse-client";
 
 const intervalMs = process.env.KRAKEN_TICKER_INTERVAL_MS
   ? parseInt(process.env.KRAKEN_TICKER_INTERVAL_MS)

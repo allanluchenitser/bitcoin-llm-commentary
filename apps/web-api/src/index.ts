@@ -4,10 +4,10 @@ import express from "express";
 import { color } from "@blc/color-logger";
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
 
-import { createSseRouter } from "./sse/sseRouter.js";
+import { createSseRouter } from "@blc/sse-client";
 import { createDbRouter } from "./db/dbRouter.js";
 
-import { SseClients } from "./sse/sseClients.js";
+import { SseClients } from "@blc/sse-client";
 import { priceSubscription_fanOut } from "./redis/subscriberFanOut.js";
 
 /* ------ ticker fanout (signup below) ------ */
