@@ -1,13 +1,17 @@
 import "@blc/env";
 import OpenAI from "openai";
+import express from "express";
 
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
 import { subscriberLLM } from "./subscribe/subscriberLLM.js";
 import { OHLCV, OHLCVRow } from "@blc/contracts";
+import { createSseRouter } from "@blc/sse-client";
 
 import { pgConfig } from "./db/config.js";
 import { PostgresClient } from "@blc/postgres-client";
 import { differenceInMinutes, parseISO } from "date-fns";
+
+import { SseClients } from "@blc/sse-client";
 
 console.log('LLM Lambda Worker starting...');
 
@@ -25,11 +29,28 @@ try {
 
   await subscriberLLM(redis);
   console.log('LLM Lambda Worker subscribed to Redis channel for LLM tasks.');
+
 }
 catch (error) {
   console.error('Error initializing LLM Lambda Worker:', error);
   process.exit(1);
 }
+
+const sseClients = new SseClients();
+const app = express();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use("/sse", createSseRouter('/summaries', sseClients)); // SSE does updates
+
+app.use((_req, res) => res.status(404).json({ error: "Not Found" }));
+
+app.use((err: unknown, _req: any, res: any, _next: any) => {
+  console.error(err);
+  res.status(500).json({ error: "Internal Server Error" });
+});
+
 
 const apiKey = process.env.OPENAI_API_KEY;
 
@@ -47,49 +68,24 @@ const client = new OpenAI({
 //   console.log(`Model: ${model.id}`);
 // }
 
-try {
-  /*
-    roles:
-    { role, content } // authority decreases in this order:
+// try {
+//   /*
+//     roles:
+//     { role, content } // authority decreases in this order:
 
-    - system: global premises
+//     - system: global premises
 
-    // - developer: feature level premises. tool use rules.
+//     - developer: feature level premises. tool use rules.
 
-    - user: the user's input
-    - assistant: the assistant's response
+//     - user: the user's input
+//     - assistant: the assistant's response
 
-    - tool: the tool's response
+//     - tool: the tool's response
 
-    { role, name, input }
-    - function
-  */
-  const response = await client.responses.create({
-      model: process.env.LLM_MODEL_NAME || "gpt-5-nano",
-      // tools: [
-      //     { type: "web_search" },
-      // ],
-      instructions: "Answer the question as concisely as possible.",
+//     { role, name, input }
+//     - function
+//   */
 
-      // input: "Please explain the concept of Bitcoin in simple terms.",
-      input: [
-        {
-          role: "user",
-          content: "Please explain the concept of Bitcoin in simple terms."
-        },
-        {
-          role: "developer",
-          content: "The user is asking for a simple explanation of Bitcoin. Please provide a concise and easy-to-understand response."
-        }
-      ]
-  });
-
-  console.log(response.output_text);
-}
-catch (error) {
-    console.error("Error creating response:", error);
-    process.exit(1);
-}
 
 const REGULAR_INTERVAL_MINUTES = 30;
 const SPIKE_INTERVAL_MINUTES = 10;
@@ -133,14 +129,32 @@ async function generateSummary(
     instructions: "Summarize price and volume movement concisely.",
     input: [{ role: "user", content: prompt }]
   });
-  await pgClient.saveLLMCommentary({
-    commentary: response.output_text,
+
+  const commentaryObject = {
     summaryType: type,
     exchange: candles[0].exchange,
     symbol: candles[0].symbol,
     ts: candles[candles.length - 1].ts,
-    llmUsed: process.env.LLM_MODEL_NAME || "gpt-5-nano"
-  });
+    commentary: response.output_text
+  }
+
+  try {
+    await pgClient.insertLLMCommentary({
+      ...commentaryObject,
+      llmUsed: process.env.LLM_MODEL_NAME || "gpt-5-nano"
+    });
+  } catch (err) {
+    console.error("Error inserting LLM commentary into Postgres:", err);
+    return;
+  }
+
+  try {
+    sseClients.messageAll("summary", {
+      ...commentaryObject
+    });
+  } catch (err) {
+    console.error("Error sending SSE summary message:", err);
+  }
 }
 
 // --- INTERVAL LOGIC ---
@@ -162,5 +176,15 @@ setInterval(async () => {
   }
 }, 60 * 1000);
 
+function shutdown() {
+  console.log('LLM Lambda Worker shutting down...');
+  Promise.all([
+    redis?.disconnect().catch(err => console.error('Error disconnecting Redis:', err)),
+    pgClient?.end().catch(err => console.error('Error closing Postgres client:', err))
+  ]).finally(() => {
+    process.exit(0);
+  });
+}
 
-
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
