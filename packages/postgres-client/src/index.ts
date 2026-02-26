@@ -74,7 +74,7 @@ export class PostgresClient {
       queryText += startTs ? ` AND ts < $4` : ` AND ts < $3`;
       params.push(endTs);
     }
-    queryText += ` ORDER BY ts DESC LIMIT 500`;
+    queryText += ` ORDER BY ts DESC LIMIT 1440`; // 3 days of 1m data
     const result = await this.query(queryText, params);
     return result.rows;
   }
