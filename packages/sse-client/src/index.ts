@@ -58,8 +58,8 @@ export class SseClients {
 
 /* ---- SSE Router and connection setup / teardown ---- */
 
-// note that a SSE message requires an extra newline at the end
 
+// creates express endpoint. adds, removes clients.
 export function createSseRouter(path: string, hub: SseClients): Router {
   const router = Router();
 

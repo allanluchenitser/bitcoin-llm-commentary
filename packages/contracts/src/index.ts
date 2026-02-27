@@ -43,3 +43,15 @@ export function ohclvRows2Numbers(rows: OHLCVRow[]): OHLCV[] {
     volume: Number(row.volume),
   }));
 }
+export function ohlcvRow2Num(row: OHLCVRow): OHLCV {
+  return ({
+    ts: row.ts,
+    exchange: row.exchange,
+    symbol: row.symbol,
+    open: Number(row.open),
+    close: Number(row.close),
+    high: Number(row.high),
+    low: Number(row.low),
+    volume: Number(row.volume),
+  });
+}
