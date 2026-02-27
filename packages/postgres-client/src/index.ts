@@ -58,6 +58,7 @@ export class PostgresClient {
   async getInstrumentHistory(
     exchange: string = "kraken",
     symbol: string = "BTC/USD",
+    limit: number = 30,
     startTs?: string,
     endTs?: string
   ): Promise<OHLCVRow[]> {
@@ -71,7 +72,7 @@ export class PostgresClient {
       queryText += startTs ? ` AND ts < $4` : ` AND ts < $3`;
       params.push(endTs);
     }
-    queryText += ` ORDER BY ts DESC LIMIT 1440`; // 3 days of 1m data
+    queryText += ` ORDER BY ts DESC LIMIT ${limit}`; // 3 days of 1m data
     const result = await this.query(queryText, params);
     return result.rows;
   }
@@ -115,6 +116,29 @@ export class PostgresClient {
       await this.query(queryText, queryValues);
     } catch (err) {
       console.error('Error inserting LLM price summary:', err);
+    }
+  }
+
+  async readLLMCommentary(
+    exchange: string = "kraken",
+    symbol: string = "BTC/USD",
+    limit: number = 10
+  ): Promise<LLMCommentary[]> {
+    const queryText = `
+      SELECT exchange, symbol, timestamp AS ts, summary AS commentary, summary_type AS "summaryType", llm_used AS "llmUsed"
+      FROM llm_price_summaries
+      WHERE exchange = $1 AND symbol = $2
+      ORDER BY timestamp DESC
+      LIMIT $3
+    `;
+    const queryValues = [exchange, symbol, limit];
+
+    try {
+      const result = await this.query(queryText, queryValues);
+      return result.rows as LLMCommentary[];
+    } catch (err) {
+      console.error('Error reading LLM price summaries:', err);
+      return [];
     }
   }
 

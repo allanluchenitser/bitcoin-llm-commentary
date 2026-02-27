@@ -7,8 +7,10 @@ import path from 'node:path';
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const rootEnvDir = path.resolve(__dirname, '../../')
-  const env = loadEnv(mode, rootEnvDir, '')
-  const localWebApiPort = Number(env.VITE_WEB_API_PORT || 0) || 3000
+  const env = loadEnv(mode, rootEnvDir, '');
+
+  const localWebApiPort = Number(env.VITE_WEB_API_PORT || 0) || 3000;
+  const localLLMWorkerPort = Number(env.VITE_LLM_EXPRESS_PORT || 0) || 3002;
 
   return {
     plugins: [react(), tailwindcss()],
@@ -31,7 +33,15 @@ export default defineConfig(({ mode }) => {
         '/db/history': {
           target: `http://localhost:${localWebApiPort}`,
           changeOrigin: true,
-        }
+        },
+        '/sse/summaries': {
+          target: `http://localhost:${localLLMWorkerPort}`,
+          changeOrigin: true,
+        },
+        '/llm/history': {
+          target: `http://localhost:${localLLMWorkerPort}`,
+          changeOrigin: true,
+        },
       },
     }
   }

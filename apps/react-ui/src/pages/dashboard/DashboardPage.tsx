@@ -31,7 +31,7 @@ const DashboardPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    async function fetchHistory() {
+    async function fetchPriceHistory() {
       try {
         const res = await fetch('/db/history');
 
@@ -48,7 +48,25 @@ const DashboardPage: React.FC = () => {
         throw error;
       }
     }
-    fetchHistory();
+    fetchPriceHistory();
+  }, []);
+
+  useEffect(() => {
+    async function fetchLLMHistory() {
+      try {
+        const res = await fetch('/llm/history');
+        if(res.status !== 200) {
+          console.log(res);
+          throw new Error(`Failed to fetch historic summaries, status: ${res.status}`);
+        }
+
+        const history = await res.json();
+        setSummaries(history as LLMCommentary[]);
+      } catch (error) {
+        throw error;
+      }
+    }
+    fetchLLMHistory();
   }, []);
 
   // SSE trades from web-api
@@ -68,12 +86,13 @@ const DashboardPage: React.FC = () => {
         }
         else {
           const mapped = ohclvRows2Numbers([parsed as OHLCVRow])[0];
-          setRawOhlcvData(prev => [mapped, ...prev])
+          setRawOhlcvData(prev => [...prev, mapped].sort((a, b) => Date.parse(a.ts) - Date.parse(b.ts)));
         }
       } catch {}
     }
   });
 
+  // SSE summaries from llm-lambda-worker
   useSseSetup({
     path: '/sse/summaries',
     channel: 'summary',
@@ -82,7 +101,7 @@ const DashboardPage: React.FC = () => {
       try {
         const parsed = JSON.parse(sseEvent.data);
         console.log("Received summary event:", parsed);
-        setSummaries(prev => [parsed as LLMCommentary, ...prev]);
+        setSummaries(prev => [...prev, parsed as LLMCommentary].sort((a, b) => Date.parse(a.ts) - Date.parse(b.ts)));
       } catch {}
     }
   });
@@ -94,7 +113,7 @@ const DashboardPage: React.FC = () => {
       return sorted;
     }
 
-  const aggArray: OHLCV[] = [];
+    const aggArray: OHLCV[] = [];
     for (let i = 0; i < rawOhlcvData.length; i += interval) {
       const group = rawOhlcvData.slice(i, i + interval);
       if (group.length === 0) continue;

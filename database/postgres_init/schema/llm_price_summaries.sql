@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS llm_price_summaries (
   symbol     TEXT NOT NULL,
   timestamp TIMESTAMPTZ NOT NULL,
   summary TEXT NOT NULL,
-  summary_type price_summary_type NOT NULL, -- daily | hourly | custom
+  summary_type price_summary_type NOT NULL, -- regular | spike
   llm_used TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 

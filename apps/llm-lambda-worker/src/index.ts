@@ -7,6 +7,7 @@ import { createRedisClient, type RedisClient } from "@blc/redis-client";
 
 import {
   CHANNEL_TICKER_OHLCV,
+  ohclvRows2Numbers,
   ohlcvRow2Num,
   type OHLCV,
   type OHLCVRow
@@ -37,7 +38,9 @@ try {
   pgClient = new PostgresClient(pgConfig);
   console.log('LLM Lambda Worker initialized Postgres client.');
 
-  await redis.connect();
+  const initialCandles = await pgClient.getInstrumentHistory("kraken", "BTC/USD", 30);
+  candleDataBuffer.push(...ohclvRows2Numbers(initialCandles));
+  console.log(`LLM Lambda Worker loaded initial OHLCV data: ${initialCandles.length} candles.`);
 
   await redis.subscribe(CHANNEL_TICKER_OHLCV, (message: string) => {
     const row = JSON.parse(message) as OHLCVRow;
@@ -68,6 +71,23 @@ app.use(express.urlencoded({ extended: true }));
 
 const sseClients = new SseClients();
 app.use("/sse", createSseRouter('/summaries', sseClients));
+
+/* ------ REST API routes ------ */
+
+app.get("/llm/history", async (_req, res) => {
+  if (!pgClient) {
+    return res.status(500).json({ error: "Postgres client not initialized" });
+  }
+
+  try {
+    const result = await pgClient.readLLMCommentary();
+    console.log('Fetched LLM history:', result);
+    res.json(result);
+  } catch (error) {
+    console.error('Error fetching history from Postgres:', error);
+    res.status(500).json({ error: "Failed to fetch history" });
+  }
+});
 
 /* ------ error routes ------ */
 
@@ -102,7 +122,9 @@ function detectSpike(candles: OHLCV[]): boolean {
 setInterval(async () => {
   if (!pgClient) return;
   const last30 = getIntervalCandles(candleDataBuffer, REGULAR_INTERVAL_MINUTES);
+  console.log('scheduled interval hit', 'last30.length:', last30.length);
   if (last30.length === REGULAR_INTERVAL_MINUTES) {
+    console.log('scheduled launch entered')
     await launchSummary({
       type: "regular",
       candles: last30,
@@ -111,7 +133,7 @@ setInterval(async () => {
       sseClients
     });
   }
-}, REGULAR_INTERVAL_MINUTES * 60 * 1000);
+}, REGULAR_INTERVAL_MINUTES * 1000);
 
 // spike detection every minute
 setInterval(async () => {
@@ -130,10 +152,10 @@ setInterval(async () => {
 
 /* ------ start web server ------ */
 
-const port = Number(process.env.PORT ?? 3000);
+const port = Number(process.env.LLM_EXPRESS_PORT ?? 3002);
 
 const server = app.listen(port, () => {
-  color.info(`web-api listening on http://localhost:${port}`);
+  color.info(`lambda-server listening on http://localhost:${port}`);
 });
 
 /* ------ cleanup ------ */
