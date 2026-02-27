@@ -3,19 +3,28 @@ import BotSummary from './BotSummary';
 import LiveEvents from './LiveEvents';
 
 import {
-  CHANNEL_TICKER_GENERIC,
+  CHANNEL_TICKER_OHLCV,
   ohclvRows2Numbers,
   type OHLCVRow,
-  type OHLCV
+  type OHLCV,
+  type LLMCommentary
 } from '@blc/contracts';
 
 import { useEffect, useState, useMemo } from 'react';
 
+import { useSseSetup } from './useSseSetup';
+
+type sseStatuses = 'connecting' | 'open' | 'closed' | 'error';
+
 const DashboardPage: React.FC = () => {
-  const [sseStatus, setSseStatus] = useState<'connecting' | 'open' | 'closed' | 'error'>('connecting');
+  const [sseTradesStatus, setSseTradesStatus] = useState<sseStatuses>('connecting');
+  const [sseSummariesStatus, setSseSummariesStatus] = useState<sseStatuses>('connecting');
+
   const [intervalSelection, setIntervalSelection] = useState<"1m" | "15m" | "60m" | "1440m">("1m");
   const [graphType, setGraphType] = useState<"Line" | "Candlestick">("Line");
+
   const [rawOhlcvData, setRawOhlcvData] = useState<OHLCV[]>([]);
+  const [summaries, setSummaries] = useState<LLMCommentary[]>([]);
 
   useEffect(() => {
     document.title = "Dashboard - Bitcoin LLM Commentary";
@@ -42,21 +51,12 @@ const DashboardPage: React.FC = () => {
     fetchHistory();
   }, []);
 
-  useEffect(() => {
-    // SSE connection with web-api
-
-    const es = new EventSource('/sse/trades');
-
-    const onOpen = () => {
-      console.log('SSE connection opened');
-      setSseStatus('open');
-    }
-    const onError = () => {
-      console.log('SSE connection error');
-      setSseStatus('error');
-    }
-
-    const onTicker = (sseEvent: MessageEvent) => {
+  // SSE trades from web-api
+  useSseSetup({
+    path: '/sse/trades',
+    channel: CHANNEL_TICKER_OHLCV,
+    onStatus: setSseTradesStatus,
+    onUpdate: (sseEvent) => {
       const subData = sseEvent.data; // SSE native data
 
       try {
@@ -72,19 +72,20 @@ const DashboardPage: React.FC = () => {
         }
       } catch {}
     }
+  });
 
-    es.addEventListener('open', onOpen);
-    es.addEventListener('error', onError);
-    es.addEventListener(CHANNEL_TICKER_GENERIC, onTicker);
-
-    return () => {
-      es.removeEventListener('open', onOpen);
-      es.removeEventListener('error', onError);
-      es.removeEventListener(CHANNEL_TICKER_GENERIC, onTicker);
-      es.close();
-      setSseStatus('closed');
-    };
-  }, []);
+  useSseSetup({
+    path: '/sse/summaries',
+    channel: 'summary',
+    onStatus: setSseSummariesStatus,
+    onUpdate: (sseEvent) => {
+      try {
+        const parsed = JSON.parse(sseEvent.data);
+        console.log("Received summary event:", parsed);
+        setSummaries(prev => [parsed as LLMCommentary, ...prev]);
+      } catch {}
+    }
+  });
 
   const processedOHCLV = useMemo(() => {
     const interval = parseInt(intervalSelection);
@@ -122,7 +123,8 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4">
-      <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseStatus}</span>
+      <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseTradesStatus}</span>
+      <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseSummariesStatus}</span>
       <div className="flex mt-4">
         <div className="w-3/5">
           <div>
@@ -143,7 +145,7 @@ const DashboardPage: React.FC = () => {
 
         <div className="w-2/5 ml-4 text-center">
           <div className="h-full">
-            <BotSummary />
+            <BotSummary summaries={summaries} />
           </div>
         </div>
       </div>

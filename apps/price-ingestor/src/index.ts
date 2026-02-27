@@ -10,7 +10,7 @@ import { rawDataToUtf8 } from "./ws/wsHelpers.js";
 import { color } from "@blc/color-logger";
 
 import {
-  CHANNEL_TICKER_GENERIC,
+  CHANNEL_TICKER_OHLCV,
   type KrakenTradeData,
 } from "@blc/contracts";
 
@@ -29,7 +29,7 @@ import { calculateOHLCV } from "./ingestorHelpers.js";
   https://docs.kraken.com/api/docs/websocket-v2/trade
 */
 
-console.log('CHANNEL_TICKER_GENERIC:', CHANNEL_TICKER_GENERIC);
+console.log('CHANNEL_TICKER_OHLCV:', CHANNEL_TICKER_OHLCV);
 
 /* ------ OHLCV Buffer ------ */
 const tradeBuffer: KrakenTradeData[] = [];
@@ -44,7 +44,7 @@ function processBufferedTrades() {
 
   if (tradeBuffer.length === 0 && heartBeats.length > 0) {
     console.log("No trades. Publishing heartbeat.");
-    redis.publish(CHANNEL_TICKER_GENERIC, JSON.stringify({ type: "heartbeat" }));
+    redis.publish(CHANNEL_TICKER_OHLCV, JSON.stringify({ type: "heartbeat" }));
     return;
   }
 
@@ -60,7 +60,7 @@ function processBufferedTrades() {
     }
 
     try {
-      redis.publish(CHANNEL_TICKER_GENERIC, JSON.stringify(ohlcv));
+      redis.publish(CHANNEL_TICKER_OHLCV, JSON.stringify(ohlcv));
     }
     catch (err) {
       console.error("Failed to publish OHLCV to Redis:", err);

@@ -1,4 +1,4 @@
-import { CHANNEL_TICKER_GENERIC } from "@blc/contracts";
+import { CHANNEL_TICKER_OHLCV } from "@blc/contracts";
 
 import type { RedisClient } from "@blc/redis-client";
 import type { SseClients } from "@blc/sse-client";
@@ -12,7 +12,7 @@ export async function priceSubscription_fanOut(
   const sub = redis.duplicate();
   await sub.connect();
 
-  await sub.subscribe(CHANNEL_TICKER_GENERIC, (message: string) => {
+  await sub.subscribe(CHANNEL_TICKER_OHLCV, (message: string) => {
     try {
     const json = JSON.parse(message);
       if (json.type === "heartbeat") {
@@ -21,7 +21,7 @@ export async function priceSubscription_fanOut(
       }
       if (json.exchange && json.symbol && json.ts) {
         // looks like an OHLCV tick, fan it out to SSE clients
-        sseClients.messageAll(CHANNEL_TICKER_GENERIC, json);
+        sseClients.messageAll(CHANNEL_TICKER_OHLCV, json);
       }
     }
     catch (error) {

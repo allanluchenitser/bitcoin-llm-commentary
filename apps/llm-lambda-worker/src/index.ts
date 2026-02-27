@@ -6,7 +6,7 @@ import { color } from "@blc/color-logger";
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
 
 import {
-  CHANNEL_TICKER_GENERIC,
+  CHANNEL_TICKER_OHLCV,
   ohlcvRow2Num,
   type OHLCV,
   type OHLCVRow
@@ -39,7 +39,7 @@ try {
 
   await redis.connect();
 
-  await redis.subscribe(CHANNEL_TICKER_GENERIC, (message: string) => {
+  await redis.subscribe(CHANNEL_TICKER_OHLCV, (message: string) => {
     const row = JSON.parse(message) as OHLCVRow;
     const data = ohlcvRow2Num(row);
     candleDataBuffer.push(data);
