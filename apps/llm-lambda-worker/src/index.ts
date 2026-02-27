@@ -4,8 +4,13 @@ import express from "express";
 
 import { color } from "@blc/color-logger";
 import { createRedisClient, type RedisClient } from "@blc/redis-client";
-import { subscriberLLM } from "./subscribe/subscriberLLM.js";
-import { OHLCV, OHLCVRow } from "@blc/contracts";
+
+import {
+  CHANNEL_TICKER_GENERIC,
+  ohlcvRow2Num,
+  type OHLCV,
+  type OHLCVRow
+} from "@blc/contracts";
 
 import { pgConfig } from "./db/config.js";
 import { PostgresClient } from "@blc/postgres-client";
@@ -13,14 +18,16 @@ import { PostgresClient } from "@blc/postgres-client";
 import {
   SseClients,
   createSseRouter,
-  priceSubscription_fanOut
 } from "@blc/sse-client";
+
+import { launchSummary } from "./llm_logic.js";
 
 console.log('LLM Lambda Worker starting...');
 
 const candleDataBuffer: OHLCV[] = [];
 let pgClient: PostgresClient | null = null;
 let redis: RedisClient | null = null;
+let openaiClient: OpenAI | null = null;
 
 try {
   redis = createRedisClient();
@@ -30,24 +37,39 @@ try {
   pgClient = new PostgresClient(pgConfig);
   console.log('LLM Lambda Worker initialized Postgres client.');
 
-  await subscriberLLM(redis);
-  console.log('LLM Lambda Worker subscribed to Redis channel for LLM tasks.');
+  await redis.connect();
 
+  await redis.subscribe(CHANNEL_TICKER_GENERIC, (message: string) => {
+    const row = JSON.parse(message) as OHLCVRow;
+    const data = ohlcvRow2Num(row);
+    candleDataBuffer.push(data);
+  });
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    console.error("OPENAI_API_KEY is not set in environment variables.");
+    process.exit(1);
+  }
+  openaiClient = new OpenAI({ apiKey });
+
+  console.log('LLM Lambda Worker subscribed to Redis channel for LLM tasks.');
 }
 catch (error) {
   console.error('Error initializing LLM Lambda Worker:', error);
   process.exit(1);
 }
 
-const sseClients = new SseClients();
-const { stopPrices } = await priceSubscription_fanOut(redis, sseClients);
-
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/sse", createSseRouter('/summaries', sseClients)); // SSE does updates
+/* ------ sse setup ------ */
+
+const sseClients = new SseClients();
+app.use("/sse", createSseRouter('/summaries', sseClients));
+
+/* ------ error routes ------ */
 
 app.use((_req, res) => res.status(404).json({ error: "Not Found" }));
 
@@ -56,40 +78,7 @@ app.use((err: unknown, _req: any, res: any, _next: any) => {
   res.status(500).json({ error: "Internal Server Error" });
 });
 
-
-const apiKey = process.env.OPENAI_API_KEY;
-
-if (!apiKey) {
-  console.error("OPENAI_API_KEY is not set in environment variables.");
-  process.exit(1);
-}
-
-const client = new OpenAI({
-  apiKey
-});
-
-// const models = await client.models.list();
-// for (const model of models.data) {
-//   console.log(`Model: ${model.id}`);
-// }
-
-// try {
-//   /*
-//     roles:
-//     { role, content } // authority decreases in this order:
-
-//     - system: global premises
-
-//     - developer: feature level premises. tool use rules.
-
-//     - user: the user's input
-//     - assistant: the assistant's response
-
-//     - tool: the tool's response
-
-//     { role, name, input }
-//     - function
-//   */
+/* ------ llm summary intervals ------ */
 
 const REGULAR_INTERVAL_MINUTES = 30;
 const SPIKE_INTERVAL_MINUTES = 10;
@@ -109,85 +98,45 @@ function detectSpike(candles: OHLCV[]): boolean {
   return priceChange > PRICE_SPIKE_THRESHOLD || last.volume > avgVolume * VOLUME_SPIKE_MULTIPLIER;
 }
 
-function buildPrompt(type: "regular" | "spike", candles: OHLCV[]): string {
-  const interval = `${candles[0].ts} to ${candles[candles.length - 1].ts}`;
-  const jsonData = JSON.stringify(candles, null, 2);
-  return `
-Summarize the price and volume movement for BTC/USD from ${interval}.
-Here is the full OHLCV data for this interval:
-${jsonData}
-${type === "spike" ? "Note: There was a dramatic move in price or volume. Focus on explaining the spike." : ""}
-Please provide a concise, insightful summary.
-  `;
-}
-
-async function generateSummary(
-  type: "regular" | "spike",
-  candles: OHLCV[],
-  client: OpenAI,
-  pgClient: PostgresClient
-) {
-  const prompt = buildPrompt(type, candles);
-  const response = await client.responses.create({
-    model: process.env.LLM_MODEL_NAME || "gpt-5-nano",
-    instructions: "Summarize price and volume movement concisely.",
-    input: [{ role: "user", content: prompt }]
-  });
-
-  const commentaryObject = {
-    summaryType: type,
-    exchange: candles[0].exchange,
-    symbol: candles[0].symbol,
-    ts: candles[candles.length - 1].ts,
-    commentary: response.output_text
-  }
-
-  try {
-    await pgClient.insertLLMCommentary({
-      ...commentaryObject,
-      llmUsed: process.env.LLM_MODEL_NAME || "gpt-5-nano"
-    });
-  } catch (err) {
-    console.error("Error inserting LLM commentary into Postgres:", err);
-    return;
-  }
-
-  try {
-    sseClients.messageAll("summary", {
-      ...commentaryObject
-    });
-  } catch (err) {
-    console.error("Error sending SSE summary message:", err);
-  }
-}
-
-/* ------ Begin Program ------ */
-
-// scheduled summary every 30-minutes
+// scheduled 30-minute summary
 setInterval(async () => {
   if (!pgClient) return;
   const last30 = getIntervalCandles(candleDataBuffer, REGULAR_INTERVAL_MINUTES);
   if (last30.length === REGULAR_INTERVAL_MINUTES) {
-    await generateSummary("regular", last30, client, pgClient);
+    await launchSummary({
+      type: "regular",
+      candles: last30,
+      openaiClient,
+      pgClient,
+      sseClients
+    });
   }
 }, REGULAR_INTERVAL_MINUTES * 60 * 1000);
 
-// Spike-triggered 10-minute summary
+// spike detection every minute
 setInterval(async () => {
   if (!pgClient) return;
   const last10 = getIntervalCandles(candleDataBuffer, SPIKE_INTERVAL_MINUTES);
   if (last10.length === SPIKE_INTERVAL_MINUTES && detectSpike(last10)) {
-    await generateSummary("spike", last10, client, pgClient);
+    await launchSummary({
+      type: "spike",
+      candles: last10,
+      openaiClient,
+      pgClient,
+      sseClients
+    });
   }
 }, 60 * 1000);
 
+/* ------ start web server ------ */
 
-console.log("Starting web-api..");
 const port = Number(process.env.PORT ?? 3000);
 
 const server = app.listen(port, () => {
   color.info(`web-api listening on http://localhost:${port}`);
 });
+
+/* ------ cleanup ------ */
 
 async function shutdown() {
   console.log('LLM Lambda Worker shutting down...');
@@ -196,7 +145,6 @@ async function shutdown() {
     console.log('LLM Lambda Worker server closed.');
   });
 
-  stopPrices().catch(err => console.error('Error stopping price subscription:', err));
   Promise.all([
     redis?.disconnect().catch(err => console.error('Error disconnecting Redis:', err)),
     pgClient?.end().catch(err => console.error('Error closing Postgres client:', err))
