@@ -1,14 +1,11 @@
 import { Pool, PoolConfig, QueryResult } from 'pg';
-import { type OHLCVRow, type OHLCV } from "@blc/contracts";
+import type {
+  OHLCVRow,
+  OHLCV,
+  LLMCommentary
+} from "@blc/contracts";
 
-type LLMCommentaryParams = {
-  exchange?: string;
-  symbol?: string;
-  ts?: string;
-  commentary: string;
-  summaryType?: string;
-  llmUsed?: string;
-}
+type LLMCommentaryParams = Partial<LLMCommentary>;
 
 export class PostgresClient {
   private pool: Pool;
@@ -91,6 +88,7 @@ export class PostgresClient {
     );
     return result.rows;
   }
+
 
   async insertLLMCommentary({
     exchange = "kraken",

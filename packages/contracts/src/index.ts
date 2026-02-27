@@ -1,6 +1,8 @@
 export * from "./krakenTypes.js";
 export * from "./coinbaseTypes.js";
 
+export const CHANNEL_TICKER_OHLCV = "blc-ticker";
+
 export type Instrument = {
   exchange: string;
   symbol: string;
@@ -30,6 +32,15 @@ export type OHLCVRow = {
   close: string;
   volume: string;
 };
+
+export type LLMCommentary = {
+  exchange: string;
+  symbol: string;
+  ts: string;
+  commentary: string;
+  summaryType: string;
+  llmUsed: string;
+}
 
 export function ohclvRows2Numbers(rows: OHLCVRow[]): OHLCV[] {
   return rows.map(row => ({
