@@ -3,6 +3,7 @@ import { PostgresClient } from "@blc/postgres-client";
 import { OHLCV } from "@blc/contracts";
 import { SseClients} from "@blc/sse-client";
 import { encoding_for_model, type TiktokenModel } from "tiktoken";
+import { color } from "@blc/color-logger";
 
 const REGULAR_INTERVAL_CANDLES = process.env.REGULAR_INTERVAL_CANDLES
   ? Number(process.env.REGULAR_INTERVAL_CANDLES)
@@ -57,7 +58,9 @@ Write a concise BTC/USD price action summary.
 
   const enc = encoding_for_model(process.env.LLM_MODEL_NAME as TiktokenModel || "gpt-5-nano");
   const tokenCount = enc.encode(userPrompt + developerPrompt).length;
-  console.log(`Generated prompt with ${tokenCount} tokens for ${candles.length} candles.`);
+  color.info(`Generated prompt with ${tokenCount} tokens for ${candles.length} candles.`);
+  color.info("Developer prompt:", developerPrompt);
+  color.info("User prompt:", userPrompt);
 
   return;
 
