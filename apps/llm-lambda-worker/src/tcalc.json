@@ -1,0 +1,1102 @@
+[
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 03:49:00+00",
+    "open": 65042.92,
+    "high": 65011.63,
+    "low": 64928.27,
+    "close": 64919.16,
+    "volume": 0.7428550000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 03:50:00+00",
+    "open": 65004.38,
+    "high": 65073.35,
+    "low": 65018.28,
+    "close": 64932.46,
+    "volume": 1.0252980000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 03:51:00+00",
+    "open": 64979.71,
+    "high": 65084.90,
+    "low": 64956.21,
+    "close": 65018.18,
+    "volume": 0.4295710000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 03:52:00+00",
+    "open": 65044.99,
+    "high": 65058.36,
+    "low": 64884.83,
+    "close": 64975.90,
+    "volume": 0.4208360000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 03:53:00+00",
+    "open": 64958.15,
+    "high": 65113.48,
+    "low": 65024.77,
+    "close": 64939.36,
+    "volume": 1.2536090000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 03:54:00+00",
+    "open": 64969.54,
+    "high": 64995.87,
+    "low": 64977.43,
+    "close": 64987.37,
+    "volume": 1.3339320000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 03:55:00+00",
+    "open": 65045.68,
+    "high": 64965.06,
+    "low": 64948.25,
+    "close": 64971.92,
+    "volume": 0.2719780000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 03:56:00+00",
+    "open": 65018.27,
+    "high": 65013.33,
+    "low": 64941.57,
+    "close": 64981.72,
+    "volume": 1.0871240000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 03:57:00+00",
+    "open": 64979.00,
+    "high": 65145.00,
+    "low": 64899.25,
+    "close": 64989.38,
+    "volume": 1.1985180000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 03:58:00+00",
+    "open": 64966.29,
+    "high": 65064.92,
+    "low": 64934.05,
+    "close": 65030.44,
+    "volume": 0.8345060000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 03:59:00+00",
+    "open": 64985.34,
+    "high": 65055.57,
+    "low": 64970.03,
+    "close": 64951.16,
+    "volume": 1.0519200000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:00:00+00",
+    "open": 65028.81,
+    "high": 65027.14,
+    "low": 64997.34,
+    "close": 64975.75,
+    "volume": 1.6708970000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:01:00+00",
+    "open": 65037.39,
+    "high": 65101.52,
+    "low": 64941.96,
+    "close": 65056.74,
+    "volume": 0.8571770000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:02:00+00",
+    "open": 64963.34,
+    "high": 65039.32,
+    "low": 65000.35,
+    "close": 65038.82,
+    "volume": 1.1146850000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:03:00+00",
+    "open": 64949.14,
+    "high": 65052.51,
+    "low": 64943.02,
+    "close": 65056.45,
+    "volume": 5.2749230000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:04:00+00",
+    "open": 64955.64,
+    "high": 65093.48,
+    "low": 64894.69,
+    "close": 64984.51,
+    "volume": 0.9781870000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:05:00+00",
+    "open": 65032.62,
+    "high": 65043.44,
+    "low": 64921.83,
+    "close": 65070.96,
+    "volume": 1.2757770000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:06:00+00",
+    "open": 65020.80,
+    "high": 65018.97,
+    "low": 64859.20,
+    "close": 65031.62,
+    "volume": 1.4028210000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:07:00+00",
+    "open": 64968.87,
+    "high": 65026.13,
+    "low": 64926.08,
+    "close": 65069.56,
+    "volume": 0.6758310000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:08:00+00",
+    "open": 64955.55,
+    "high": 65067.70,
+    "low": 64945.96,
+    "close": 65042.63,
+    "volume": 0.9746110000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:09:00+00",
+    "open": 64976.01,
+    "high": 65109.95,
+    "low": 64966.75,
+    "close": 65093.09,
+    "volume": 0.3197640000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:10:00+00",
+    "open": 64993.08,
+    "high": 65083.55,
+    "low": 64966.04,
+    "close": 64970.03,
+    "volume": 1.5857030000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:11:00+00",
+    "open": 65016.66,
+    "high": 64984.52,
+    "low": 64970.29,
+    "close": 65060.29,
+    "volume": 0.5587580000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:12:00+00",
+    "open": 65021.20,
+    "high": 65043.32,
+    "low": 64892.49,
+    "close": 64978.15,
+    "volume": 0.7388680000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:13:00+00",
+    "open": 65000.30,
+    "high": 64986.26,
+    "low": 64982.10,
+    "close": 64986.54,
+    "volume": 0.3353590000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:14:00+00",
+    "open": 65003.79,
+    "high": 65024.63,
+    "low": 65042.73,
+    "close": 65071.48,
+    "volume": 0.6879510000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:15:00+00",
+    "open": 65061.73,
+    "high": 65104.18,
+    "low": 64929.38,
+    "close": 65016.77,
+    "volume": 1.1312250000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:16:00+00",
+    "open": 65040.10,
+    "high": 65066.07,
+    "low": 64938.76,
+    "close": 64993.79,
+    "volume": 1.2040500000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:17:00+00",
+    "open": 64951.29,
+    "high": 65065.27,
+    "low": 64901.83,
+    "close": 64971.73,
+    "volume": 1.0711790000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:18:00+00",
+    "open": 65015.21,
+    "high": 65085.85,
+    "low": 64982.39,
+    "close": 64988.42,
+    "volume": 1.5557280000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:19:00+00",
+    "open": 65030.99,
+    "high": 65042.23,
+    "low": 64917.28,
+    "close": 65034.27,
+    "volume": 0.2414130000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:20:00+00",
+    "open": 64978.11,
+    "high": 65051.05,
+    "low": 64995.10,
+    "close": 65066.05,
+    "volume": 1.3159660000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:21:00+00",
+    "open": 65070.37,
+    "high": 65021.98,
+    "low": 64994.58,
+    "close": 64982.38,
+    "volume": 0.2554200000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:22:00+00",
+    "open": 65063.08,
+    "high": 65038.34,
+    "low": 64965.25,
+    "close": 65028.60,
+    "volume": 0.3933680000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:23:00+00",
+    "open": 64974.09,
+    "high": 65065.38,
+    "low": 64981.93,
+    "close": 65026.49,
+    "volume": 0.3776460000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:24:00+00",
+    "open": 65004.93,
+    "high": 65069.87,
+    "low": 64940.60,
+    "close": 64942.82,
+    "volume": 2.1966740000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:25:00+00",
+    "open": 65046.41,
+    "high": 65078.17,
+    "low": 64946.79,
+    "close": 64955.10,
+    "volume": 0.9669250000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:26:00+00",
+    "open": 65020.06,
+    "high": 65121.03,
+    "low": 65007.51,
+    "close": 65055.86,
+    "volume": 1.6776640000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:27:00+00",
+    "open": 65043.91,
+    "high": 65028.57,
+    "low": 65008.62,
+    "close": 65006.46,
+    "volume": 1.4793130000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:28:00+00",
+    "open": 65006.03,
+    "high": 65063.89,
+    "low": 64937.38,
+    "close": 65020.24,
+    "volume": 0.6405740000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:29:00+00",
+    "open": 65050.41,
+    "high": 65084.23,
+    "low": 65032.69,
+    "close": 64966.40,
+    "volume": 0.8103450000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:30:00+00",
+    "open": 65036.89,
+    "high": 65114.14,
+    "low": 64965.36,
+    "close": 65051.48,
+    "volume": 0.7665460000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:31:00+00",
+    "open": 65075.92,
+    "high": 65080.65,
+    "low": 64957.45,
+    "close": 65004.19,
+    "volume": 1.4123280000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:32:00+00",
+    "open": 65050.91,
+    "high": 65008.91,
+    "low": 64947.00,
+    "close": 65035.28,
+    "volume": 0.5935670000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:33:00+00",
+    "open": 65002.99,
+    "high": 65019.69,
+    "low": 64930.11,
+    "close": 65031.74,
+    "volume": 1.0892650000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:34:00+00",
+    "open": 64974.81,
+    "high": 65089.31,
+    "low": 64970.31,
+    "close": 65059.78,
+    "volume": 0.3693270000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:35:00+00",
+    "open": 64980.54,
+    "high": 65090.22,
+    "low": 64925.15,
+    "close": 64977.32,
+    "volume": 1.1390650000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:36:00+00",
+    "open": 65075.82,
+    "high": 65053.92,
+    "low": 64932.02,
+    "close": 64976.97,
+    "volume": 1.2071620000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:37:00+00",
+    "open": 65062.63,
+    "high": 65047.94,
+    "low": 65002.36,
+    "close": 65013.69,
+    "volume": 1.6926940000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:38:00+00",
+    "open": 64985.27,
+    "high": 65048.20,
+    "low": 65013.20,
+    "close": 64966.65,
+    "volume": 1.0969360000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:39:00+00",
+    "open": 65012.95,
+    "high": 65047.14,
+    "low": 64928.10,
+    "close": 65015.28,
+    "volume": 0.2845440000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:40:00+00",
+    "open": 65015.96,
+    "high": 64975.81,
+    "low": 65002.32,
+    "close": 64929.05,
+    "volume": 0.3223370000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:41:00+00",
+    "open": 65049.39,
+    "high": 65031.44,
+    "low": 64935.69,
+    "close": 64958.17,
+    "volume": 0.8993510000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:42:00+00",
+    "open": 64984.74,
+    "high": 65034.42,
+    "low": 64933.55,
+    "close": 65090.18,
+    "volume": 0.9194610000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:43:00+00",
+    "open": 64985.23,
+    "high": 65082.10,
+    "low": 64990.95,
+    "close": 65084.48,
+    "volume": 1.1414930000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:44:00+00",
+    "open": 65052.62,
+    "high": 65134.06,
+    "low": 64965.42,
+    "close": 65010.14,
+    "volume": 1.4150950000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:45:00+00",
+    "open": 65077.21,
+    "high": 65071.23,
+    "low": 64999.49,
+    "close": 65023.21,
+    "volume": 0.7139750000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:46:00+00",
+    "open": 65014.31,
+    "high": 65064.15,
+    "low": 64954.07,
+    "close": 64997.86,
+    "volume": 0.2028660000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:47:00+00",
+    "open": 65056.82,
+    "high": 65094.44,
+    "low": 64959.14,
+    "close": 65101.34,
+    "volume": 0.9018330000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:48:00+00",
+    "open": 65055.34,
+    "high": 65089.37,
+    "low": 64951.53,
+    "close": 65048.84,
+    "volume": 0.9328120000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:49:00+00",
+    "open": 65020.02,
+    "high": 65050.58,
+    "low": 64933.15,
+    "close": 65058.98,
+    "volume": 0.8458670000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:50:00+00",
+    "open": 64975.92,
+    "high": 65124.81,
+    "low": 64991.28,
+    "close": 64999.68,
+    "volume": 0.4737620000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:51:00+00",
+    "open": 64981.66,
+    "high": 65110.02,
+    "low": 64916.41,
+    "close": 65107.73,
+    "volume": 0.9359610000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:52:00+00",
+    "open": 64976.70,
+    "high": 65058.95,
+    "low": 64992.52,
+    "close": 64953.62,
+    "volume": 0.8658750000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:53:00+00",
+    "open": 65060.26,
+    "high": 65085.43,
+    "low": 64975.63,
+    "close": 65095.62,
+    "volume": 1.2201700000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:54:00+00",
+    "open": 65062.26,
+    "high": 65086.78,
+    "low": 64958.01,
+    "close": 65001.36,
+    "volume": 1.1013450000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:55:00+00",
+    "open": 65086.20,
+    "high": 65123.26,
+    "low": 64972.77,
+    "close": 64977.78,
+    "volume": 1.4980300000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:56:00+00",
+    "open": 65041.50,
+    "high": 65106.37,
+    "low": 64951.42,
+    "close": 65037.83,
+    "volume": 0.3974480000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:57:00+00",
+    "open": 65080.92,
+    "high": 64998.71,
+    "low": 65016.32,
+    "close": 64998.16,
+    "volume": 0.5680030000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:58:00+00",
+    "open": 65040.67,
+    "high": 65034.93,
+    "low": 64948.03,
+    "close": 65101.75,
+    "volume": 0.4300330000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 04:59:00+00",
+    "open": 65011.63,
+    "high": 65079.89,
+    "low": 65076.81,
+    "close": 65048.64,
+    "volume": 1.6929930000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:00:00+00",
+    "open": 65079.57,
+    "high": 65068.64,
+    "low": 65002.29,
+    "close": 65061.06,
+    "volume": 1.1633280000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:01:00+00",
+    "open": 65004.60,
+    "high": 65111.78,
+    "low": 64945.66,
+    "close": 65073.69,
+    "volume": 1.6334660000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:02:00+00",
+    "open": 65037.98,
+    "high": 65056.50,
+    "low": 64981.02,
+    "close": 65018.43,
+    "volume": 1.2284000000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:03:00+00",
+    "open": 64980.75,
+    "high": 65117.36,
+    "low": 64921.86,
+    "close": 65036.62,
+    "volume": 0.6681400000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:04:00+00",
+    "open": 65020.36,
+    "high": 65111.55,
+    "low": 64964.22,
+    "close": 65105.73,
+    "volume": 0.4042060000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:05:00+00",
+    "open": 65024.80,
+    "high": 65122.65,
+    "low": 65003.80,
+    "close": 65000.47,
+    "volume": 0.7389070000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:06:00+00",
+    "open": 64983.70,
+    "high": 65087.80,
+    "low": 64949.60,
+    "close": 64975.37,
+    "volume": 1.4813140000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:07:00+00",
+    "open": 65067.89,
+    "high": 65076.41,
+    "low": 65049.53,
+    "close": 65028.32,
+    "volume": 0.5899270000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:08:00+00",
+    "open": 64975.25,
+    "high": 65027.76,
+    "low": 65009.50,
+    "close": 65002.11,
+    "volume": 0.2519870000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:09:00+00",
+    "open": 64979.27,
+    "high": 65132.99,
+    "low": 64924.61,
+    "close": 65011.43,
+    "volume": 0.5738330000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:10:00+00",
+    "open": 64980.15,
+    "high": 65042.04,
+    "low": 64954.24,
+    "close": 65025.60,
+    "volume": 1.6701930000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:11:00+00",
+    "open": 65084.58,
+    "high": 65063.59,
+    "low": 65010.97,
+    "close": 65105.78,
+    "volume": 1.4648390000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:12:00+00",
+    "open": 65084.83,
+    "high": 65066.54,
+    "low": 64943.43,
+    "close": 65073.35,
+    "volume": 1.3951070000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:13:00+00",
+    "open": 65066.52,
+    "high": 65082.85,
+    "low": 65041.02,
+    "close": 65026.14,
+    "volume": 0.2991670000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:14:00+00",
+    "open": 65066.62,
+    "high": 65116.51,
+    "low": 64973.10,
+    "close": 64990.67,
+    "volume": 1.4662040000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:15:00+00",
+    "open": 64987.23,
+    "high": 65098.59,
+    "low": 64993.99,
+    "close": 65064.17,
+    "volume": 0.9199950000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:16:00+00",
+    "open": 65058.01,
+    "high": 65060.24,
+    "low": 64988.25,
+    "close": 65074.26,
+    "volume": 0.8568080000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:17:00+00",
+    "open": 64978.93,
+    "high": 65076.67,
+    "low": 65012.62,
+    "close": 65050.54,
+    "volume": 0.4823200000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:18:00+00",
+    "open": 65069.98,
+    "high": 65152.90,
+    "low": 64964.30,
+    "close": 65086.60,
+    "volume": 1.5632180000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:19:00+00",
+    "open": 64982.43,
+    "high": 65115.07,
+    "low": 65051.42,
+    "close": 65043.29,
+    "volume": 0.9201990000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:20:00+00",
+    "open": 65083.79,
+    "high": 65073.77,
+    "low": 65029.63,
+    "close": 65013.27,
+    "volume": 0.7444250000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:21:00+00",
+    "open": 64976.99,
+    "high": 65050.12,
+    "low": 65058.79,
+    "close": 65025.70,
+    "volume": 0.4861790000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:22:00+00",
+    "open": 64995.20,
+    "high": 65114.21,
+    "low": 65034.53,
+    "close": 65033.44,
+    "volume": 0.5653000000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:23:00+00",
+    "open": 65025.82,
+    "high": 65098.75,
+    "low": 64948.75,
+    "close": 65037.83,
+    "volume": 0.6493740000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:24:00+00",
+    "open": 65086.58,
+    "high": 65125.36,
+    "low": 65032.74,
+    "close": 65084.43,
+    "volume": 0.5183120000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:25:00+00",
+    "open": 65080.49,
+    "high": 65164.72,
+    "low": 65003.40,
+    "close": 65115.12,
+    "volume": 1.6215620000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:26:00+00",
+    "open": 65085.48,
+    "high": 65149.60,
+    "low": 65064.46,
+    "close": 65053.77,
+    "volume": 1.4009010000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:27:00+00",
+    "open": 65092.47,
+    "high": 65034.61,
+    "low": 64942.86,
+    "close": 65039.70,
+    "volume": 0.5444160000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:28:00+00",
+    "open": 64989.03,
+    "high": 65110.42,
+    "low": 65018.40,
+    "close": 65017.72,
+    "volume": 0.3840440000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:29:00+00",
+    "open": 64996.20,
+    "high": 65085.06,
+    "low": 64988.06,
+    "close": 64966.15,
+    "volume": 1.0240490000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:30:00+00",
+    "open": 65059.23,
+    "high": 65051.59,
+    "low": 65038.66,
+    "close": 65031.36,
+    "volume": 1.5487590000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:31:00+00",
+    "open": 64990.68,
+    "high": 65017.44,
+    "low": 64983.16,
+    "close": 65085.94,
+    "volume": 0.9361210000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:32:00+00",
+    "open": 65082.16,
+    "high": 65061.97,
+    "low": 65000.08,
+    "close": 65072.55,
+    "volume": 0.2841700000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:33:00+00",
+    "open": 65027.03,
+    "high": 65101.50,
+    "low": 64970.61,
+    "close": 65013.04,
+    "volume": 0.4431330000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:34:00+00",
+    "open": 64996.25,
+    "high": 65056.56,
+    "low": 64943.37,
+    "close": 65043.38,
+    "volume": 1.1710500000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:35:00+00",
+    "open": 65023.89,
+    "high": 65148.12,
+    "low": 64989.43,
+    "close": 65132.41,
+    "volume": 1.6315700000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:36:00+00",
+    "open": 65099.50,
+    "high": 65126.32,
+    "low": 65004.26,
+    "close": 64981.95,
+    "volume": 0.2905970000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:37:00+00",
+    "open": 65024.94,
+    "high": 65010.17,
+    "low": 64994.39,
+    "close": 64994.15,
+    "volume": 1.0559040000
+  },
+  {
+    "exchange": "kraken",
+    "symbol": "BTC/USD",
+    "ts": "2026-02-19 05:38:00+00",
+    "open": 65028.98,
+    "high": 65148.31,
+    "low": 65000.14,
+    "close": 65126.05,
+    "volume": 0.8434190000
+  }
+]

@@ -30,6 +30,10 @@ let pgClient: PostgresClient | null = null;
 let redis: RedisClient | null = null;
 let openaiClient: OpenAI | null = null;
 
+const REGULAR_INTERVAL_CANDLES = process.env.REGULAR_INTERVAL_CANDLES
+  ? Number(process.env.REGULAR_INTERVAL_CANDLES)
+  : 30;
+
 try {
   redis = createRedisClient();
   await redis.connect();
@@ -38,7 +42,7 @@ try {
   pgClient = new PostgresClient(pgConfig);
   console.log('LLM Lambda Worker initialized Postgres client.');
 
-  const initialCandles = await pgClient.getInstrumentHistory("kraken", "BTC/USD", 30);
+  const initialCandles = await pgClient.getInstrumentHistory("kraken", "BTC/USD", REGULAR_INTERVAL_CANDLES);
   candleDataBuffer.push(...ohclvRows2Numbers(initialCandles));
   console.log(`LLM Lambda Worker loaded initial OHLCV data: ${initialCandles.length} candles.`);
 
@@ -56,6 +60,17 @@ try {
   openaiClient = new OpenAI({ apiKey });
 
   console.log('LLM Lambda Worker subscribed to Redis channel for LLM tasks.');
+
+  if (candleDataBuffer.length >= REGULAR_INTERVAL_CANDLES) {
+    console.log('Launching initial summary generation upon startup...');
+
+    await launchSummary({
+      type: "regular",
+      candles: candleDataBuffer.slice(-REGULAR_INTERVAL_CANDLES),
+      openaiClient,
+      pgClient,
+    });
+  }
 }
 catch (error) {
   console.error('Error initializing LLM Lambda Worker:', error);
@@ -72,7 +87,7 @@ app.use(express.urlencoded({ extended: true }));
 const sseClients = new SseClients();
 app.use("/sse", createSseRouter('/summaries', sseClients));
 
-/* ------ REST API routes ------ */
+/* ------ rest routes ------ */
 
 app.get("/llm/history", async (_req, res) => {
   if (!pgClient) {
@@ -80,7 +95,7 @@ app.get("/llm/history", async (_req, res) => {
   }
 
   try {
-    const result = await pgClient.readLLMCommentary();
+    const result = await pgClient.getLLMCommentary();
     console.log('Fetched LLM history:', result);
     res.json(result);
   } catch (error) {
@@ -100,7 +115,6 @@ app.use((err: unknown, _req: any, res: any, _next: any) => {
 
 /* ------ llm summary intervals ------ */
 
-const REGULAR_INTERVAL_MINUTES = 30;
 const SPIKE_INTERVAL_MINUTES = 10;
 const PRICE_SPIKE_THRESHOLD = 0.03; // 3%
 const VOLUME_SPIKE_MULTIPLIER = 3;  // 3x average
@@ -121,10 +135,8 @@ function detectSpike(candles: OHLCV[]): boolean {
 // scheduled 30-minute summary
 setInterval(async () => {
   if (!pgClient) return;
-  const last30 = getIntervalCandles(candleDataBuffer, REGULAR_INTERVAL_MINUTES);
-  console.log('scheduled interval hit', 'last30.length:', last30.length);
-  if (last30.length === REGULAR_INTERVAL_MINUTES) {
-    console.log('scheduled launch entered')
+  const last30 = getIntervalCandles(candleDataBuffer, REGULAR_INTERVAL_CANDLES);
+  if (last30.length === REGULAR_INTERVAL_CANDLES) {
     await launchSummary({
       type: "regular",
       candles: last30,
@@ -133,7 +145,7 @@ setInterval(async () => {
       sseClients
     });
   }
-}, REGULAR_INTERVAL_MINUTES * 1000);
+}, REGULAR_INTERVAL_CANDLES * 60 * 1000);
 
 // spike detection every minute
 setInterval(async () => {

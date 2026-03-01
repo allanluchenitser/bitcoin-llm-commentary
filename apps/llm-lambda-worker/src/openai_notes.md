@@ -1,3 +1,6 @@
+"system" role isn't used anymore for responses api. "developer" is its equivalent
+
+
 ```js
 const models = await client.models.list();
 for (const model of models.data) {
