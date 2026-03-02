@@ -8,6 +8,10 @@ import {
   intferenceCounts
 } from "./llm_help.js";
 
+import { promises as fsAsync } from "fs"
+
+
+
 const REGULAR_INTERVAL_CANDLES = process.env.REGULAR_INTERVAL_CANDLES
   ? Number(process.env.REGULAR_INTERVAL_CANDLES)
   : 30;
@@ -62,15 +66,19 @@ Write a concise BTC/USD price action summary.
   const miniEstimate = intferenceCounts("gpt-5-mini", userPrompt + developerPrompt);
 
   console.log("Inference cost estimates:");
-  console.log("Nano:", nanoEstimate.dollars);
-  console.log("Mini:", miniEstimate.dollars);
+  console.log(nanoEstimate);
+  console.log(miniEstimate);
+
+  // console.log('userPrompt:', userPrompt);
+  color.info('candles.length:', candles.length);
+  // console.log('candles:', candles);
 
   if (nanoEstimate.tokens > 4000) {
     console.warn("Prompt token count exceeds typical LLM limits. Consider reducing the number of candles or summarizing the data before sending to LLM.");
     throw new Error("Prompt token count exceeds typical LLM limits.");
   }
 
-  return;
+  console.log('LLM_MODEL_NAME', process.env.LLM_MODEL_NAME);
 
   const response = await openaiClient.responses.create({
     model: process.env.LLM_MODEL_NAME || "gpt-5-nano",
@@ -82,6 +90,17 @@ Write a concise BTC/USD price action summary.
 
   color.warn(`IMPORTANT: LLM usage for model ${response.model}`)
   console.log(response.usage);
+
+  const jsonLine = JSON.stringify(response) + "\n";
+  console.log("LLM response object:", response);
+
+  try {
+    await fsAsync.appendFile("./openai_responses.jsonl", jsonLine, "utf-8");
+    console.log('LLM line saved to openai_responses.jsonl');
+  }
+  catch (err) {
+    console.error("Error writing OpenAI response to file:", err);
+  }
 
   const commentaryObject = {
     summaryType: type,

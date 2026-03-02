@@ -48,16 +48,13 @@ export const gptPricing: Record<string, GptPrice> = {
   "gpt-5-mini": { input: 25, output: 200 },
 }
 
-type InferenceEstimateParams = {
-  model: TiktokenModel;
-  promptText: string;
-}
-
 type InferenceEstimate = {
   model: string;
   tokens: number;
   cents: number;
   dollars: string;
+  dollars48: string;
+  dollarsMonth: string;
 }
 
 export function intferenceCounts(model: string, promptText: string):  InferenceEstimate{
@@ -65,11 +62,16 @@ export function intferenceCounts(model: string, promptText: string):  InferenceE
   const tokens = enc.encode(promptText).length;
 
   const cents = (tokens / 1000000) * gptPricing[model].input;
-  const dollars = (cents / 100).toFixed(10);
+  const dollars = '$' + (cents / 100).toFixed(10);
+  const dollars48 = '$' + ((cents * 48) / 100).toFixed(10); // for 48 summaries per day
+  const dollarsMonth = '$' + ((cents * 48 * 30) / 100).toFixed(10); // for 48 summaries per day, 30 days in month
+
   return {
     model,
     tokens,
     cents,
     dollars,
+    dollars48,
+    dollarsMonth
   };
 }
