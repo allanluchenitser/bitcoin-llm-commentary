@@ -1,4 +1,5 @@
-"system" role isn't used anymore for responses api. "developer" is its equivalent
+roles for the new openai "responses" api:<br>
+developer, user, assistant
 
 
 ```js

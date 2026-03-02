@@ -144,7 +144,7 @@ const DashboardPage: React.FC = () => {
     <div className="container mx-auto px-4">
       <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseTradesStatus}</span>
       <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseSummariesStatus}</span>
-      <div className="flex mt-4">
+      <div className="flex mt-4 max-h-min">
         <div className="w-3/5">
           <div>
             <PriceChart

@@ -2,8 +2,11 @@ import { OpenAI } from "openai";
 import { PostgresClient } from "@blc/postgres-client";
 import { OHLCV } from "@blc/contracts";
 import { SseClients} from "@blc/sse-client";
-import { encoding_for_model, type TiktokenModel } from "tiktoken";
 import { color } from "@blc/color-logger";
+import {
+  type AggregatedSummary,
+  intferenceCounts
+} from "./llm_help.js";
 
 const REGULAR_INTERVAL_CANDLES = process.env.REGULAR_INTERVAL_CANDLES
   ? Number(process.env.REGULAR_INTERVAL_CANDLES)
@@ -32,6 +35,8 @@ ${aggString}
   `;
 }
 
+
+/* ------ generates, saves, and broadcasts summary via sse ------ */
 type GenerateSummaryParams = {
   type: "regular" | "spike",
   candles: OHLCV[],
@@ -39,8 +44,6 @@ type GenerateSummaryParams = {
   pgClient: PostgresClient,
   sseClients?: SseClients
 }
-
-/* ------ generates, saves, and broadcasts summary via sse ------ */
 
 export async function launchSummary({
   type,
@@ -55,19 +58,19 @@ export async function launchSummary({
 Write a concise BTC/USD price action summary.
 3–5 sentences. No predictions. No advice. Use only provided values.
 `
+  const nanoEstimate = intferenceCounts("gpt-5-nano", userPrompt + developerPrompt);
+  const miniEstimate = intferenceCounts("gpt-5-mini", userPrompt + developerPrompt);
 
-  const enc = encoding_for_model(process.env.LLM_MODEL_NAME as TiktokenModel || "gpt-5-nano");
-  const tokenCount = enc.encode(userPrompt + developerPrompt).length;
-  color.info(`Generated prompt with ${tokenCount} tokens for ${candles.length} candles.`);
-  color.info("Developer prompt:", developerPrompt);
-  color.info("User prompt:", userPrompt);
+  console.log("Inference cost estimates:");
+  console.log("Nano:", nanoEstimate.dollars);
+  console.log("Mini:", miniEstimate.dollars);
 
-  return;
-
-  if (tokenCount > 4000) {
+  if (nanoEstimate.tokens > 4000) {
     console.warn("Prompt token count exceeds typical LLM limits. Consider reducing the number of candles or summarizing the data before sending to LLM.");
     throw new Error("Prompt token count exceeds typical LLM limits.");
   }
+
+  return;
 
   const response = await openaiClient.responses.create({
     model: process.env.LLM_MODEL_NAME || "gpt-5-nano",
@@ -77,7 +80,7 @@ Write a concise BTC/USD price action summary.
     ],
   });
 
-  console.log(`LLM usage for model ${response.model}`)
+  color.warn(`IMPORTANT: LLM usage for model ${response.model}`)
   console.log(response.usage);
 
   const commentaryObject = {
@@ -216,38 +219,6 @@ function aggregateOHLCV(candles: OHLCV[]): AggregatedSummary {
 }
 
 
-export type AggregatedSummary = {
-  exchange: string;
-  symbol: string;
-  start: string;
-  end: string;
-  numCandles: number;
-  price: {
-    open: number;
-    close: number;
-    high: number;
-    low: number;
-    change: number;
-    changePct: number;
-    range: number;
-    rangePct: number;
-  };
-  volume: {
-    total: number;
-    average: number;
-    max1m: number;
-    spikeRatio: number;
-  };
-  candleCounts: {
-    up: number;
-    down: number;
-    flat: number;
-  };
-  highlights: {
-    maxVolumeCandle: OHLCV;
-    maxRangeCandle: OHLCV;
-    maxBodyCandle: OHLCV;
-  };
-};
+
 
 

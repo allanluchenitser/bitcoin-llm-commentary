@@ -1,0 +1,48 @@
+/* Typical "terminal line" wipe with character stepping */
+/* Note the css variables for chars/dur/delay getting piped in by the React component */
+
+.wipe-reveal {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+
+  white-space: nowrap;
+  overflow: hidden;
+
+  width: 0ch;
+  animation: wipe-reveal-typing var(--dur) steps(var(--chars), end) forwards;
+  animation-delay: var(--delay);
+}
+
+.wipe-reveal::after {
+  content: "▌";
+  margin-left: 0.25ch;
+  animation: wipe-reveal-blink 900ms steps(1, end) infinite;
+}
+
+.wipe-reveal.cursor-done::after {
+  opacity: 0;
+  animation: none;
+}
+
+@keyframes wipe-reveal-typing {
+  to {
+    width: calc(var(--chars) * 1ch);
+  }
+}
+
+@keyframes wipe-reveal-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* this is an accessibility feature. */
+@media (prefers-reduced-motion: reduce) {
+  .wipe-reveal {
+    width: auto;
+    animation: none;
+  }
+  .wipe-reveal::after {
+    animation: none;
+  }
+}

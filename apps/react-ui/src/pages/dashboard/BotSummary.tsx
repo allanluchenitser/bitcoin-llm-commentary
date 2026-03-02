@@ -1,4 +1,5 @@
 import maxHedronSrc from '@/assets/max_hedron.png';
+import { WipeReveal } from '@/shared-components/WipeReveal';
 
 import { type LLMCommentary } from '@blc/contracts';
 
@@ -10,7 +11,7 @@ type BotSummaryProps = {
 const BotSummary: React.FC<BotSummaryProps> = ({ summaries }) => {
   return (
     <div className="h-full p-4 border rounded">
-      <img src={maxHedronSrc} alt="Max Hedron" className="mx-auto my-4" />
+      <img src={maxHedronSrc} alt="Max Hedron" className="mx-auto mt-2 mb-4" />
       <div className={"px-4 text-justify"}>
         {
           summaries.length > 0
@@ -21,8 +22,10 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries }) => {
                 {
                   summaries.map((summary, index) => (
                     <div key={index} className="mb-4">
-                      <p className="text-sm text-gray-600 mb-1">{new Date(summary.ts).toLocaleString()}</p>
-                      <p>{summary.commentary}</p>
+                      <p>
+                        <WipeReveal text={summary.commentary} />
+                      </p>
+                      <div className="text-sm text-gray-600 mb-1 italic text-right">{new Date(summary.ts).toLocaleString()}</div>
                     </div>
                   ))}
               </div>
