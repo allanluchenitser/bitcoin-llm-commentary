@@ -44,8 +44,11 @@ type GptPrice = { // in cents per million tokens
 }
 
 export const gptPricing: Record<string, GptPrice> = {
+  "gpt-5.2": { input: 175, output: 1400},
+  "gpt-5.1": { input: 125, output: 1000},
   "gpt-5-nano": { input: 5, output: 40 },
   "gpt-5-mini": { input: 25, output: 200 },
+  "gpt-4": { input: 3000, output: 6000 },
 }
 
 type InferenceEstimate = {

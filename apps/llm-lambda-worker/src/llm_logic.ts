@@ -62,26 +62,33 @@ export async function launchSummary({
 Write a concise BTC/USD price action summary.
 3–5 sentences. No predictions. No advice. Use only provided values.
 `
-  const nanoEstimate = intferenceCounts("gpt-5-nano", userPrompt + developerPrompt);
-  const miniEstimate = intferenceCounts("gpt-5-mini", userPrompt + developerPrompt);
+  const estimateGpt5nano = intferenceCounts("gpt-5-nano", userPrompt + developerPrompt);
+  const estimateGpt5mini = intferenceCounts("gpt-5-mini", userPrompt + developerPrompt);
+  const estimateGpt4 = intferenceCounts("gpt-4", userPrompt + developerPrompt);
+  // const estimateGpt52 = intferenceCounts("gpt-5.2", userPrompt + developerPrompt);
+  // const estimateGpt51 = intferenceCounts("gpt-5.1", userPrompt + developerPrompt);
 
   console.log("Inference cost estimates:");
-  console.log(nanoEstimate);
-  console.log(miniEstimate);
+  console.log(estimateGpt5nano);
+  console.log(estimateGpt5mini);
+  console.log(estimateGpt4);
+  // console.log(estimateGpt52);
+  // console.log(estimateGpt51);
 
   // console.log('userPrompt:', userPrompt);
   color.info('candles.length:', candles.length);
   // console.log('candles:', candles);
+  // return;
 
-  if (nanoEstimate.tokens > 4000) {
+  if (estimateGpt5nano.tokens > 4000) {
     console.warn("Prompt token count exceeds typical LLM limits. Consider reducing the number of candles or summarizing the data before sending to LLM.");
     throw new Error("Prompt token count exceeds typical LLM limits.");
   }
 
-  console.log('LLM_MODEL_NAME', process.env.LLM_MODEL_NAME);
+  // console.log('LLM_MODEL_NAME', process.env.LLM_MODEL_NAME);
 
   const response = await openaiClient.responses.create({
-    model: process.env.LLM_MODEL_NAME || "gpt-5-nano",
+    model: "gpt-5-mini",
     input: [
       { role: "developer", content: developerPrompt },
       { role: "user", content: userPrompt },
