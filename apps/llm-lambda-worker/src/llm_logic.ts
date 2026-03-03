@@ -1,15 +1,17 @@
 import { OpenAI } from "openai";
 import { PostgresClient } from "@blc/postgres-client";
 import { OHLCV } from "@blc/contracts";
-import { SseClients} from "@blc/sse-client";
+import { SseClients } from "@blc/sse-client";
 import { color } from "@blc/color-logger";
+
 import {
   type AggregatedSummary,
   inferenceCounts,
   gptPricing,
 } from "./llm_help.js";
 
-import { promises as fsAsync } from "fs"
+import { promises as fs } from "fs";
+import { format } from "date-fns";
 
 const REGULAR_INTERVAL_CANDLES = process.env.REGULAR_INTERVAL_CANDLES
   ? Number(process.env.REGULAR_INTERVAL_CANDLES)
@@ -37,7 +39,6 @@ Data:
 ${aggString}
   `;
 }
-
 
 /**
  * Generates a BTC/USD price action summary using an LLM, saves the result to Postgres,
@@ -72,21 +73,28 @@ Write a concise BTC/USD price action summary.
 `
   /* ------ estimate inference then (maybe) make the LLM API call ------ */
 
-  const estimateGpt5nano = inferenceCounts("gpt-5-nano", userPrompt + developerPrompt);
+  // const estimateGpt5nano = inferenceCounts("gpt-5-nano", userPrompt + developerPrompt);
   const estimateGpt5mini = inferenceCounts("gpt-5-mini", userPrompt + developerPrompt);
-  const estimateGpt4 = inferenceCounts("gpt-4", userPrompt + developerPrompt);
+  // const estimateGpt4 = inferenceCounts("gpt-4", userPrompt + developerPrompt);
 
   color.info("INFERENCE COST ESTIMATES:");
-  console.log(estimateGpt5nano);
+  // console.log(estimateGpt5nano);
   console.log(estimateGpt5mini);
-  console.log(estimateGpt4);
+  // console.log(estimateGpt4);
 
   color.info('candles.length:', candles.length);
 
-  if (estimateGpt5nano.tokens > 4000) {
+  if (estimateGpt5mini.tokens > 4000) {
     console.warn("Prompt token count exceeds typical LLM limits. Consider reducing the number of candles or summarizing the data before sending to LLM.");
     throw new Error("Prompt token count exceeds typical LLM limits.");
   }
+
+  console.info('prompt ready for payload', { developerPrompt, userPrompt });
+
+  // if (true) {
+  //   color.warn("LLM API call skipped. Set condition to false to enable.");
+  //   return;
+  // }
 
   let response;
   try {
@@ -113,16 +121,17 @@ Write a concise BTC/USD price action summary.
     console.log(`Actual cost in dollars: ${actualCents.toFixed(10)}`);
   }
 
-  const jsonLine = JSON.stringify(response) + "\n";
   console.log("LLM response object:", response);
 
-  try {
-    await fsAsync.appendFile("./openai_responses.jsonl", jsonLine, "utf-8");
-    console.log('LLM line saved to openai_responses.jsonl');
-  }
-  catch (err) {
-    console.error("Error writing OpenAI response to file:", err);
-  }
+  // const jsonLine = JSON.stringify(response) + "\n";
+
+  // try {
+  //   await fs.appendFile("./openai_responses.jsonl", jsonLine, "utf-8");
+  //   console.log('LLM line saved to openai_responses.jsonl');
+  // }
+  // catch (err) {
+  //   console.error("Error writing OpenAI response to file:", err);
+  // }
 
   /* ------ save summary to Postgres and broadcast via SSE ------ */
 
@@ -176,90 +185,60 @@ function aggregateOHLCV(candles: OHLCV[]): AggregatedSummary {
   let down = 0;
   let flat = 0;
 
-  let maxVolCandle = first;
-  let maxRangeCandle = first;
-  let maxBodyCandle = first;
-
-  let maxRange = -Infinity;
-  let maxBody = -Infinity;
-
   for (const c of candles) {
-    // High / Low
     if (c.high > hi) hi = c.high;
     if (c.low < lo) lo = c.low;
-
-    // Volume
     volTotal += c.volume;
-    if (c.volume > volMax) {
-      volMax = c.volume;
-      maxVolCandle = c;
-    }
-
-    // Direction
+    if (c.volume > volMax) volMax = c.volume;
     if (c.close > c.open) up++;
     else if (c.close < c.open) down++;
     else flat++;
-
-    // Range
-    const range = c.high - c.low;
-    if (range > maxRange) {
-      maxRange = range;
-      maxRangeCandle = c;
-    }
-
-    // Body
-    const body = Math.abs(c.close - c.open);
-    if (body > maxBody) {
-      maxBody = body;
-      maxBodyCandle = c;
-    }
   }
 
-  const o0 = first.open;
-  const cn = last.close;
+  volTotal = Number(volTotal.toFixed(4));
 
-  const chg = cn - o0;
-  const chg_pct = (chg / o0) * 100;
+  const o0 = Number(first.open.toFixed(2));
+  const cn = Number(last.close.toFixed(2));
+  const chg = Number((cn - o0).toFixed(2));
+  const chg_pct = Number(((cn - o0) / o0 * 100).toFixed(2));
+  const rangeTotal = Number((hi - lo).toFixed(2));
+  const range_pct = Number(((hi - lo) / o0 * 100).toFixed(2));
+  const volAvg = Number((volTotal / n).toFixed(4));
+  const spike_ratio = Number((volMax / volAvg).toFixed(4));
 
-  const rangeTotal = hi - lo;
-  const range_pct = (rangeTotal / o0) * 100;
+  // Add human-readable date strings using date-fns
+  const startHuman = format(new Date(first.ts), "MMM dd, HH:mm 'UTC'");
+  const endHuman = format(new Date(last.ts), "MMM dd, HH:mm 'UTC'");
 
-  const volAvg = volTotal / n;
-  const spike_ratio = volMax / volAvg;
-
-    return {
-      exchange: first.exchange,
-      symbol: first.symbol,
-      start: first.ts,
-      end: last.ts,
-      numCandles: n,
-      price: {
-        open: o0,
-        close: cn,
-        high: hi,
-        low: lo,
-        change: chg,
-        changePct: chg_pct,
-        range: rangeTotal,
-        rangePct: range_pct,
-      },
-      volume: {
-        total: volTotal,
-        average: volAvg,
-        max1m: volMax,
-        spikeRatio: spike_ratio,
-      },
-      candleCounts: {
-        up,
-        down,
-        flat,
-      },
-      highlights: {
-        maxVolumeCandle: maxVolCandle,
-        maxRangeCandle: maxRangeCandle,
-        maxBodyCandle: maxBodyCandle,
-      },
-    };
+  return {
+    exchange: first.exchange,
+    symbol: first.symbol,
+    start: startHuman,
+    end: endHuman,
+    numCandles: n,
+    price: {
+      open: o0,
+      close: cn,
+      high: hi,
+      low: lo,
+      change: chg,
+      changePct: chg_pct,
+      range: rangeTotal,
+      rangePct: range_pct,
+    },
+    volume: {
+      total: volTotal,
+      average: volAvg,
+      spikeRatio: spike_ratio,
+      max1m: volMax,
+    },
+    candleCounts: {
+      up,
+      down,
+      flat,
+    },
+    // highlights: undefined as any, // not used, but required by AggregatedSummary type
+  };
 }
 
 

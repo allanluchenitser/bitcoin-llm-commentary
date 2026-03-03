@@ -29,7 +29,7 @@ export type AggregatedSummary = {
     down: number;
     flat: number;
   };
-  highlights: {
+  highlights?: {
     maxVolumeCandle: OHLCV;
     maxRangeCandle: OHLCV;
     maxBodyCandle: OHLCV;

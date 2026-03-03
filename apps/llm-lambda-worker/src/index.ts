@@ -23,9 +23,9 @@ import {
 
 import { launchSummary } from "./llm_logic.js";
 
-console.log('LLM Lambda Worker starting...');
 
 const candleDataBuffer: OHLCV[] = [];
+
 let pgClient: PostgresClient | null = null;
 let redis: RedisClient | null = null;
 let openaiClient: OpenAI | null = null;
@@ -34,17 +34,13 @@ const REGULAR_INTERVAL_CANDLES = process.env.REGULAR_INTERVAL_CANDLES
   ? Number(process.env.REGULAR_INTERVAL_CANDLES)
   : 30;
 
+console.log('LLM Lambda Worker starting...');
+
 try {
+  /* ------ connect to redis to receive OHLCV data ------ */
+
   redis = createRedisClient();
   await redis.connect();
-  console.log('LLM Lambda Worker connected to Redis.');
-
-  pgClient = new PostgresClient(pgConfig);
-  console.log('LLM Lambda Worker initialized Postgres client.');
-
-  const initialCandles = await pgClient.getInstrumentHistory("kraken", "BTC/USD", REGULAR_INTERVAL_CANDLES);
-  candleDataBuffer.push(...ohclvRows2Numbers(initialCandles));
-  console.log(`LLM Lambda Worker loaded initial OHLCV data: ${initialCandles.length} candles.`);
 
   await redis.subscribe(CHANNEL_TICKER_OHLCV, (message: string) => {
     const row = JSON.parse(message) as OHLCVRow;
@@ -52,14 +48,24 @@ try {
     candleDataBuffer.push(data);
   });
 
+  console.log('LLM Lambda Worker subscribed to Redis channel for OHLCV data.');
+
+  /* ------ connect to Postgres to save and serve up LLM commentary ------ */
+
+  pgClient = new PostgresClient(pgConfig);
+  const initialCandles = await pgClient.getInstrumentHistory("kraken", "BTC/USD", REGULAR_INTERVAL_CANDLES);
+  candleDataBuffer.push(...ohclvRows2Numbers(initialCandles));
+
+  console.log(`LLM Lambda Worker connected to Postgres and loaded initial OHLCV data: ${initialCandles.length} candles.`);
+
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     console.error("OPENAI_API_KEY is not set in environment variables.");
     process.exit(1);
   }
-  openaiClient = new OpenAI({ apiKey });
 
-  console.log('LLM Lambda Worker subscribed to Redis channel for LLM tasks.');
+  openaiClient = new OpenAI({ apiKey });
+  console.log('LLM Lambda Worker initialized OpenAI client.');
 
   if (candleDataBuffer.length >= REGULAR_INTERVAL_CANDLES) {
     console.log('Launching initial summary generation upon startup...');
@@ -82,7 +88,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* ------ sse setup ------ */
+/* ------ sse setup, for web client ------ */
 
 const sseClients = new SseClients();
 app.use("/sse", createSseRouter('/summaries', sseClients));
@@ -113,7 +119,12 @@ app.use((err: unknown, _req: any, res: any, _next: any) => {
   res.status(500).json({ error: "Internal Server Error" });
 });
 
-/* ------ llm summary intervals ------ */
+/* ------ LLM summary intervals ------ */
+
+/*
+  llm summary intervals read and assess from candleDataBuffer,
+  the ever-populating redis subscription buffer.
+*/
 
 const SPIKE_INTERVAL_MINUTES = 10;
 const PRICE_SPIKE_THRESHOLD = 0.03; // 3%
@@ -132,9 +143,12 @@ function detectSpike(candles: OHLCV[]): boolean {
   return priceChange > PRICE_SPIKE_THRESHOLD || last.volume > avgVolume * VOLUME_SPIKE_MULTIPLIER;
 }
 
-// scheduled 30-minute summary
-setInterval(async () => {
+const scheduledTimer = setInterval(async () => { // summary on scheduled intervals
   if (!pgClient) return;
+  if (candleDataBuffer.length === 0) {
+    console.warn("No candle data available yet for regular summary generation.");
+    return;
+  };
   const last30 = getIntervalCandles(candleDataBuffer, REGULAR_INTERVAL_CANDLES);
   if (last30.length === REGULAR_INTERVAL_CANDLES) {
     await launchSummary({
@@ -147,9 +161,13 @@ setInterval(async () => {
   }
 }, REGULAR_INTERVAL_CANDLES * 60 * 1000);
 
-// spike detection every minute
-setInterval(async () => {
+const spikeDetectionTimer = setInterval(async () => { // spike detection triggers a special summary
   if (!pgClient) return;
+  if (candleDataBuffer.length === 0) {
+    console.warn("No candle data available yet for spike detection.");
+    return;
+  };
+
   const last10 = getIntervalCandles(candleDataBuffer, SPIKE_INTERVAL_MINUTES);
   if (last10.length === SPIKE_INTERVAL_MINUTES && detectSpike(last10)) {
     await launchSummary({
@@ -174,6 +192,9 @@ const server = app.listen(port, () => {
 
 async function shutdown() {
   console.log('LLM Lambda Worker shutting down...');
+
+  clearInterval(scheduledTimer);
+  clearInterval(spikeDetectionTimer);
 
   server.close(() => {
     console.log('LLM Lambda Worker server closed.');
