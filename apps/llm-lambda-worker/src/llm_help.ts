@@ -60,7 +60,7 @@ type InferenceEstimate = {
   dollarsMonth: string;
 }
 
-export function intferenceCounts(model: string, promptText: string):  InferenceEstimate{
+export function inferenceCounts(model: string, promptText: string):  InferenceEstimate{
   const enc = encoding_for_model(model as TiktokenModel);
   const tokens = enc.encode(promptText).length;
 
