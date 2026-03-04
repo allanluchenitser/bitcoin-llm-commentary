@@ -47,10 +47,6 @@ const PriceChart: React.FC<PriceChartProps> = ({
   const seriesRef = useRef<ISeriesApi<"Line"> | ISeriesApi<"Candlestick"> | null >(null);
   const volumeSeriesRef = useRef<ISeriesApi<"Histogram"> | null >(null);
 
-  // const [intervalSelection, setIntervalSelection] = useState<"1m" | "15m" | "60m" | "1440m">("1m");
-
-  // const [graphType, setGraphType] = useState<"Line" | "Candlestick">("Line");
-
   /* ------ init chart library ------ */
 
   useEffect(() => {

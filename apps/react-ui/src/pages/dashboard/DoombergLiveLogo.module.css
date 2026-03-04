@@ -1,0 +1,33 @@
+.logoContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 100%;
+}
+
+.doomBerg {
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  font-size: 2.5rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #222;
+  line-height: 1;
+  text-shadow: 2px 2px 0 #fff, 4px 4px 0 #000;
+  display: inline;
+}
+
+.doomLive {
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  font-size: 2.5rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #e53935; /* Breitbart uses orange, you can use #ff6600 for more orange */
+  line-height: 1;
+  text-shadow: 2px 2px 0 #fff, 4px 4px 0 #000;
+  display: inline;
+  margin-left: 0.5rem;
+}

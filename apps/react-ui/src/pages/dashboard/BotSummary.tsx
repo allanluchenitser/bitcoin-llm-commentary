@@ -10,21 +10,25 @@ type BotSummaryProps = {
 
 const BotSummary: React.FC<BotSummaryProps> = ({ summaries }) => {
   return (
-    <div className="h-full p-4 border rounded">
-      <img src={maxHedronSrc} alt="Max Hedron" className="mx-auto mt-2 mb-4" />
+    <div className="h-full px-4 py-2 border rounded">
+      <p className="font-semibold mb-2 italic">Doomberg Says</p>
+      {/* <img src={maxHedronSrc} alt="Max Hedron" className="mb-4 w-[150px]" /> */}
       <div className={"px-4 text-justify"}>
         {
           summaries.length > 0
             ?
             (
               <div>
-                <p className="font-semibold mb-2">Max Hedron's Market Commentary:</p>
                 {
                   summaries.map((summary, index) => (
                     <div key={index} className="mb-4">
-                      <p>
-                        <WipeReveal text={summary.commentary} />
-                      </p>
+                      {/* <img src={maxHedronSrc} alt="Max Hedron" className="mb-4 w-[150px]" /> */}
+                      <WipeReveal
+                        text={summary.commentary}
+                        src={maxHedronSrc}
+                        srcWidth={100}
+                        className="text-sm/5"
+                      />
                       <div className="text-sm text-gray-600 mb-1 italic text-right">{new Date(summary.ts).toLocaleString()}</div>
                     </div>
                   ))}

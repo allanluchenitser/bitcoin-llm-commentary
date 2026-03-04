@@ -1,6 +1,7 @@
 import PriceChart from './PriceChart'
 import BotSummary from './BotSummary';
 import LiveEvents from './LiveEvents';
+import DoombergLiveLogo from './DoombergLiveLogo';
 
 import {
   CHANNEL_TICKER_OHLCV,
@@ -29,6 +30,8 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     document.title = "Dashboard - Bitcoin LLM Commentary";
   }, []);
+
+  /* ------ Initial data fetches ------ */
 
   useEffect(() => {
     async function fetchPriceHistory() {
@@ -69,7 +72,8 @@ const DashboardPage: React.FC = () => {
     fetchLLMHistory();
   }, []);
 
-  // SSE trades from web-api
+  /* ------ SSE subscriptions: price updates and LLM summaries ------ */
+
   useSseSetup({
     path: '/sse/trades',
     channel: CHANNEL_TICKER_OHLCV,
@@ -92,7 +96,6 @@ const DashboardPage: React.FC = () => {
     }
   });
 
-  // SSE summaries from llm-lambda-worker
   useSseSetup({
     path: '/sse/summaries',
     channel: 'summary',
@@ -105,6 +108,15 @@ const DashboardPage: React.FC = () => {
       } catch {}
     }
   });
+
+  /* ------ Data processing for charts and tables ------ */
+  useEffect(() => {
+    if(rawOhlcvData.length > 1000) {
+      setRawOhlcvData(prev => prev.slice(prev.length - 1000));
+      console.log('clipped ohlcv data to last 1000 entries');
+    }
+    console.log('current ohlcv data length:', rawOhlcvData.length);
+  }, [rawOhlcvData]);
 
   const processedOHCLV = useMemo(() => {
     const interval = parseInt(intervalSelection);
@@ -140,12 +152,14 @@ const DashboardPage: React.FC = () => {
     return sorted;
   }, [rawOhlcvData, intervalSelection]);
 
+  /* ------ Render ------ */
+
   return (
     <div className="container mx-auto px-4">
       <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseTradesStatus}</span>
       <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseSummariesStatus}</span>
       <div className="flex mt-4 max-h-min">
-        <div className="w-3/5">
+        <div className="w-3/5 max-h-screen flex flex-col">
           <div>
             <PriceChart
               ohlcvData={processedOHCLV}
@@ -160,6 +174,7 @@ const DashboardPage: React.FC = () => {
               ohlcvData={processedOHCLV}
             />
           </div>
+          <DoombergLiveLogo />
         </div>
 
         <div className="w-2/5 ml-4 text-center">

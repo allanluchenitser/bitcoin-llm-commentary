@@ -1,32 +1,34 @@
 /* Typical "terminal line" wipe with character stepping */
 /* Note the css variables for chars/dur/delay getting piped in by the React component */
 
-.wipe-reveal {
+
+.wipeReveal {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
 
-  white-space: nowrap;
+  white-space: normal; /* allow wrapping */
   overflow: hidden;
+  display: inline-block; /* so max-width works and wraps */
 
-  width: 0ch;
+  max-width: 0ch;
   animation: wipe-reveal-typing var(--dur) steps(var(--chars), end) forwards;
   animation-delay: var(--delay);
 }
 
-.wipe-reveal::after {
+.wipeReveal::after {
   content: "▌";
   margin-left: 0.25ch;
-  animation: wipe-reveal-blink 900ms steps(1, end) infinite;
+  animation: wipe-reveal-blink 900ms steps(1, end) 3s;
 }
 
-.wipe-reveal.cursor-done::after {
+.wipeReveal.cursor-done::after {
   opacity: 0;
   animation: none;
 }
 
 @keyframes wipe-reveal-typing {
   to {
-    width: calc(var(--chars) * 1ch);
+    max-width: calc(var(--chars) * 1ch);
   }
 }
 
@@ -38,11 +40,11 @@
 
 /* this is an accessibility feature. */
 @media (prefers-reduced-motion: reduce) {
-  .wipe-reveal {
+  .wipeReveal {
     width: auto;
     animation: none;
   }
-  .wipe-reveal::after {
+  .wipeReveal::after {
     animation: none;
   }
 }
