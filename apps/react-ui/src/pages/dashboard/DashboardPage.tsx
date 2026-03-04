@@ -155,11 +155,10 @@ const DashboardPage: React.FC = () => {
   /* ------ Render ------ */
 
   return (
-    <div className="container mx-auto px-4">
-      <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseTradesStatus}</span>
-      <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseSummariesStatus}</span>
-      <div className="flex mt-4 max-h-min">
-        <div className="w-3/5 max-h-screen flex flex-col">
+    <div className="blc-dashboard-page flex mx-auto px-4 h-screen pt-4">
+      {/* <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseTradesStatus}</span>
+      <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseSummariesStatus}</span> */}
+        <div className="w-3/5 flex flex-col">
           <div>
             <PriceChart
               ohlcvData={processedOHCLV}
@@ -174,15 +173,11 @@ const DashboardPage: React.FC = () => {
               ohlcvData={processedOHCLV}
             />
           </div>
-          <DoombergLiveLogo />
+          <DoombergLiveLogo className="fixed bottom-2 left-2" />
         </div>
-
-        <div className="w-2/5 ml-4 text-center">
-          <div className="h-full">
-            <BotSummary summaries={summaries} />
-          </div>
+        <div className="w-2/5 ml-4 text-center overflow-y-auto thin-scrollbar">
+          <BotSummary summaries={summaries} />
         </div>
-      </div>
     </div>
   )
 };

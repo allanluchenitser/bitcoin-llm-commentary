@@ -10,9 +10,8 @@ type BotSummaryProps = {
 
 const BotSummary: React.FC<BotSummaryProps> = ({ summaries }) => {
   return (
-    <div className="h-full px-4 py-2 border rounded">
+    <div className="px-4 py-2 border rounded">
       <p className="font-semibold mb-2 italic">Doomberg Says</p>
-      {/* <img src={maxHedronSrc} alt="Max Hedron" className="mb-4 w-[150px]" /> */}
       <div className={"px-4 text-justify"}>
         {
           summaries.length > 0
@@ -22,7 +21,6 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries }) => {
                 {
                   summaries.map((summary, index) => (
                     <div key={index} className="mb-4">
-                      {/* <img src={maxHedronSrc} alt="Max Hedron" className="mb-4 w-[150px]" /> */}
                       <WipeReveal
                         text={summary.commentary}
                         src={maxHedronSrc}
