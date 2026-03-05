@@ -9,10 +9,25 @@ type BotSummaryProps = {
   loading?: boolean;
 };
 
+const style = {
+  fontFamily: 'Impact, Haettenschweiler, Arial Narrow Bold, sans-serif',
+  fontWeight: 'bold',
+  fontStyle: 'italic',
+  letterSpacing: '0.05em',
+  textTransform: 'uppercase' as const,
+  color: '#222',
+  lineHeight: '1',
+  textShadow: '2px 2px 0 #fff, 4px 4px 0 #000',
+  display: 'inline',
+};
+
 const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) => {
   return (
-    <div className="px-4 py-2 border rounded">
-      <p className="font-semibold mb-2 italic">Doomberg Says</p>
+    <div className="px-4 pb-2">
+      <p className="font-semibold mb-2 italic" >
+        <span style={style} className="font-bold relative -top-[1px]">Doomberg</span>
+        <span className="ml-2">SAYS...</span>
+      </p>
       <div className="px-4 text-justify">
         {
           summaries.length > 0

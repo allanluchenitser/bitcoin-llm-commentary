@@ -48,8 +48,9 @@ function processBufferedTrades() {
     return;
   }
 
-  console.log(tradeBuffer.length, "trades in buffer, processing...");
   const ohlcv = calculateOHLCV(tradeBuffer, intervalMs);
+  console.log(tradeBuffer.length, "trades in buffer, processing...");
+  console.log("OHLCV calculated from buffer:", ohlcv);
 
   if (ohlcv) {
     try {

@@ -164,7 +164,7 @@ useEffect(() => {
     return ohlcvData.map((data) => ({
       time: toUTCTimestamp(data.ts),
       value: toFiniteNumber(data.volume) ?? 0,
-      color: "#a3a3a3", // or use green/red based on price movement if you want
+      color: "#d1d1d1", // or use green/red based on price movement if you want
     }));
   }, [ohlcvData]);
 
@@ -191,11 +191,15 @@ useEffect(() => {
       volumeSeriesRef.current = chartRef.current.addSeries(HistogramSeries, {
         color: "#a3a3a3",
         priceFormat: { type: "volume" },
-        priceScaleId: "left",
+        priceScaleId: "volume",
         lastValueVisible: false,
         priceLineVisible: false,
       });
       volumeSeriesRef.current.setData(volumeData);
+
+      chartRef.current.priceScale("volume").applyOptions({
+        scaleMargins: { top: 0.6, bottom: 0 },
+      });
 
       if (!initialRangeRef.current) {
         initialRangeRef.current = chartRef.current.timeScale().getVisibleLogicalRange();
@@ -271,16 +275,6 @@ useEffect(() => {
             onClick={() => onChangeInterval("60m")}
           >
               1h
-          </button>
-          <button
-            className={
-              clsx(
-                buttonBasicTw,
-                { "bg-gray-900 text-white": intervalSelection === "1440m" }
-              )
-            }
-            onClick={() => onChangeInterval("1440m")}>
-              1d
           </button>
         </div>
         {/* <h2 className="text-sm font-semibold">Price Chart</h2> */}

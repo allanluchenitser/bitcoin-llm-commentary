@@ -4,14 +4,14 @@ import { useEffect } from 'react';
 type SseSetupParams = {
   path: string,
   channel: string,
-  onStatus: (status: 'connecting' | 'open' | 'closed' | 'error') => void,
+  onStatus?: (status: 'connecting' | 'open' | 'closed' | 'error') => void,
   onUpdate: (event: MessageEvent) => void,
 };
 
 export function useSseSetup({
   path,
   channel,
-	onStatus,
+  onStatus,
   onUpdate,
 }: SseSetupParams) {
 	useEffect(() => {

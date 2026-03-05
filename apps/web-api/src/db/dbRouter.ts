@@ -10,9 +10,9 @@ export function createDbRouter(path: string) {
 
   router.get(path, async (req: Request, res: Response) => {
     console.log(`GET ${path} hit`);
-    // const { exchange, symbol } = req.params;
+    const limit = Number(req.query.limit) || 5000; // default to 5000 rows if not specified
     try {
-      const history = await pgClient.getInstrumentHistory('kraken', 'BTC/USD');
+      const history = await pgClient.getInstrumentHistory('kraken', 'BTC/USD', limit);
       console.log('history rows returned', history.length);
       let json = res.json(history);
       return json;

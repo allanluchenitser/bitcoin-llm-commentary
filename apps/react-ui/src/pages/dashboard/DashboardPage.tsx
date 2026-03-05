@@ -15,11 +15,11 @@ import { useEffect, useState, useMemo } from 'react';
 
 import { useSseSetup } from './useSseSetup';
 
-type sseStatuses = 'connecting' | 'open' | 'closed' | 'error';
+// type sseStatuses = 'connecting' | 'open' | 'closed' | 'error';
 
 const DashboardPage: React.FC = () => {
-  const [sseTradesStatus, setSseTradesStatus] = useState<sseStatuses>('connecting');
-  const [sseSummariesStatus, setSseSummariesStatus] = useState<sseStatuses>('connecting');
+  // const [sseTradesStatus, setSseTradesStatus] = useState<sseStatuses>('connecting');
+  // const [sseSummariesStatus, setSseSummariesStatus] = useState<sseStatuses>('connecting');
 
   const [intervalSelection, setIntervalSelection] = useState<"1m" | "15m" | "60m" | "1440m">("1m");
   const [graphType, setGraphType] = useState<"Line" | "Candlestick">("Line");
@@ -38,7 +38,7 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     async function fetchPriceHistory() {
       try {
-        const res = await fetch('/db/history');
+        const res = await fetch('/db/history?limit=2000');
 
         if(res.status !== 200) {
           console.log(res);
@@ -79,7 +79,7 @@ const DashboardPage: React.FC = () => {
   useSseSetup({
     path: '/sse/trades',
     channel: CHANNEL_TICKER_OHLCV,
-    onStatus: setSseTradesStatus,
+    // onStatus: setSseTradesStatus,
     onUpdate: (sseEvent) => {
       const subData = sseEvent.data; // SSE native data
 
@@ -92,6 +92,7 @@ const DashboardPage: React.FC = () => {
         }
         else {
           const mapped = ohclvRows2Numbers([parsed as OHLCVRow])[0];
+          console.log("Received OHLCV update:", mapped);
           setRawOhlcvData(prev => [...prev, mapped]);
         }
       } catch {}
@@ -101,11 +102,11 @@ const DashboardPage: React.FC = () => {
   useSseSetup({
     path: '/sse/summaries',
     channel: 'summary',
-    onStatus: setSseSummariesStatus,
+    // onStatus: setSseSummariesStatus,
     onUpdate: (sseEvent) => {
       try {
         const parsed = JSON.parse(sseEvent.data);
-        console.log("Received summary event:", parsed);
+        // console.log("Received summary event:", parsed);
         setSummaries(
           prev => [...prev, parsed as LLMCommentary]
           .sort((a, b) => {
@@ -124,6 +125,7 @@ const DashboardPage: React.FC = () => {
     const interval = parseInt(intervalSelection);
     if (interval === 1) {
       const sorted = [...rawOhlcvData].sort((a, b) => Date.parse(a.ts) - Date.parse(b.ts));
+      console.log(sorted);
       return sorted;
     }
 
