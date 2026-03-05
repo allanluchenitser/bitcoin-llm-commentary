@@ -8,6 +8,7 @@ import {
   type AggregatedSummary,
   inferenceCounts,
   gptPricing,
+  makeFakeResponse
 } from "./llm_help.js";
 
 import { promises as fs } from "fs";
@@ -16,6 +17,12 @@ import { format } from "date-fns";
 const REGULAR_INTERVAL_CANDLES = process.env.REGULAR_INTERVAL_CANDLES
   ? Number(process.env.REGULAR_INTERVAL_CANDLES)
   : 30;
+
+const DISK_LOG_LLM_RESPONSE = false;
+const FAKE_LLM_RESPONSE = true;
+const DISPLAY_ESTIMATES = false;
+const DISPLAY_ACTUALS = false;
+const SAVE_TO_DB = false;
 
 function buildUserPrompt(type: "regular" | "spike", candles: OHLCV[]): string {
   if (candles.length > REGULAR_INTERVAL_CANDLES) {
@@ -73,16 +80,14 @@ Write a concise BTC/USD price action summary.
 `
   /* ------ estimate inference then (maybe) make the LLM API call ------ */
 
-  // const estimateGpt5nano = inferenceCounts("gpt-5-nano", userPrompt + developerPrompt);
+  color.info(`launchSummary for ${candles.length} candles`);
+
   const estimateGpt5mini = inferenceCounts("gpt-5-mini", userPrompt + developerPrompt);
-  // const estimateGpt4 = inferenceCounts("gpt-4", userPrompt + developerPrompt);
 
-  color.info("INFERENCE COST ESTIMATES:");
-  // console.log(estimateGpt5nano);
-  console.log(estimateGpt5mini);
-  // console.log(estimateGpt4);
-
-  color.info('candles.length:', candles.length);
+  if (DISPLAY_ESTIMATES) {
+    color.info("INFERENCE COST ESTIMATES:");
+    console.log(estimateGpt5mini);
+  }
 
   if (estimateGpt5mini.tokens > 4000) {
     console.warn("Prompt token count exceeds typical LLM limits. Consider reducing the number of candles or summarizing the data before sending to LLM.");
@@ -91,20 +96,20 @@ Write a concise BTC/USD price action summary.
 
   console.info('prompt ready for payload', { developerPrompt, userPrompt });
 
-  // if (true) {
-  //   color.warn("LLM API call skipped. Set condition to false to enable.");
-  //   return;
-  // }
-
   let response;
   try {
-    response = await openaiClient.responses.create({
-      model: "gpt-5-mini",
-      input: [
-        { role: "developer", content: developerPrompt },
-        { role: "user", content: userPrompt },
-      ],
-    });
+    if (FAKE_LLM_RESPONSE) {
+      response = makeFakeResponse();
+    }
+    else {
+      response = await openaiClient.responses.create({
+        model: "gpt-5-mini",
+        input: [
+          { role: "developer", content: developerPrompt },
+          { role: "user", content: userPrompt },
+        ],
+      });
+    }
   }
   catch (err) {
     console.error("Error generating LLM summary:", err);
@@ -113,25 +118,26 @@ Write a concise BTC/USD price action summary.
 
   /* ------ log actual usage and cost, which can differ from estimates ------ */
 
-  let actualCents = null;
-  if (response.usage) {
+  if (DISPLAY_ACTUALS && response.usage) {
     color.warn(`ACTUAL LLM usage for model ${response.model}`)
     console.log(response.usage);
-    actualCents = response.usage.total_tokens / 1000000 * gptPricing["gpt-5-mini"].input / 100;
+    const actualCents = response.usage.total_tokens / 1000000 * gptPricing["gpt-5-mini"].input / 100;
     console.log(`Actual cost in dollars: ${actualCents.toFixed(10)}`);
   }
 
-  console.log("LLM response object:", response);
+  // console.log("LLM response object:", response);
 
-  // const jsonLine = JSON.stringify(response) + "\n";
+  if (DISK_LOG_LLM_RESPONSE) {
+    const jsonLine = JSON.stringify(response) + "\n";
 
-  // try {
-  //   await fs.appendFile("./openai_responses.jsonl", jsonLine, "utf-8");
-  //   console.log('LLM line saved to openai_responses.jsonl');
-  // }
-  // catch (err) {
-  //   console.error("Error writing OpenAI response to file:", err);
-  // }
+    try {
+      await fs.appendFile("./openai_responses.jsonl", jsonLine, "utf-8");
+      console.log('LLM line saved to openai_responses.jsonl');
+    }
+    catch (err) {
+      console.error("Error writing OpenAI response to file:", err);
+    }
+  }
 
   /* ------ save summary to Postgres and broadcast via SSE ------ */
 
@@ -143,14 +149,16 @@ Write a concise BTC/USD price action summary.
     commentary: response.output_text
   }
 
-  try {
-    await pgClient.insertLLMCommentary({
-      ...commentaryObject,
-      llmUsed: process.env.LLM_MODEL_NAME || "gpt-5-nano"
-    });
-  } catch (err) {
-    console.error("Error inserting LLM commentary into Postgres:", err);
-    return;
+  if (SAVE_TO_DB) {
+    try {
+      await pgClient.insertLLMCommentary({
+        ...commentaryObject,
+        llmUsed: process.env.LLM_MODEL_NAME || "gpt-5-nano"
+      });
+    } catch (err) {
+      console.error("Error inserting LLM commentary into Postgres:", err);
+      return;
+    }
   }
 
   // initial load probably won't have sseClients ready, so check before broadcasting

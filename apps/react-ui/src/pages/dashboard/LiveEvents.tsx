@@ -65,7 +65,10 @@ const LiveEvents: React.FC<{ ohlcvData: OHLCV[] }> = ({ ohlcvData }) => {
                   {
                     tableMode
                       ? // <table> view
-                      processedTickerEvents.map((price, i) => {
+                      processedTickerEvents
+                        .slice()
+                        .sort((a, b) => Date.parse(b.ts) - Date.parse(a.ts))
+                        .map((price, i) => {
                         return (
                           <tr key={i} className="font-mono">
                               <td style={{ width: widths.exchange }}>{ price.exchange ?? "" }</td>

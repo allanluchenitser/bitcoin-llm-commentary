@@ -159,26 +159,26 @@ const scheduledTimer = setInterval(async () => { // summary on scheduled interva
       sseClients
     });
   }
-}, REGULAR_INTERVAL_CANDLES * 60 * 1000);
+}, 20000);
 
-const spikeDetectionTimer = setInterval(async () => { // spike detection triggers a special summary
-  if (!pgClient) return;
-  if (candleDataBuffer.length === 0) {
-    console.warn("No candle data available yet for spike detection.");
-    return;
-  };
+// const spikeDetectionTimer = setInterval(async () => { // spike detection triggers a special summary
+//   if (!pgClient) return;
+//   if (candleDataBuffer.length === 0) {
+//     console.warn("No candle data available yet for spike detection.");
+//     return;
+//   };
 
-  const last10 = getIntervalCandles(candleDataBuffer, SPIKE_INTERVAL_MINUTES);
-  if (last10.length === SPIKE_INTERVAL_MINUTES && detectSpike(last10)) {
-    await launchSummary({
-      type: "spike",
-      candles: last10,
-      openaiClient,
-      pgClient,
-      sseClients
-    });
-  }
-}, 60 * 1000);
+//   const last10 = getIntervalCandles(candleDataBuffer, SPIKE_INTERVAL_MINUTES);
+//   if (last10.length === SPIKE_INTERVAL_MINUTES && detectSpike(last10)) {
+//     await launchSummary({
+//       type: "spike",
+//       candles: last10,
+//       openaiClient,
+//       pgClient,
+//       sseClients
+//     });
+//   }
+// }, 60 * 1000);
 
 /* ------ start web server ------ */
 
@@ -194,7 +194,7 @@ async function shutdown() {
   console.log('LLM Lambda Worker shutting down...');
 
   clearInterval(scheduledTimer);
-  clearInterval(spikeDetectionTimer);
+  // clearInterval(spikeDetectionTimer);
 
   server.close(() => {
     console.log('LLM Lambda Worker server closed.');

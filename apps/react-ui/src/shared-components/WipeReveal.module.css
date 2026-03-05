@@ -1,50 +1,27 @@
-/* Typical "terminal line" wipe with character stepping */
-/* Note the css variables for chars/dur/delay getting piped in by the React component */
-
-
 .wipeReveal {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
 
-  white-space: normal; /* allow wrapping */
-  overflow: hidden;
-  display: inline-block; /* so max-width works and wraps */
-
-  max-width: 0ch;
-  animation: wipe-reveal-typing var(--dur) steps(var(--chars), end) forwards;
-  animation-delay: var(--delay);
-}
-
-.wipeReveal::after {
-  content: "▌";
-  margin-left: 0.25ch;
-  animation: wipe-reveal-blink 900ms steps(1, end) 3s;
-}
-
-.wipeReveal.cursor-done::after {
+  animation: fade-in 0.3s ease-out forwards;
   opacity: 0;
-  animation: none;
+  overflow: auto;
 }
 
-@keyframes wipe-reveal-typing {
+.animate-pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes fade-in {
   to {
-    max-width: calc(var(--chars) * 1ch);
+    opacity: 1;
   }
 }
 
-@keyframes wipe-reveal-blink {
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
   50% {
-    opacity: 0;
-  }
-}
-
-/* this is an accessibility feature. */
-@media (prefers-reduced-motion: reduce) {
-  .wipeReveal {
-    width: auto;
-    animation: none;
-  }
-  .wipeReveal::after {
-    animation: none;
+    opacity: 0.5;
   }
 }
