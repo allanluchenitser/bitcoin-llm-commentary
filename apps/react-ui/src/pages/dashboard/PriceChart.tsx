@@ -47,6 +47,9 @@ const PriceChart: React.FC<PriceChartProps> = ({
   const seriesRef = useRef<ISeriesApi<"Line"> | ISeriesApi<"Candlestick"> | null >(null);
   const volumeSeriesRef = useRef<ISeriesApi<"Histogram"> | null >(null);
 
+  const initialRangeRef = useRef<{ from: number; to: number } | null>(null);
+
+
   /* ------ init chart library ------ */
 
   useEffect(() => {
@@ -83,7 +86,6 @@ const PriceChart: React.FC<PriceChartProps> = ({
         borderColor: "#e5e7eb",
         timeVisible: true,
       },
-
     });
 
     chartRef.current = chart;
@@ -102,6 +104,21 @@ const PriceChart: React.FC<PriceChartProps> = ({
       volumeSeriesRef.current = null;
     };
   }, []);
+
+  // fit data on chart when interval changes
+useEffect(() => {
+  console.log('intervalSelection changed:', intervalSelection);
+  if (chartRef.current && initialRangeRef.current && (intervalSelection === "1m")) {
+    chartRef.current.timeScale().setVisibleLogicalRange(initialRangeRef.current);
+    console.log('interval changed, reset chart range to initial range:', initialRangeRef.current);
+  }
+  else if (chartRef.current) {
+    console.log('info chartRef', chartRef.current);
+    console.log('info initialRangeRef', initialRangeRef.current)
+    console.log('info intervalSelection', intervalSelection);
+    chartRef.current.timeScale().fitContent();
+  }
+}, [intervalSelection]);
 
   /* ------ chart data ------ */
 
@@ -168,7 +185,8 @@ const PriceChart: React.FC<PriceChartProps> = ({
       volumeSeriesRef.current = null;
     }
 
-    // always a volume series histo in the back brah
+    /* ------ volume series is always visible ------ */
+
     if (!volumeSeriesRef.current || isGraphTypeChange) {
       volumeSeriesRef.current = chartRef.current.addSeries(HistogramSeries, {
         color: "#a3a3a3",
@@ -178,10 +196,16 @@ const PriceChart: React.FC<PriceChartProps> = ({
         priceLineVisible: false,
       });
       volumeSeriesRef.current.setData(volumeData);
+
+      if (!initialRangeRef.current) {
+        initialRangeRef.current = chartRef.current.timeScale().getVisibleLogicalRange();
+      }
     }
     else if (volumeSeriesRef.current) {
       volumeSeriesRef.current.setData(volumeData);
     }
+
+    /* ---- main series (line or candlestick) ------ */
 
     if ((!seriesRef.current || isGraphTypeChange) && graphType === "Line") {
       seriesRef.current = chartRef.current.addSeries(LineSeries, {

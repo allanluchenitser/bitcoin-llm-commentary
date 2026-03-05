@@ -58,7 +58,7 @@ export class PostgresClient {
   async getInstrumentHistory(
     exchange: string = "kraken",
     symbol: string = "BTC/USD",
-    limit: number = 30,
+    limit: number = 1500,
     startTs?: string,
     endTs?: string
   ): Promise<OHLCVRow[]> {
