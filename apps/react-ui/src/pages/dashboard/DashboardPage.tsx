@@ -27,8 +27,10 @@ const DashboardPage: React.FC = () => {
   const [rawOhlcvData, setRawOhlcvData] = useState<OHLCV[]>([]);
   const [summaries, setSummaries] = useState<LLMCommentary[]>([]);
 
+  const [sseLoadSim, setSseLoadSim] = useState(false);
+
   useEffect(() => {
-    document.title = "Dashboard - Bitcoin LLM Commentary";
+    document.title = "Doomberg | Live - Bitcoin LLM Commentary";
   }, []);
 
   /* ------ Initial data fetches ------ */
@@ -90,7 +92,7 @@ const DashboardPage: React.FC = () => {
         }
         else {
           const mapped = ohclvRows2Numbers([parsed as OHLCVRow])[0];
-          setRawOhlcvData(prev => [...prev, mapped].sort((a, b) => Date.parse(a.ts) - Date.parse(b.ts)));
+          setRawOhlcvData(prev => [...prev, mapped]);
         }
       } catch {}
     }
@@ -104,19 +106,19 @@ const DashboardPage: React.FC = () => {
       try {
         const parsed = JSON.parse(sseEvent.data);
         console.log("Received summary event:", parsed);
-        setSummaries(prev => [...prev, parsed as LLMCommentary].sort((a, b) => Date.parse(a.ts) - Date.parse(b.ts)));
+        setSummaries(
+          prev => [...prev, parsed as LLMCommentary]
+          .sort((a, b) => {
+            return Date.parse(b.ts) - Date.parse(a.ts);
+          })
+        );
+        setSseLoadSim(true);
+        setTimeout(() => setSseLoadSim(false), Math.random() * 2000 + 500); // simulates loading
       } catch {}
     }
   });
 
   /* ------ Data processing for charts and tables ------ */
-  useEffect(() => {
-    if(rawOhlcvData.length > 1000) {
-      setRawOhlcvData(prev => prev.slice(prev.length - 1000));
-      console.log('clipped ohlcv data to last 1000 entries');
-    }
-    console.log('current ohlcv data length:', rawOhlcvData.length);
-  }, [rawOhlcvData]);
 
   const processedOHCLV = useMemo(() => {
     const interval = parseInt(intervalSelection);
@@ -176,7 +178,7 @@ const DashboardPage: React.FC = () => {
           <DoombergLiveLogo className="fixed bottom-2 left-2" />
         </div>
         <div className="w-2/5 ml-4 text-center overflow-y-auto thin-scrollbar">
-          <BotSummary summaries={summaries} />
+          <BotSummary summaries={summaries} loading={sseLoadSim}/>
         </div>
     </div>
   )

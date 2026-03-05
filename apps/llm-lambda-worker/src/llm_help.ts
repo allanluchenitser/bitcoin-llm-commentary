@@ -78,3 +78,74 @@ export function inferenceCounts(model: string, promptText: string):  InferenceEs
     dollarsMonth
   };
 }
+
+import crypto from "crypto";
+
+function randomId(prefix: string) {
+  return prefix + '_' + crypto.randomBytes(16).toString('hex');
+}
+
+/**
+ * Generates a fake, but realistic, LLM response object for testing.
+ * Optionally override the output_text.
+ */
+export function makeFakeResponse(outputText?: string) {
+  const now = Math.floor(Date.now() / 1000);
+  const text = outputText || "BTC/USD is moving in a volatile range today. Consider risk management strategies.";
+  return {
+    id: randomId('resp'),
+    object: 'response',
+    created_at: now,
+    status: 'completed',
+    background: false,
+    billing: { payer: 'developer' },
+    completed_at: now + 10,
+    error: null,
+    frequency_penalty: 0,
+    incomplete_details: null,
+    instructions: null,
+    max_output_tokens: null,
+    max_tool_calls: null,
+    model: 'gpt-5-mini-2025-08-07',
+    output: [
+      {
+        id: randomId('rs'),
+        type: 'reasoning',
+        summary: []
+      },
+      {
+        id: randomId('msg'),
+        type: 'message',
+        status: 'completed',
+        content: [text],
+        role: 'assistant'
+      }
+    ],
+    parallel_tool_calls: true,
+    presence_penalty: 0,
+    previous_response_id: null,
+    prompt_cache_key: null,
+    prompt_cache_retention: null,
+    reasoning: { effort: 'medium', summary: null },
+    safety_identifier: null,
+    service_tier: 'default',
+    store: true,
+    temperature: 1,
+    text: { format: { type: 'text' }, verbosity: 'medium' },
+    tool_choice: 'auto',
+    tools: [],
+    top_logprobs: 0,
+    top_p: 1,
+    truncation: 'disabled',
+    usage: {
+      input_tokens: 123,
+      input_tokens_details: { cached_tokens: 0 },
+      output_tokens: 678,
+      output_tokens_details: { reasoning_tokens: 832 },
+      total_tokens: 801
+    },
+    user: null,
+    metadata: {},
+    output_text: text
+  };
+}
