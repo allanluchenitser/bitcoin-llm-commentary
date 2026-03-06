@@ -61,8 +61,6 @@ const LiveEvents: React.FC<{
               tableMode
                 ? // <table> view
                 processedTickerEvents
-                  .slice()
-                  .sort((a, b) => Date.parse(b.ts) - Date.parse(a.ts))
                   .map((price, i) => {
                   return (
                     <tr key={i} className="font-mono">

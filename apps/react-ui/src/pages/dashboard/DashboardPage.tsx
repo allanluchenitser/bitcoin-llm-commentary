@@ -15,12 +15,7 @@ import { useEffect, useState, useMemo, useRef } from 'react';
 
 import { useSseSetup } from '@/hooks/useSseSetup';
 
-// type sseStatuses = 'connecting' | 'open' | 'closed' | 'error';
-
 const DashboardPage: React.FC = () => {
-  // const [sseTradesStatus, setSseTradesStatus] = useState<sseStatuses>('connecting');
-  // const [sseSummariesStatus, setSseSummariesStatus] = useState<sseStatuses>('connecting');
-
   const [intervalSelection, setIntervalSelection] = useState<"1m" | "15m" | "60m" | "1440m">("1m");
   const [graphType, setGraphType] = useState<"Line" | "Candlestick">("Line");
 
@@ -35,12 +30,22 @@ const DashboardPage: React.FC = () => {
 
   /* ------ vertical drag / resizer for LiveEvents ------ */
 
-  const [liveEventsHeight, setLiveEventsHeight] = useState(240); // px
+  const LOCAL_KEY = "dashboard_liveEventsHeight";
+  const [liveEventsHeight, setLiveEventsHeight] = useState(() => {
+    const saved = localStorage.getItem(LOCAL_KEY);
+    return saved ? Number(saved) : 240;
+  });
+
   const leftColRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ startY: number; startHeight: number } | null>(null);
+  const debounceRef = useRef<number | null>(null);
 
   const MIN_LIVE = 120;
   const MIN_CHART = 180;
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_KEY, String(liveEventsHeight));
+  }, [liveEventsHeight]);
 
   useEffect(() => {
     function onPointerMove(e: PointerEvent) {
@@ -52,8 +57,12 @@ const DashboardPage: React.FC = () => {
 
       const total = leftColRef.current.clientHeight;
       const maxLive = Math.max(MIN_LIVE, total - MIN_CHART);
+      const clamped = Math.max(MIN_LIVE, Math.min(maxLive, next));
 
-      setLiveEventsHeight(Math.max(MIN_LIVE, Math.min(maxLive, next)));
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        setLiveEventsHeight(clamped);
+      }, 20);
     }
 
     function onPointerUp() {
@@ -78,12 +87,12 @@ const DashboardPage: React.FC = () => {
     document.body.style.userSelect = "none";
   }
 
-  /* ------ Initial data fetches ------ */
+  /* ------ Initial data fetch, management ------ */
 
   useEffect(() => {
     async function fetchPriceHistory() {
       try {
-        const res = await fetch('/db/history?limit=2000');
+        const res = await fetch('/db/history?limit=2000'); // fyi api returns in descending order
 
         if(res.status !== 200) {
           console.log(res);
@@ -119,6 +128,12 @@ const DashboardPage: React.FC = () => {
     fetchLLMHistory();
   }, []);
 
+  useEffect(() => {
+    if (rawOhlcvData.length > 2000) {
+      setRawOhlcvData(prev => prev.slice(0, 2000));
+    }
+  }, [rawOhlcvData]);
+
   /* ------ SSE subscriptions: price updates and LLM summaries ------ */
 
   useSseSetup({
@@ -126,19 +141,19 @@ const DashboardPage: React.FC = () => {
     channel: CHANNEL_TICKER_OHLCV,
     // onStatus: setSseTradesStatus,
     onUpdate: (sseEvent) => {
-      const subData = sseEvent.data; // SSE native data
+      const rawOhlcv = sseEvent.data; // SSE native data
 
       try {
-        const parsed = JSON.parse(subData);
+        const parsedOhlcv = JSON.parse(rawOhlcv);
 
-        if (parsed.type === "heartbeat") {
+        if (parsedOhlcv.type === "heartbeat") {
           console.log("Received heartbeat from server");
           return;
         }
         else {
-          const mapped = ohclvRows2Numbers([parsed as OHLCVRow])[0];
-          console.log("Received OHLCV update:", mapped);
-          setRawOhlcvData(prev => [...prev, mapped]);
+          const mappedOhlcv = ohclvRows2Numbers([parsedOhlcv as OHLCVRow])[0];
+          console.log("Received OHLCV update:", mappedOhlcv);
+          setRawOhlcvData(prev => [mappedOhlcv, ...prev]);
         }
       } catch {}
     }
@@ -151,12 +166,8 @@ const DashboardPage: React.FC = () => {
     onUpdate: (sseEvent) => {
       try {
         const parsed = JSON.parse(sseEvent.data);
-        // console.log("Received summary event:", parsed);
         setSummaries(
-          prev => [...prev, parsed as LLMCommentary]
-          .sort((a, b) => {
-            return Date.parse(b.ts) - Date.parse(a.ts);
-          })
+          prev => [parsed as LLMCommentary, ...prev]
         );
         setSseLoadSim(true);
         setTimeout(() => setSseLoadSim(false), Math.random() * 2000 + 500); // simulates loading
@@ -169,9 +180,7 @@ const DashboardPage: React.FC = () => {
   const processedOHCLV = useMemo(() => {
     const interval = parseInt(intervalSelection);
     if (interval === 1) {
-      const sorted = [...rawOhlcvData].sort((a, b) => Date.parse(a.ts) - Date.parse(b.ts));
-      // console.log(sorted);
-      return sorted;
+      return [...rawOhlcvData];
     }
 
     const aggArray: OHLCV[] = [];
@@ -197,50 +206,48 @@ const DashboardPage: React.FC = () => {
       });
     }
 
-    const sorted = aggArray.sort((a, b) => Date.parse(a.ts) - Date.parse(b.ts));
-    return sorted;
+    return aggArray;
   }, [rawOhlcvData, intervalSelection]);
 
   /* ------ Render ------ */
 
   return (
     <div className="blc-dashboard-page flex mx-auto px-4 h-dvh pt-4 overflow-hidden">
-      {/* <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseTradesStatus}</span>
-      <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseSummariesStatus}</span> */}
+      <div
+        ref={leftColRef}
+        className="w-3/5 flex flex-col gap-2 h-dvh min-h-0 overflow-hidden"
+      >
+        <PriceChart
+          className="flex-1 min-h-0"
+          ohlcvData={processedOHCLV}
+          intervalSelection={intervalSelection}
+          graphType={graphType}
+          onChangeInterval={setIntervalSelection}
+          onChangeGraphType={setGraphType}
+        />
+
+        {/* ------ resizer handle ------ */}
+
         <div
-          ref={leftColRef}
-          className="w-3/5 flex flex-col gap-2 h-dvh min-h-0 overflow-hidden"
+          role="separator"
+          aria-orientation="horizontal"
+          onPointerDown={onResizeHandlePointerDown}
+          className="h-3 shrink-0 cursor-row-resize flex items-center justify-center bg-white"
+          style={{ touchAction: "none" }}
         >
-          <PriceChart
-            className="flex-1 min-h-0"
-            ohlcvData={processedOHCLV}
-            intervalSelection={intervalSelection}
-            graphType={graphType}
-            onChangeInterval={setIntervalSelection}
-            onChangeGraphType={setGraphType}
-          />
-
-          {/* ------ resizer handle ------ */}
-          <div
-            role="separator"
-            aria-orientation="horizontal"
-            onPointerDown={onResizeHandlePointerDown}
-            className="h-3 shrink-0 cursor-row-resize flex items-center justify-center bg-white"
-            style={{ touchAction: "none" }}
-          >
-            <div className="h-1 w-12 rounded-full bg-gray-300" />
-          </div>
-
-          <LiveEvents
-            className="shrink-0 overflow-auto"
-            ohlcvData={processedOHCLV}
-            style={{ height: `${liveEventsHeight}px` }}
-          />
-          <DoombergLiveLogo className="fixed bottom-2 left-2" />
+          <div className="h-1 w-12 rounded-full bg-gray-300" />
         </div>
-        <div className="w-2/5 ml-4 text-center overflow-y-auto thin-scrollbar">
-          <BotSummary summaries={summaries} loading={sseLoadSim}/>
-        </div>
+
+        <LiveEvents
+          className="shrink-0 overflow-auto"
+          ohlcvData={processedOHCLV}
+          style={{ height: `${liveEventsHeight}px` }}
+        />
+        <DoombergLiveLogo className="fixed bottom-2 left-2" />
+      </div>
+      <div className="w-2/5 ml-4 text-center overflow-y-auto thin-scrollbar">
+        <BotSummary summaries={summaries} loading={sseLoadSim}/>
+      </div>
     </div>
   )
 };

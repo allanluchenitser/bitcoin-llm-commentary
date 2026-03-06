@@ -23,7 +23,6 @@ import {
 
 import { launchSummary } from "./llm_logic.js";
 
-
 const candleDataBuffer: OHLCV[] = [];
 
 let pgClient: PostgresClient | null = null;

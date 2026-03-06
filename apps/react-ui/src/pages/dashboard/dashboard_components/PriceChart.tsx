@@ -20,10 +20,8 @@ import {
   toUTCTimestamp,
 } from "../dashboardHelpers";
 
-// import { type KrakenTickerEvent } from './dashboard-types';
 import type { OHLCV } from "@blc/contracts";
 import clsx from "clsx";
-
 
 type PriceChartProps = {
   ohlcvData: OHLCV[];
@@ -52,6 +50,11 @@ const PriceChart: React.FC<PriceChartProps> = ({
   const volumeSeriesRef = useRef<ISeriesApi<"Histogram"> | null >(null);
 
   const initialRangeRef = useRef<{ from: number; to: number } | null>(null);
+
+  const ascendingOhlcvData = useMemo(
+    () => [...ohlcvData].sort((a, b) => Date.parse(a.ts) - Date.parse(b.ts)),
+    [ohlcvData]
+  );
 
   /* ------ init chart library ------ */
 
@@ -92,17 +95,7 @@ const PriceChart: React.FC<PriceChartProps> = ({
 
     chartRef.current = chart;
 
-    // const ro = new ResizeObserver(() => {
-    //   console.log('observed resize, updating chart size');
-    //   if (!chartRef.current || !containerRef.current) return;
-    //   chartRef.current.applyOptions({
-    //     width: containerRef.current.clientWidth,
-    //   });
-    // });
-    // ro.observe(container);
-
     return () => {
-      // ro.disconnect();
       chart.remove();
       chartRef.current = null;
       seriesRef.current = null;
@@ -110,39 +103,33 @@ const PriceChart: React.FC<PriceChartProps> = ({
     };
   }, []);
 
-  // fit data on chart when interval changes
-useEffect(() => {
-  console.log('intervalSelection changed:', intervalSelection);
-  if (chartRef.current && initialRangeRef.current && (intervalSelection === "1m")) {
-    chartRef.current.timeScale().setVisibleLogicalRange(initialRangeRef.current);
-    // console.log('interval changed, reset chart range to initial range:', initialRangeRef.current);
-  }
-  else if (chartRef.current) {
-    // console.log('info chartRef', chartRef.current);
-    // console.log('info initialRangeRef', initialRangeRef.current)
-    // console.log('info intervalSelection', intervalSelection);
-    chartRef.current.timeScale().fitContent();
-  }
-}, [intervalSelection]);
+  useEffect(() => { // ui: fit chart on interval change
+    if (chartRef.current && initialRangeRef.current && (intervalSelection === "1m")) {
+      chartRef.current.timeScale().setVisibleLogicalRange(initialRangeRef.current);
+    }
+    else if (chartRef.current) {
+      chartRef.current.timeScale().fitContent();
+    }
+  }, [intervalSelection]);
 
-  /* ------ chart data ------ */
+  /* ------ mappings of ohlcvData: line, candle, volume ------ */
 
   const lineData: LineData[] = useMemo(() => {
     const bySec = new Map<UTCTimestamp, LineData>();
 
-    for (const data of ohlcvData) {
+    for (const data of ascendingOhlcvData) {
       const ts = toUTCTimestamp(data.ts)
       const lastPrice = toFiniteNumber(data.close);
       bySec.set(ts, { time: ts, value: lastPrice || 0 });
     }
 
     return [...bySec.values()];
-  }, [ohlcvData]);
+  }, [ascendingOhlcvData]);
 
   const candleData: CandlestickData[] = useMemo(() => {
     const byTime = new Map<UTCTimestamp, CandlestickData>();
 
-    for (const data of ohlcvData) {
+    for (const data of ascendingOhlcvData) {
       const time = toUTCTimestamp(data.ts);
       const open = toFiniteNumber(data.open);
       const high = toFiniteNumber(data.high);
@@ -163,15 +150,15 @@ useEffect(() => {
     }
 
     return [...byTime.values()];
-  }, [ohlcvData]);
+  }, [ascendingOhlcvData]);
 
   const volumeData: HistogramData[] = useMemo(() => {
-    return ohlcvData.map((data) => ({
+    return ascendingOhlcvData.map((data) => ({
       time: toUTCTimestamp(data.ts),
       value: toFiniteNumber(data.volume) ?? 0,
-      color: "#d1d1d1", // or use green/red based on price movement if you want
+      color: "#d1d1d1",
     }));
-  }, [ohlcvData]);
+  }, [ascendingOhlcvData]);
 
   /* ------ update chart ------ */
 
@@ -190,7 +177,7 @@ useEffect(() => {
       volumeSeriesRef.current = null;
     }
 
-    /* ------ volume series is always visible ------ */
+  /* ------ volume series is always visible ------ */
 
     if (!volumeSeriesRef.current || isGraphTypeChange) {
       volumeSeriesRef.current = chartRef.current.addSeries(HistogramSeries, {
@@ -214,7 +201,7 @@ useEffect(() => {
       volumeSeriesRef.current.setData(volumeData);
     }
 
-    /* ---- main series (line or candlestick) ------ */
+  /* ---- main series (line or candlestick) ------ */
 
     if ((!seriesRef.current || isGraphTypeChange) && graphType === "Line") {
       seriesRef.current = chartRef.current.addSeries(LineSeries, {
@@ -240,6 +227,8 @@ useEffect(() => {
       seriesRef.current.setData(candleData);
     }
   }, [lineData, candleData, volumeData, graphType]);
+
+/* ------ render ------ */
 
   const buttonBasicTw = "px-1 py-0.5 rounded text-gray-500";
 
