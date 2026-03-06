@@ -136,43 +136,44 @@ const DashboardPage: React.FC = () => {
 
   /* ------ SSE subscriptions: price updates and LLM summaries ------ */
 
+  const tradeHandler = (sseEvent: MessageEvent): void => {
+    const rawOhlcv = sseEvent.data; // SSE native data
+
+    try {
+      const parsedOhlcv = JSON.parse(rawOhlcv);
+
+      if (parsedOhlcv.type === "heartbeat") {
+        console.log("Received heartbeat from server");
+        return;
+      }
+      else {
+        const mappedOhlcv = ohclvRows2Numbers([parsedOhlcv as OHLCVRow])[0];
+        console.log("Received OHLCV update:", mappedOhlcv);
+        setRawOhlcvData(prev => [mappedOhlcv, ...prev]);
+      }
+    } catch {}
+  }
+
   useSseSetup({
     path: '/sse/trades',
-    channel: CHANNEL_TICKER_OHLCV,
-    // onStatus: setSseTradesStatus,
-    onUpdate: (sseEvent) => {
-      const rawOhlcv = sseEvent.data; // SSE native data
-
-      try {
-        const parsedOhlcv = JSON.parse(rawOhlcv);
-
-        if (parsedOhlcv.type === "heartbeat") {
-          console.log("Received heartbeat from server");
-          return;
-        }
-        else {
-          const mappedOhlcv = ohclvRows2Numbers([parsedOhlcv as OHLCVRow])[0];
-          console.log("Received OHLCV update:", mappedOhlcv);
-          setRawOhlcvData(prev => [mappedOhlcv, ...prev]);
-        }
-      } catch {}
-    }
+    channels: [CHANNEL_TICKER_OHLCV],
+    onUpdates: [tradeHandler]
   });
 
+  function summaryHandler(sseEvent: MessageEvent): void {
+    try {
+      const parsed = JSON.parse(sseEvent.data);
+      setSummaries(
+        prev => [parsed as LLMCommentary, ...prev]
+      );
+      setSseLoadSim(true);
+      setTimeout(() => setSseLoadSim(false), Math.random() * 2000 + 500); // simulates loading
+    } catch {}
+  }
   useSseSetup({
     path: '/sse/summaries',
-    channel: 'summary',
-    // onStatus: setSseSummariesStatus,
-    onUpdate: (sseEvent) => {
-      try {
-        const parsed = JSON.parse(sseEvent.data);
-        setSummaries(
-          prev => [parsed as LLMCommentary, ...prev]
-        );
-        setSseLoadSim(true);
-        setTimeout(() => setSseLoadSim(false), Math.random() * 2000 + 500); // simulates loading
-      } catch {}
-    }
+    channels: 'summary',
+    onUpdates: summaryHandler
   });
 
   /* ------ Data processing for charts and tables ------ */
