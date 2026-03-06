@@ -18,7 +18,7 @@ import {
 import {
   toFiniteNumber,
   toUTCTimestamp,
-} from "./dashboardHelpers";
+} from "../dashboardHelpers";
 
 // import { type KrakenTickerEvent } from './dashboard-types';
 import type { OHLCV } from "@blc/contracts";
@@ -52,7 +52,6 @@ const PriceChart: React.FC<PriceChartProps> = ({
   const volumeSeriesRef = useRef<ISeriesApi<"Histogram"> | null >(null);
 
   const initialRangeRef = useRef<{ from: number; to: number } | null>(null);
-
 
   /* ------ init chart library ------ */
 

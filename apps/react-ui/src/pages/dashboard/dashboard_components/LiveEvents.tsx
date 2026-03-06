@@ -1,11 +1,14 @@
-import ButtonOne from "@/shared-components/ButtonOne";
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { type OHLCV } from '@blc/contracts';
-import { formatUtcMonthDayTime } from "./dashboardHelpers";
+import { formatUtcMonthDayTime } from "../dashboardHelpers";
 import clsx from "clsx";
 
-const LiveEvents: React.FC<{ ohlcvData: OHLCV[], className?: string }> = ({ ohlcvData, className = "" }) => {
-  const [tableMode, setTableMode] = useState<boolean>(true);
+const LiveEvents: React.FC<{
+  ohlcvData: OHLCV[],
+  className?: string,
+  style?: React.CSSProperties
+}> = ({ ohlcvData, className = "", style }) => {
+  const tableMode = true;
 
   const widths = {
     exchange: "10%",
@@ -31,7 +34,7 @@ const LiveEvents: React.FC<{ ohlcvData: OHLCV[], className?: string }> = ({ ohlc
       "overflow-auto",
       "text-lg font-semibold border-y bg-white",
       className
-    )}>
+    )} style={style}>
     {
       ohlcvData.length === 0
         ? <div className="text-gray-500">No events yet…</div>

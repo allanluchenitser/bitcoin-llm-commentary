@@ -1,6 +1,6 @@
-import PriceChart from './PriceChart'
-import BotSummary from './BotSummary';
-import LiveEvents from './LiveEvents';
+import PriceChart from './dashboard_components/PriceChart'
+import BotSummary from './dashboard_components/BotSummary';
+import LiveEvents from './dashboard_components/LiveEvents';
 import DoombergLiveLogo from './DoombergLiveLogo';
 
 import {
@@ -11,9 +11,9 @@ import {
   type LLMCommentary
 } from '@blc/contracts';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 
-import { useSseSetup } from './useSseSetup';
+import { useSseSetup } from '@/hooks/useSseSetup';
 
 // type sseStatuses = 'connecting' | 'open' | 'closed' | 'error';
 
@@ -32,6 +32,51 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     document.title = "Doomberg | Live - Bitcoin LLM Commentary";
   }, []);
+
+  /* ------ vertical drag / resizer for LiveEvents ------ */
+
+  const [liveEventsHeight, setLiveEventsHeight] = useState(240); // px
+  const leftColRef = useRef<HTMLDivElement | null>(null);
+  const dragRef = useRef<{ startY: number; startHeight: number } | null>(null);
+
+  const MIN_LIVE = 120;
+  const MIN_CHART = 180;
+
+  useEffect(() => {
+    function onPointerMove(e: PointerEvent) {
+      if (!dragRef.current || !leftColRef.current) return;
+
+      const { startY, startHeight } = dragRef.current;
+      const dy = e.clientY - startY;
+      const next = startHeight - dy;
+
+      const total = leftColRef.current.clientHeight;
+      const maxLive = Math.max(MIN_LIVE, total - MIN_CHART);
+
+      setLiveEventsHeight(Math.max(MIN_LIVE, Math.min(maxLive, next)));
+    }
+
+    function onPointerUp() {
+      dragRef.current = null;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    }
+
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+    };
+  }, []);
+
+  function onResizeHandlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    console.log("Pointer down on resize handle");
+    dragRef.current = { startY: e.clientY, startHeight: liveEventsHeight };
+    document.body.style.cursor = "row-resize";
+    document.body.style.userSelect = "none";
+  }
 
   /* ------ Initial data fetches ------ */
 
@@ -159,10 +204,13 @@ const DashboardPage: React.FC = () => {
   /* ------ Render ------ */
 
   return (
-    <div className="blc-dashboard-page flex mx-auto px-4 h-screen pt-4">
+    <div className="blc-dashboard-page flex mx-auto px-4 h-dvh pt-4 overflow-hidden">
       {/* <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseTradesStatus}</span>
       <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseSummariesStatus}</span> */}
-        <div className="w-3/5 flex flex-col gap-2 h-dvh min-h-0 overflow-hidden">
+        <div
+          ref={leftColRef}
+          className="w-3/5 flex flex-col gap-2 h-dvh min-h-0 overflow-hidden"
+        >
           <PriceChart
             className="flex-1 min-h-0"
             ohlcvData={processedOHCLV}
@@ -171,9 +219,22 @@ const DashboardPage: React.FC = () => {
             onChangeInterval={setIntervalSelection}
             onChangeGraphType={setGraphType}
           />
+
+          {/* ------ resizer handle ------ */}
+          <div
+            role="separator"
+            aria-orientation="horizontal"
+            onPointerDown={onResizeHandlePointerDown}
+            className="h-3 shrink-0 cursor-row-resize flex items-center justify-center bg-white"
+            style={{ touchAction: "none" }}
+          >
+            <div className="h-1 w-12 rounded-full bg-gray-300" />
+          </div>
+
           <LiveEvents
-            className="h-100 shrink-0 overflow-auto"
+            className="shrink-0 overflow-auto"
             ohlcvData={processedOHCLV}
+            style={{ height: `${liveEventsHeight}px` }}
           />
           <DoombergLiveLogo className="fixed bottom-2 left-2" />
         </div>

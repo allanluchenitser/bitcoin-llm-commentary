@@ -22,10 +22,6 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       proxy: {
-        '/api/v1.0/randomnumber': {
-          target: 'https://www.randomnumberapi.com',
-          changeOrigin: true,
-        },
         '/sse/trades': {
           target: `http://localhost:${localWebApiPort}`,
           changeOrigin: true,
