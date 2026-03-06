@@ -33,8 +33,8 @@ export function WipeReveal({
         <img
           src={src}
           alt=""
-          style={{ float: "left", marginRight: 12, marginBottom: 4, width: srcWidth }}
-          className={`inline-block mr-2 mb-1 w-[${srcWidth}px]`}
+          style={{ float: "right", marginLeft: 12, marginBottom: 2, width: srcWidth }}
+          className={`inline-block w-[${srcWidth}px]`}
         />
       )}
       <span>{text}</span>

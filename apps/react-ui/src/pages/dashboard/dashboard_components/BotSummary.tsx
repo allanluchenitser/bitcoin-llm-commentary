@@ -1,7 +1,17 @@
-import maxHedronSrc from '@/assets/max_hedron.png';
+// import maxHedronSrc from '@/assets/max_hedron.png';
+import hFireSrc from '@/assets/h_fire.png';
+import hInfoSrc from '@/assets/h_info.png';
+import hSadSrc from '@/assets/h_sad.png';
+import hUpSrc from '@/assets/h_up.png';
+
 import { WipeReveal } from '@/shared-components/WipeReveal';
 
 import { type LLMCommentary } from '@blc/contracts';
+
+function randomSrc() {
+  const srcs = [hFireSrc, hInfoSrc, hSadSrc, hUpSrc];
+  return srcs[Math.floor(Math.random() * srcs.length)];
+}
 
 
 type BotSummaryProps = {
@@ -41,9 +51,9 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) =
                     : <>
                       <WipeReveal
                           text={summaries[0].commentary}
-                          src={maxHedronSrc}
-                          srcWidth={100}
-                          className="text-sm/5"
+                          src={randomSrc()}
+                          srcWidth={80}
+                          className="text-sm/5 border-b border-gray-300"
                         />
                       <div className="text-sm text-gray-600 mb-1 italic text-right">
                         {new Date(summaries[0].ts).toLocaleString()}
@@ -56,9 +66,9 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) =
                   <div key={index + 1} className="mb-4">
                     <WipeReveal
                       text={summary.commentary}
-                      src={maxHedronSrc}
-                      srcWidth={100}
-                      className="text-sm/5"
+                      src={randomSrc()}
+                      srcWidth={80}
+                      className="text-sm/5 border-b border-gray-300"
                     />
                     <div className="text-sm text-gray-600 mb-1 italic text-right">
                       {new Date(summary.ts).toLocaleString()}

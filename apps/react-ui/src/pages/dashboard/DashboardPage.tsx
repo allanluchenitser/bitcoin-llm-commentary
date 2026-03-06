@@ -134,6 +134,12 @@ const DashboardPage: React.FC = () => {
     }
   }, [rawOhlcvData]);
 
+  useEffect(() => {
+    if (summaries.length > 100) {
+      setSummaries(prev => prev.slice(0, 100));
+    }
+  }, [summaries]);
+
   /* ------ SSE subscriptions: price updates and LLM summaries ------ */
 
   const tradeHandler = (sseEvent: MessageEvent): void => {
@@ -170,6 +176,7 @@ const DashboardPage: React.FC = () => {
       setTimeout(() => setSseLoadSim(false), Math.random() * 2000 + 500); // simulates loading
     } catch {}
   }
+
   useSseSetup({
     path: '/sse/summaries',
     channels: 'summary',
