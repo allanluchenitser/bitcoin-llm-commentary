@@ -24,6 +24,7 @@ import {
 import type { OHLCV } from "@blc/contracts";
 import clsx from "clsx";
 
+
 type PriceChartProps = {
   ohlcvData: OHLCV[];
 
@@ -32,6 +33,8 @@ type PriceChartProps = {
 
   graphType: "Line" | "Candlestick";
   onChangeGraphType: (graphType: "Line" | "Candlestick") => void;
+
+  className?: string;
 }
 
 const PriceChart: React.FC<PriceChartProps> = ({
@@ -39,7 +42,8 @@ const PriceChart: React.FC<PriceChartProps> = ({
   intervalSelection,
   graphType,
   onChangeInterval,
-  onChangeGraphType
+  onChangeGraphType,
+  className = "",
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
@@ -57,8 +61,7 @@ const PriceChart: React.FC<PriceChartProps> = ({
     const container = containerRef.current;
 
     const chart = createChart(container, {
-      width: container.clientWidth,
-      height: 240,
+      autoSize: true,
       layout: {
         background: { color: "#ffffff" },
         textColor: "#111827",
@@ -90,14 +93,17 @@ const PriceChart: React.FC<PriceChartProps> = ({
 
     chartRef.current = chart;
 
-    const ro = new ResizeObserver(() => {
-      if (!chartRef.current || !containerRef.current) return;
-      chartRef.current.applyOptions({ width: containerRef.current.clientWidth });
-    });
-    ro.observe(container);
+    // const ro = new ResizeObserver(() => {
+    //   console.log('observed resize, updating chart size');
+    //   if (!chartRef.current || !containerRef.current) return;
+    //   chartRef.current.applyOptions({
+    //     width: containerRef.current.clientWidth,
+    //   });
+    // });
+    // ro.observe(container);
 
     return () => {
-      ro.disconnect();
+      // ro.disconnect();
       chart.remove();
       chartRef.current = null;
       seriesRef.current = null;
@@ -110,12 +116,12 @@ useEffect(() => {
   console.log('intervalSelection changed:', intervalSelection);
   if (chartRef.current && initialRangeRef.current && (intervalSelection === "1m")) {
     chartRef.current.timeScale().setVisibleLogicalRange(initialRangeRef.current);
-    console.log('interval changed, reset chart range to initial range:', initialRangeRef.current);
+    // console.log('interval changed, reset chart range to initial range:', initialRangeRef.current);
   }
   else if (chartRef.current) {
-    console.log('info chartRef', chartRef.current);
-    console.log('info initialRangeRef', initialRangeRef.current)
-    console.log('info intervalSelection', intervalSelection);
+    // console.log('info chartRef', chartRef.current);
+    // console.log('info initialRangeRef', initialRangeRef.current)
+    // console.log('info intervalSelection', intervalSelection);
     chartRef.current.timeScale().fitContent();
   }
 }, [intervalSelection]);
@@ -237,12 +243,15 @@ useEffect(() => {
   }, [lineData, candleData, volumeData, graphType]);
 
   const buttonBasicTw = "px-1 py-0.5 rounded text-gray-500";
+
   return (
-    <div className="h-full p-2 border rounded ">
-      <header className="mb-3 flex items-center justify-between gap-3 relative">
+    <div className={`${className} min-h-0 flex flex-col`}>
+      <header className="shrink-0 flex-[0_0_auto] flex items-center justify-between gap-3 mb-3 relative">
         <div className={
           clsx(
-            "intervals flex absolute -top-1 -left-1 text-xs rounded px-1 py-0.5 gap-1 [&>button]:cursor-pointer",
+            "intervals flex absolute",
+            "-top-1 -left-1 gap-1",
+            "text-xs rounded px-1 py-0.5 [&>button]:cursor-pointer",
           )
         }>
           <button
@@ -277,16 +286,19 @@ useEffect(() => {
               1h
           </button>
         </div>
-        {/* <h2 className="text-sm font-semibold">Price Chart</h2> */}
-          <ButtonOne
-            variant="clear"
-            className="ml-auto font-semibold"
-            onClick={() => onChangeGraphType(graphType === "Line" ? "Candlestick" : "Line")}
-          >
-            {graphType}
-          </ButtonOne>
+        <ButtonOne
+          variant="clear"
+          className="ml-auto font-semibold"
+          onClick={() => onChangeGraphType(graphType === "Line" ? "Candlestick" : "Line")}
+        >
+          {graphType}
+        </ButtonOne>
       </header>
-      <div ref={containerRef} />
+      <div
+        id="price-chart-container"
+        ref={containerRef}
+        className="flex-1 min-h-0"
+      ></div>
     </div>
   );
 };

@@ -125,7 +125,7 @@ const DashboardPage: React.FC = () => {
     const interval = parseInt(intervalSelection);
     if (interval === 1) {
       const sorted = [...rawOhlcvData].sort((a, b) => Date.parse(a.ts) - Date.parse(b.ts));
-      console.log(sorted);
+      // console.log(sorted);
       return sorted;
     }
 
@@ -162,21 +162,19 @@ const DashboardPage: React.FC = () => {
     <div className="blc-dashboard-page flex mx-auto px-4 h-screen pt-4">
       {/* <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseTradesStatus}</span>
       <span className="hidden font-semibold">SSE:</span><span className="hidden">{sseSummariesStatus}</span> */}
-        <div className="w-3/5 flex flex-col">
-          <div>
-            <PriceChart
-              ohlcvData={processedOHCLV}
-              intervalSelection={intervalSelection}
-              graphType={graphType}
-              onChangeInterval={setIntervalSelection}
-              onChangeGraphType={setGraphType}
-            />
-          </div>
-          <div className="mt-4">
-            <LiveEvents
-              ohlcvData={processedOHCLV}
-            />
-          </div>
+        <div className="w-3/5 flex flex-col gap-2 h-dvh min-h-0 overflow-hidden">
+          <PriceChart
+            className="flex-1 min-h-0"
+            ohlcvData={processedOHCLV}
+            intervalSelection={intervalSelection}
+            graphType={graphType}
+            onChangeInterval={setIntervalSelection}
+            onChangeGraphType={setGraphType}
+          />
+          <LiveEvents
+            className="h-100 shrink-0 overflow-auto"
+            ohlcvData={processedOHCLV}
+          />
           <DoombergLiveLogo className="fixed bottom-2 left-2" />
         </div>
         <div className="w-2/5 ml-4 text-center overflow-y-auto thin-scrollbar">

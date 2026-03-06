@@ -2,8 +2,9 @@ import ButtonOne from "@/shared-components/ButtonOne";
 import { useState, useMemo } from "react";
 import { type OHLCV } from '@blc/contracts';
 import { formatUtcMonthDayTime } from "./dashboardHelpers";
+import clsx from "clsx";
 
-const LiveEvents: React.FC<{ ohlcvData: OHLCV[] }> = ({ ohlcvData }) => {
+const LiveEvents: React.FC<{ ohlcvData: OHLCV[], className?: string }> = ({ ohlcvData, className = "" }) => {
   const [tableMode, setTableMode] = useState<boolean>(true);
 
   const widths = {
@@ -26,74 +27,64 @@ const LiveEvents: React.FC<{ ohlcvData: OHLCV[] }> = ({ ohlcvData }) => {
   }, [ohlcvData]);
 
   return (
-    <div className="h-full text-lg font-semibold">
-        <div className="buttons-menu flex justify-between">
-          <h3>Live Events</h3>
-
-          <div className="flex items-center mb-1">
-            <ButtonOne
-              onClick={() => setTableMode(!tableMode)}
-              variant="clear"
-            >
-              { tableMode ? 'TABLE' : 'JSON' }
-            </ButtonOne>
-          </div>
-        </div>
-        <div className="border rounded p-2 h-60 overflow-auto bg-white">
-          {
-            ohlcvData.length === 0
-              ? <div className="text-gray-500">No events yet…</div>
-              : (
-                <table className="text-xs space-y-1 w-full">
-                  {
-                    tableMode && (
-                      <thead>
-                        <tr className="text-left [&>th]:pb-1">
-                          <th style={{ width: widths.exchange }}>ex</th>
-                          <th style={{ width: widths.symbol }}>symbol</th>
-                          <th style={{ width: widths.open }}>open</th>
-                          <th style={{ width: widths.high }}>high</th>
-                          <th style={{ width: widths.low }}>low</th>
-                          <th style={{ width: widths.close }}>close</th>
-                          <th style={{ width: widths.time }}>time</th>
-                          <th style={{ width: widths.volume }}>vol</th>
-                        </tr>
-                      </thead>
-                    )
-                  }
-                  <tbody>
-                  {
-                    tableMode
-                      ? // <table> view
-                      processedTickerEvents
-                        .slice()
-                        .sort((a, b) => Date.parse(b.ts) - Date.parse(a.ts))
-                        .map((price, i) => {
-                        return (
-                          <tr key={i} className="font-mono">
-                              <td style={{ width: widths.exchange }}>{ price.exchange ?? "" }</td>
-                              <td style={{ width: widths.symbol }}>{ price.symbol ?? "" }</td>
-                              <td style={{ width: widths.open }}>{ price.open ? Number(price.open).toFixed(1) : "" }</td>
-                              <td style={{ width: widths.high }}>{ price.high ? Number(price.high).toFixed(1) : "" }</td>
-                              <td style={{ width: widths.low }}>{ price.low ? Number(price.low).toFixed(1) : "" }</td>
-                              <td style={{ width: widths.close }}>{ price.close ? Number(price.close).toFixed(1) : "" }</td>
-                              <td style={{ width: widths.time }}>{ price.ts ?? "" }</td>
-                              <td style={{ width: widths.volume }}>{ price.volume ? price.volume : "" }</td>
-                          </tr>
-                        );
-                      })
-                      : // JSON view
-                      processedTickerEvents.map((price, i) => (
-                        <tr key={i} className="font-mono">
-                          <td key={i} className="font-mono text-[0.65rem]"><pre>{JSON.stringify(price, null, 2)}</pre></td>
-                        </tr>
-                      ))
-                  }
-                  </tbody>
-                </table>
+    <div className={clsx(
+      "overflow-auto",
+      "text-lg font-semibold border-y bg-white",
+      className
+    )}>
+    {
+      ohlcvData.length === 0
+        ? <div className="text-gray-500">No events yet…</div>
+        : (
+          <table className="text-xs space-y-1 w-full">
+            {
+              tableMode && (
+                <thead className="sticky top-0 z-10 bg-white">
+                  <tr className="text-left [&>th]:py-1 [&>th]:bg-white">
+                    <th style={{ width: widths.exchange }}>ex</th>
+                    <th style={{ width: widths.symbol }}>symbol</th>
+                    <th style={{ width: widths.open }}>open</th>
+                    <th style={{ width: widths.high }}>high</th>
+                    <th style={{ width: widths.low }}>low</th>
+                    <th style={{ width: widths.close }}>close</th>
+                    <th style={{ width: widths.time }}>time</th>
+                    <th style={{ width: widths.volume }}>vol</th>
+                  </tr>
+                </thead>
               )
-          }
-        </div>
+            }
+            <tbody>
+            {
+              tableMode
+                ? // <table> view
+                processedTickerEvents
+                  .slice()
+                  .sort((a, b) => Date.parse(b.ts) - Date.parse(a.ts))
+                  .map((price, i) => {
+                  return (
+                    <tr key={i} className="font-mono">
+                        <td style={{ width: widths.exchange }}>{ price.exchange ?? "" }</td>
+                        <td style={{ width: widths.symbol }}>{ price.symbol ?? "" }</td>
+                        <td style={{ width: widths.open }}>{ price.open ? Number(price.open).toFixed(1) : "" }</td>
+                        <td style={{ width: widths.high }}>{ price.high ? Number(price.high).toFixed(1) : "" }</td>
+                        <td style={{ width: widths.low }}>{ price.low ? Number(price.low).toFixed(1) : "" }</td>
+                        <td style={{ width: widths.close }}>{ price.close ? Number(price.close).toFixed(1) : "" }</td>
+                        <td style={{ width: widths.time }}>{ price.ts ?? "" }</td>
+                        <td style={{ width: widths.volume }}>{ price.volume ? price.volume : "" }</td>
+                    </tr>
+                  );
+                })
+                : // JSON view
+                processedTickerEvents.map((price, i) => (
+                  <tr key={i} className="font-mono">
+                    <td key={i} className="font-mono text-[0.65rem]"><pre>{JSON.stringify(price, null, 2)}</pre></td>
+                  </tr>
+                ))
+            }
+            </tbody>
+          </table>
+        )
+    }
     </div>
   )
 }
