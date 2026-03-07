@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
 
-import { StrictMode } from "react";
+// import { StrictMode } from "react";
 import { router } from "./router";
 import { RouterProvider } from "react-router-dom";
 
@@ -12,7 +12,8 @@ if (!rootEl) {
 }
 
 ReactDOM.createRoot(rootEl).render(
-  <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>
+  // <StrictMode>
+  //   <RouterProvider router={router} />
+  // </StrictMode>
+  <RouterProvider router={router} />
 )

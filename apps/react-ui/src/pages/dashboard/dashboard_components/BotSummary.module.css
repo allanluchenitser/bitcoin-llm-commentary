@@ -1,0 +1,32 @@
+.doombergSmallLogo {
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  font-weight: bold;
+  font-style: italic;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #222;
+  line-height: 1;
+  text-shadow: 2px 2px 0 #fff, 4px 4px 0 #000;
+  display: inline;
+}
+
+.ellipseAnimation span {
+  display: inline-block;
+}
+
+.active span {
+  animation: bounce 2s infinite;
+  animation-delay: calc(var(--i, 0) * 0.1s);
+}
+
+@keyframes bounce {
+  0%, 10%, 100% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(-4px);
+  }
+  30%, 100% {
+    transform: translateY(0);
+  }
+}

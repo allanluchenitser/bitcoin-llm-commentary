@@ -3,40 +3,45 @@ import hFireSrc from '@/assets/h_fire.png';
 import hInfoSrc from '@/assets/h_info.png';
 import hSadSrc from '@/assets/h_sad.png';
 import hUpSrc from '@/assets/h_up.png';
+import clsx from 'clsx';
 
 import { WipeReveal } from '@/shared-components/WipeReveal';
 
 import { type LLMCommentary } from '@blc/contracts';
+
+import { type CSSPropertiesWithVars } from '@/types/customReactTypes';
+import styles from "./BotSummary.module.css"
+
+function srcOrRandom(src: string | undefined = undefined) {
+  return src ?? randomSrc();
+}
 
 function randomSrc() {
   const srcs = [hFireSrc, hInfoSrc, hSadSrc, hUpSrc];
   return srcs[Math.floor(Math.random() * srcs.length)];
 }
 
-
 type BotSummaryProps = {
   summaries: LLMCommentary[];
   loading?: boolean;
-};
-
-const style = {
-  fontFamily: 'Impact, Haettenschweiler, Arial Narrow Bold, sans-serif',
-  fontWeight: 'bold',
-  fontStyle: 'italic',
-  letterSpacing: '0.05em',
-  textTransform: 'uppercase' as const,
-  color: '#222',
-  lineHeight: '1',
-  textShadow: '2px 2px 0 #fff, 4px 4px 0 #000',
-  display: 'inline',
 };
 
 const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) => {
   return (
     <div className="px-4 pb-2">
       <p className="font-semibold mb-2 italic" >
-        <span style={style} className="font-bold relative -top-[1px]">Doomberg</span>
-        <span className="ml-2">SAYS...</span>
+        <span className={clsx(styles.doombergSmallLogo, "font-bold relative -top-1px")}>Doomberg</span>
+        <span className={
+          clsx(
+            styles.ellipseAnimation,
+            styles.active,
+            "ml-2",
+          )}
+        >
+          {'SAYS...'.split('').map((char, i) => {
+            return <span style={{ '--i': i } as CSSPropertiesWithVars}>{char}</span>
+          })}
+        </span>
       </p>
       <div className="px-4 text-justify">
         {
@@ -44,30 +49,26 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) =
             ?
             (
               <div>
+              {!loading && summaries[0] &&
                 <div key={0} className="mb-4">
-                {
-                  loading
-                    ? <div className="flex justify-center space-x-2 w-full">... <span className="animate-pulse">incoming...</span></div>
-                    : <>
-                      <WipeReveal
-                          text={summaries[0].commentary}
-                          src={randomSrc()}
-                          srcWidth={80}
-                          className="text-sm/5 border-b border-gray-300"
-                        />
-                      <div className="text-sm text-gray-600 mb-1 italic text-right">
-                        {new Date(summaries[0].ts).toLocaleString()}
-                      </div>
-                    </>
-                }
+                    <WipeReveal
+                      text={summaries[0].commentary}
+                      src={srcOrRandom(hInfoSrc)}
+                      srcHeight={80}
+                      className="text-sm/5 border-b border-gray-300"
+                    />
+                    <div className="text-sm text-gray-600 mb-1 italic text-right">
+                      {new Date(summaries[0].ts).toLocaleString()}
+                    </div>
                 </div>
+              }
               {
                 summaries.slice(1).map((summary, index) => (
                   <div key={index + 1} className="mb-4">
                     <WipeReveal
                       text={summary.commentary}
-                      src={randomSrc()}
-                      srcWidth={80}
+                      src={srcOrRandom(hInfoSrc)}
+                      srcHeight={80}
                       className="text-sm/5 border-b border-gray-300"
                     />
                     <div className="text-sm text-gray-600 mb-1 italic text-right">

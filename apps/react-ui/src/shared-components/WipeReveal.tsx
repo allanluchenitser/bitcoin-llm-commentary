@@ -8,7 +8,7 @@ type WipeRevealProps = {
   text: string;
   className?: string;
   src?: string;
-  srcWidth?: number;
+  srcHeight?: number;
   as?: keyof JSX.IntrinsicElements;
 };
 
@@ -16,7 +16,7 @@ export function WipeReveal({
   text,
   className = "",
   src,
-  srcWidth = 20,
+  srcHeight = 20,
   as: Tag = "div",
 }: WipeRevealProps) {
 
@@ -33,8 +33,8 @@ export function WipeReveal({
         <img
           src={src}
           alt=""
-          style={{ float: "right", marginLeft: 12, marginBottom: 2, width: srcWidth }}
-          className={`inline-block w-[${srcWidth}px]`}
+          style={{ float: "right", marginLeft: 12, marginBottom: 2, width: srcHeight }}
+          className={`inline-block w-[${srcHeight}px]`}
         />
       )}
       <span>{text}</span>

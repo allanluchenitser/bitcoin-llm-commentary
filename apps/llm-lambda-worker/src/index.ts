@@ -158,7 +158,7 @@ const scheduledTimer = setInterval(async () => { // summary on scheduled interva
       sseClients
     });
   }
-}, 20000);
+}, 5000);
 
 // const spikeDetectionTimer = setInterval(async () => { // spike detection triggers a special summary
 //   if (!pgClient) return;
