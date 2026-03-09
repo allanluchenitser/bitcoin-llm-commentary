@@ -2,8 +2,6 @@ import { type JSX } from "react";
 import styles from "./WipeReveal.module.css";
 import clsx from "clsx";
 
-// console.log(styles);
-
 type WipeRevealProps = {
   text: string;
   className?: string;
