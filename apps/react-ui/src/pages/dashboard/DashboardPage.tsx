@@ -12,8 +12,8 @@ import {
 } from '@blc/contracts';
 
 import { useEffect, useState, useMemo, useRef } from 'react';
-
 import { useSseSetup } from '@/hooks/useSseSetup';
+import { startRetriedFetch } from './dashboardHelpers';
 
 const DashboardPage: React.FC = () => {
   const [intervalSelection, setIntervalSelection] = useState<"1m" | "15m" | "60m" | "1440m">("1m");
@@ -90,42 +90,42 @@ const DashboardPage: React.FC = () => {
   /* ------ Initial data fetch, management ------ */
 
   useEffect(() => {
-    async function fetchPriceHistory() {
-      try {
-        const res = await fetch('/db/history?limit=2000'); // fyi api returns in descending order
-
-        if(res.status !== 200) {
-          console.log(res);
+    return startRetriedFetch<OHLCVRow[]>({
+      fetcher: async (signal) => {
+        const res = await fetch('/db/history?limit=2000', { signal });
+        if (res.status !== 200) {
           throw new Error(`Failed to fetch historic trades, status: ${res.status}`);
         }
 
-        const history = await res.json();
-        const mapped: OHLCV[] = ohclvRows2Numbers(history as OHLCVRow[]);
-
+        return res.json() as Promise<OHLCVRow[]>;
+      },
+      onSuccess: (history) => {
+        const mapped: OHLCV[] = ohclvRows2Numbers(history);
         setRawOhlcvData(mapped);
-      } catch (error) {
-        throw error;
-      }
-    }
-    fetchPriceHistory();
+      },
+      onFailure: (error) => {
+        console.error(error);
+      },
+    });
   }, []);
 
   useEffect(() => {
-    async function fetchLLMHistory() {
-      try {
-        const res = await fetch('/llm/history');
-        if(res.status !== 200) {
-          console.log(res);
+    return startRetriedFetch<LLMCommentary[]>({
+      fetcher: async (signal) => {
+        const res = await fetch('/llm/history', { signal });
+        if (res.status !== 200) {
           throw new Error(`Failed to fetch historic summaries, status: ${res.status}`);
         }
 
-        const history = await res.json();
-        setSummaries(history as LLMCommentary[]);
-      } catch (error) {
-        throw error;
-      }
-    }
-    fetchLLMHistory();
+        return res.json() as Promise<LLMCommentary[]>;
+      },
+      onSuccess: (history) => {
+        setSummaries(history);
+      },
+      onFailure: (error) => {
+        console.error(error);
+      },
+    });
   }, []);
 
   useEffect(() => {
@@ -169,11 +169,12 @@ const DashboardPage: React.FC = () => {
   function summaryHandler(sseEvent: MessageEvent): void {
     try {
       const parsed = JSON.parse(sseEvent.data);
-      setSummaries(
-        prev => [parsed as LLMCommentary, ...prev]
-      );
       setSseLoadSim(true);
-      setTimeout(() => setSseLoadSim(false), Math.random() * 2000 + 500); // simulates loading
+
+      setTimeout(() => {
+        setSummaries(prev => [parsed as LLMCommentary, ...prev]);
+        setSseLoadSim(false)
+      }, Math.random() * 2000 + 500);
     } catch {}
   }
 

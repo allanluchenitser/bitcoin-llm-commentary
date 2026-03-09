@@ -33,13 +33,13 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) =
         <span className={clsx(styles.doombergSmallLogo, "font-bold relative -top-1px")}>Doomberg</span>
         <span className={
           clsx(
-            styles.ellipseAnimation,
+            loading && styles.ellipseAnimation,
             styles.active,
             "ml-2",
           )}
         >
           {'SAYS...'.split('').map((char, i) => {
-            return <span style={{ '--i': i } as CSSPropertiesWithVars}>{char}</span>
+            return <span key={i} style={{ '--i': i } as CSSPropertiesWithVars}>{char}</span>
           })}
         </span>
       </p>
@@ -49,22 +49,9 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) =
             ?
             (
               <div>
-              {!loading && summaries[0] &&
-                <div key={0} className="mb-4">
-                    <WipeReveal
-                      text={summaries[0].commentary}
-                      src={srcOrRandom(hInfoSrc)}
-                      srcHeight={80}
-                      className="text-sm/5 border-b border-gray-300"
-                    />
-                    <div className="text-sm text-gray-600 mb-1 italic text-right">
-                      {new Date(summaries[0].ts).toLocaleString()}
-                    </div>
-                </div>
-              }
               {
-                summaries.slice(1).map((summary, index) => (
-                  <div key={index + 1} className="mb-4">
+                summaries.map((summary) => (
+                  <div key={summary.ts} className="mb-4">
                     <WipeReveal
                       text={summary.commentary}
                       src={srcOrRandom(hInfoSrc)}
