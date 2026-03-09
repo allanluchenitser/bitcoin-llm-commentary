@@ -5,6 +5,8 @@ import {
 
 import {type OHLCV, type OHLCVRow } from '@blc/contracts';
 
+import pRetry from 'p-retry';
+
 export function toUTCTimestamp(ts: unknown): UTCTimestamp {
   /* yes, AI did this */
   let n: number;
@@ -69,4 +71,74 @@ export function ohclvRows2Numbers(rows: OHLCVRow[]): OHLCV[] {
     low: Number(row.low),
     volume: Number(row.volume),
   }));
+}
+
+const INITIAL_RETRY_DELAY_MS = 1_000;
+const MAX_RETRY_DELAY_MS = 60_000;
+
+const isAbortError = (error: unknown) => {
+  return error instanceof DOMException && error.name === 'AbortError';
+};
+
+export function startRetriedFetch<T>(opts: {
+  fetcher: (signal: AbortSignal) => Promise<T>;
+  onSuccess: (data: T) => void;
+  onFailure: (error: unknown) => void;
+}) {
+  let cancelled = false;
+  let loaded = false;
+  let activeController: AbortController | null = null;
+  let runToken = 0;
+
+  const run = (restart = false) => {
+    if (cancelled || loaded) return;
+    if (activeController && !restart) return;
+
+    if (restart) {
+      runToken += 1;
+      activeController?.abort();
+    }
+
+    const token = runToken;
+    const controller = new AbortController();
+    activeController = controller;
+
+    console.log("startRetriedFetch 'run' has triggered..");
+    void pRetry(() => opts.fetcher(controller.signal), {
+        retries: 1_000_000,
+        factor: 2,
+        minTimeout: INITIAL_RETRY_DELAY_MS,
+        maxTimeout: MAX_RETRY_DELAY_MS,
+        randomize: true,
+        shouldRetry: (error: unknown) => !cancelled && !loaded && !isAbortError(error),
+      })
+      .then((data: T) => {
+        if (cancelled || loaded || token !== runToken) return;
+        opts.onSuccess(data);
+        loaded = true;
+      })
+      .catch((error: unknown) => {
+        if (cancelled || token !== runToken || isAbortError(error)) return;
+        opts.onFailure(error);
+      })
+      .finally(() => {
+        if (token === runToken) {
+          activeController = null;
+        }
+      });
+  };
+
+  const onVisibilityChange = () => {
+    if (document.visibilityState !== 'visible' || cancelled || loaded) return;
+    run(true);
+  };
+
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  run();
+
+  return () => {
+    cancelled = true;
+    activeController?.abort();
+    document.removeEventListener('visibilitychange', onVisibilityChange);
+  };
 }
