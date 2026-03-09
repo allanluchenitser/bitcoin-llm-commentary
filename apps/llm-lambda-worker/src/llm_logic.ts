@@ -63,6 +63,8 @@ type GenerateSummaryParams = {
   sseClients?: SseClients
 }
 
+let recentCandles: OHLCV[] = [];
+
 export async function launchSummary({
   type,
   candles,
@@ -71,16 +73,16 @@ export async function launchSummary({
   sseClients
 }: GenerateSummaryParams) {
 
+  recentCandles = candles;
+
   /* ------ build prompts for LLM ------ */
 
   const userPrompt = buildUserPrompt(type, candles);
   const developerPrompt = `
 Write a concise BTC/USD price action summary.
-3–5 sentences. No predictions. No advice. Use only provided values.
+3-5 sentences. No predictions. No advice. Use only provided values.
 `
-  /* ------ estimate inference then (maybe) make the LLM API call ------ */
-
-  color.info(`launchSummary for ${candles.length} candles`);
+  /* ------ estimate inference  ------ */
 
   const estimateGpt5mini = inferenceCounts("gpt-5-mini", userPrompt + developerPrompt);
 
@@ -89,12 +91,15 @@ Write a concise BTC/USD price action summary.
     console.log(estimateGpt5mini);
   }
 
+  /* ------ launch LLM inference ------ */
+
   if (estimateGpt5mini.tokens > 4000) {
     console.warn("Prompt token count exceeds typical LLM limits. Consider reducing the number of candles or summarizing the data before sending to LLM.");
     throw new Error("Prompt token count exceeds typical LLM limits.");
   }
 
-  console.info('prompt ready for payload', { developerPrompt, userPrompt });
+  // color.info(`launchSummary for ${candles.length} candles`);
+  // console.info('prompt ready for payload', { developerPrompt, userPrompt });
 
   let response;
   try {
@@ -116,7 +121,7 @@ Write a concise BTC/USD price action summary.
     return;
   }
 
-  /* ------ log actual usage and cost, which can differ from estimates ------ */
+  /* ------ log actual token usage ------ */
 
   if (DISPLAY_ACTUALS && response.usage) {
     color.warn(`ACTUAL LLM usage for model ${response.model}`)
@@ -139,13 +144,14 @@ Write a concise BTC/USD price action summary.
     }
   }
 
-  /* ------ save summary to Postgres and broadcast via SSE ------ */
+  /* ------ save to Postgres, broadcast to SSE ------ */
 
   const commentaryObject = {
     summaryType: type,
     exchange: candles[0].exchange,
     symbol: candles[0].symbol,
-    ts: candles[candles.length - 1].ts,
+    // ts: candles[candles.length - 1].ts,
+    ts: new Date().toISOString(),
     commentary: response.output_text
   }
 
@@ -160,8 +166,6 @@ Write a concise BTC/USD price action summary.
       return;
     }
   }
-
-  // initial load probably won't have sseClients ready, so check before broadcasting
 
   if (sseClients) {
     try {
