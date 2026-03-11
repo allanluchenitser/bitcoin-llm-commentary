@@ -1,8 +1,8 @@
 import { type JSX } from "react";
-import styles from "./WipeReveal.module.css";
+import styles from "./SummaryCard.module.css";
 import clsx from "clsx";
 
-type WipeRevealProps = {
+type SummaryCardProps = {
   text: string;
   className?: string;
   src?: string;
@@ -10,18 +10,18 @@ type WipeRevealProps = {
   as?: keyof JSX.IntrinsicElements;
 };
 
-export function WipeReveal({
+export function SummaryCard({
   text,
   className = "",
   src,
   srcHeight = 20,
   as: Tag = "div",
-}: WipeRevealProps) {
+}: SummaryCardProps) {
 
   return (
     <Tag
       className={clsx(
-        styles.wipeReveal,
+        styles.summaryCard,
         className
       )}
       aria-label={text}

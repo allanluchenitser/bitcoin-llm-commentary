@@ -5,12 +5,13 @@ import hSadSrc from '@/assets/h_sad.png';
 import hUpSrc from '@/assets/h_up.png';
 import clsx from 'clsx';
 
-import { WipeReveal } from '@/shared-components/WipeReveal';
+import { motion, AnimatePresence } from "framer-motion";
+import { SummaryCard } from '@/shared-components/SummaryCard';
 
 import { type LLMCommentary } from '@blc/contracts';
-
 import { type CSSPropertiesWithVars } from '@/types/customReactTypes';
-import styles from "./BotSummary.module.css"
+
+import styles from "./BotSummary.module.css";
 
 function srcOrRandom(src: string | undefined = undefined) {
   return src ?? randomSrc();
@@ -33,8 +34,8 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) =
         <span className={clsx(styles.doombergSmallLogo, "font-bold relative -top-1px")}>Doomberg</span>
         <span className={
           clsx(
-            loading && styles.ellipseAnimation,
-            styles.active,
+            styles.ellipseAnimation,
+            loading && styles.active,
             "ml-2",
           )}
         >
@@ -49,10 +50,18 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) =
             ?
             (
               <div>
-              {
-                summaries.map((summary) => (
-                  <div key={summary.ts} className="mb-4">
-                    <WipeReveal
+              <AnimatePresence initial={false}>
+                {summaries.map((summary) => (
+                  <motion.div
+                    key={summary.ts}
+                    className="mb-4"
+                    initial={{ y: -40, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: 40, opacity: 0 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    layout
+                  >
+                    <SummaryCard
                       text={summary.commentary}
                       src={srcOrRandom(hInfoSrc)}
                       srcHeight={80}
@@ -61,9 +70,9 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) =
                     <div className="text-sm text-gray-600 mb-1 italic text-right">
                       {new Date(summary.ts).toLocaleString()}
                     </div>
-                  </div>
-                ))
-              }
+                  </motion.div>
+                ))}
+              </AnimatePresence>
               </div>
             )
             : "Max Hedron is analyzing the market and will provide insights here shortly..."
