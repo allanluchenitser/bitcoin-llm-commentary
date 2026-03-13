@@ -4,7 +4,7 @@ import RootLayout from "./layouts/RootLayout";
 
 import AboutPage from "@/pages/about/AboutPage";
 import DashboardPage from "@/pages/dashboard/DashboardPage";
-import SandBox from "./pages/sandbox/SandBox";
+import SandBoxPage from "./pages/sandbox/SandBoxPage";
 
 export const router = createBrowserRouter([
   {
@@ -21,7 +21,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "sandbox",
-        element: <SandBox />
+        element: <SandBoxPage />
       }
     ]
   }

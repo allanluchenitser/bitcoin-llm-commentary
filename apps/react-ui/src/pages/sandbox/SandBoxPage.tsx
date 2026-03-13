@@ -1,4 +1,7 @@
-import SummaryCard, { type SummaryCardProps } from "@/shared-components/SummaryCard";
+
+import VerticalTicker from "./VerticalTicker";
+
+import { type SummaryCardProps } from "@/shared-components/SummaryCard";
 import { generateLoremIpsum } from "@/plainUtils";
 import { v4 as uuidv4 } from "uuid";
 import { useState } from "react";
@@ -14,7 +17,7 @@ function generateCard() {
   }
 }
 
-const SandBox: React.FC = () => {
+const SandBoxPage = () => {
   const [cards, setCards] = useState<SummaryCardProps[]>(() =>
     Array.from({ length: TOTAL_CARDS }, () => generateCard())
   );
@@ -22,18 +25,7 @@ const SandBox: React.FC = () => {
   return (
     <div className="container flex p-4">
       <div className="w-1/2 flex flex-col">
-        {
-          cards.map((card) =>
-            <div className="border rounded-lg p-4 mb-4" key={card.id}>
-              <SummaryCard
-                text={card.text}
-                src={card.src}
-                srcHeight={card.srcHeight}
-                dateText={card.dateText}
-              />
-          </div>
-          )
-        }
+        <VerticalTicker cards={cards} />
       </div>
       <div className="w-1/2 p-4 flex flex-col">
         <button
@@ -47,7 +39,6 @@ const SandBox: React.FC = () => {
             justify-self-center
             cursor-pointer
             hover:bg-blue-600 active:bg-blue-700
-
           "
           onClick={() => {
             console.log("Adding card...");
@@ -61,4 +52,4 @@ const SandBox: React.FC = () => {
   );
 }
 
-export default SandBox;
+export default SandBoxPage;
