@@ -1,0 +1,27 @@
+.tradCarousel {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+
+  .stepButton {
+    width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: lightgrey;
+    color: white;
+  }
+
+  .viewPort {
+    align-items: center;
+    display: flex;
+    overflow: hidden;
+    max-width: 100%;
+    width: 100%;
+
+    > * {
+      flex: 0 0 calc(100% / var(--visible, 3));
+      transform: translateX()
+    }
+  }
+}

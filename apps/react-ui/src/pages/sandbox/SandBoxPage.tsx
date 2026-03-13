@@ -1,5 +1,5 @@
 
-import VerticalTicker from "./VerticalTicker";
+import { TradCarousel } from "./CarouselVariants";
 
 import { type SummaryCardProps } from "@/shared-components/SummaryCard";
 import { generateLoremIpsum } from "@/plainUtils";
@@ -18,36 +18,15 @@ function generateCard() {
 }
 
 const SandBoxPage = () => {
-  const [cards, setCards] = useState<SummaryCardProps[]>(() =>
-    Array.from({ length: TOTAL_CARDS }, () => generateCard())
-  );
 
   return (
-    <div className="container flex p-4">
-      <div className="w-1/2 flex flex-col">
-        <VerticalTicker cards={cards} />
-      </div>
-      <div className="w-1/2 p-4 flex flex-col">
-        <button
-          className="
-            px-4
-            py-2
-            bg-blue-500
-            text-white
-            rounded
-            mb-4
-            justify-self-center
-            cursor-pointer
-            hover:bg-blue-600 active:bg-blue-700
-          "
-          onClick={() => {
-            console.log("Adding card...");
-            setCards(prev => [generateCard(), ...prev])
-          }}
-        >
-          Add Card
-        </button>
-      </div>
+    <div className="container p-4">
+      <TradCarousel>
+        <div>How</div>
+        <div>Do</div>
+        <div>You</div>
+        <div>Do</div>
+      </TradCarousel>
     </div>
   );
 }
