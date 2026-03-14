@@ -25,12 +25,17 @@ export const TradCarousel = ({ children, visible = 3, className }: TradCarouselP
     if (page > 0) setPage(prev => prev - 1);
   }
 
+  const dynamicStyles: CSSPropertiesWithVars = {
+    '--visible': visible,
+    '--page': page,
+  }
+
   return (
     <div className={`${s.tradCarousel} ${className}`}>
       <div className={s.stepButton}>
         <ChevronLeft onClick={prevPage} />
       </div>
-      <div className={s.viewPort} style={{ '--visible': visible, '--page': page } as CSSPropertiesWithVars}>
+      <div className={s.viewPort} style={dynamicStyles}>
         {children}
       </div>
       <div className={s.stepButton}>

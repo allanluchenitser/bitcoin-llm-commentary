@@ -1,4 +1,7 @@
 .tradCarousel {
+  --column-width: 100% / var(--visible, 3);
+  --column-offset: calc(-1 * --column-width * --page);
+
   display: flex;
   align-items: stretch;
   width: 100%;
@@ -10,18 +13,19 @@
     justify-content: center;
     background-color: lightgrey;
     color: white;
+    cursor: pointer;
   }
 
   .viewPort {
     align-items: center;
     display: flex;
     overflow: hidden;
-    max-width: 100%;
-    width: 100%;
+    // max-width: 100%;
+    // width: 100%;
 
     > * {
-      flex: 0 0 calc(100% / var(--visible, 3));
-      transform: translateX()
+      flex: 0 0 var(--column-width);
+      transform: translateX(var(--column-offset));
     }
   }
 }
