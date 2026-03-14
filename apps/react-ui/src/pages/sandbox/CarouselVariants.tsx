@@ -4,6 +4,8 @@
 import React, { useState } from 'react';
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { type CSSPropertiesWithVars } from '@/types/customReactTypes';
+
+import clsx from 'clsx';
 import s from './CarouselVariants.module.scss';
 
 type TradCarouselParams = {
@@ -39,7 +41,7 @@ export const TradCarousel = (
     <div className={`${s.tradCarousel} ${className}`}>
       <div
         onClick={prevPage}
-        className={`${s.stepButton} ${page === 0 ? s.disabled : ''}`}
+        className={clsx(s.stepButton, page === 0 ? s.disabled : '')}
       >
         <ChevronLeft />
       </div>
@@ -48,13 +50,10 @@ export const TradCarousel = (
       </div>
       <div
         onClick={nextPage}
-        className={
-          `${s.stepButton} ${page === numberOfChildren - visible ? s.disabled : ''}`
-        }
+        className={clsx(s.stepButton, numberOfChildren - visible ? s.disabled : '')}
       >
         <ChevronRight />
       </div>
     </div>
-  )
 }
 
