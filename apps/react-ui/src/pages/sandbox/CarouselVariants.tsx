@@ -50,10 +50,11 @@ export const TradCarousel = (
       </div>
       <div
         onClick={nextPage}
-        className={clsx(s.stepButton, numberOfChildren - visible ? s.disabled : '')}
+        className={clsx(s.stepButton, page === numberOfChildren - visible ? s.disabled : '')}
       >
         <ChevronRight />
       </div>
     </div>
+  )
 }
 
