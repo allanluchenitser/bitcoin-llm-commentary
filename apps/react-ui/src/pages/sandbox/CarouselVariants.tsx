@@ -10,9 +10,13 @@ type TradCarouselParams = {
   children: React.ReactNode,
   className?: string,
   visible?: number,
+  width?: string
 }
 
-export const TradCarousel = ({ children, visible = 3, className }: TradCarouselParams) => {
+export const TradCarousel = (
+  { children, visible = 3, width = '100%', className }:
+  TradCarouselParams
+) => {
   const [page, setPage] = useState(0);
 
   const numberOfChildren = React.Children.count(children);
@@ -28,18 +32,27 @@ export const TradCarousel = ({ children, visible = 3, className }: TradCarouselP
   const dynamicStyles: CSSPropertiesWithVars = {
     '--visible': visible,
     '--page': page,
+    '--port-width': width,
   }
 
   return (
     <div className={`${s.tradCarousel} ${className}`}>
-      <div className={s.stepButton}>
-        <ChevronLeft onClick={prevPage} />
+      <div
+        onClick={prevPage}
+        className={`${s.stepButton} ${page === 0 ? s.disabled : ''}`}
+      >
+        <ChevronLeft />
       </div>
       <div className={s.viewPort} style={dynamicStyles}>
         {children}
       </div>
-      <div className={s.stepButton}>
-        <ChevronRight onClick={nextPage} />
+      <div
+        onClick={nextPage}
+        className={
+          `${s.stepButton} ${page === numberOfChildren - visible ? s.disabled : ''}`
+        }
+      >
+        <ChevronRight />
       </div>
     </div>
   )

@@ -1,31 +1,45 @@
 .tradCarousel {
-  --column-width: 100% / var(--visible, 3);
-  --column-offset: calc(-1 * --column-width * --page);
-
   display: flex;
   align-items: stretch;
-  width: 100%;
 
   .stepButton {
-    width: 50px;
+    --bg-color: #b6c6dd;
+
+    width: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: lightgrey;
+    background-color: var(--bg-color);
     color: white;
     cursor: pointer;
+
+    &:hover {
+      background-color: color-mix(in oklab, var(--bg-color) 95%, black);
+    }
+
+    &:active {
+      background-color: color-mix(in oklab, var(--bg-color) 90%, black);
+    }
+
+    &.disabled {
+      background-color: color-mix(in oklab, var(--bg-color) 50%, white);
+      cursor: auto;
+    }
   }
 
   .viewPort {
+    --column-width: calc(100% / var(--visible, 3));
+    --column-offset: calc(-1 * var(--column-width) * var(--page));
+
     align-items: center;
     display: flex;
     overflow: hidden;
-    // max-width: 100%;
-    // width: 100%;
+    width: 100%;
 
     > * {
+      transition: transform 300ms;
       flex: 0 0 var(--column-width);
-      transform: translateX(var(--column-offset));
+      transform: translateX(calc(var(--page) * -100%));
     }
   }
 }
