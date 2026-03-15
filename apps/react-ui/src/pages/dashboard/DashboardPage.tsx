@@ -257,7 +257,7 @@ const DashboardPage: React.FC = () => {
         <DoombergLiveLogo className="fixed bottom-2 left-2" />
       </div>
       <div className="w-2/5 ml-4 text-center overflow-y-auto thin-scrollbar">
-        <BotSummary summaries={summaries} loading={sseLoadSim}/>
+        <BotSummary summaries={summaries} loading={sseLoadSim} />
       </div>
     </div>
   )

@@ -37,15 +37,15 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) =
     }
   });
 
+  const newestTs = summaries[0]?.ts ?? null;
+
   return (
     <div className="px-4 pb-2">
       <p className="font-semibold mb-2 italic" >
         <span className={clsx(styles.doombergSmallLogo, "font-bold relative -top-1px")}>Doomberg</span>
-        <span className={
-          clsx(
+        <span className={clsx("ml-2",
             styles.ellipseAnimation,
             loading && styles.active,
-            "ml-2",
           )}
         >
           {'SAYS...'.split('').map((char, i) => {
@@ -58,7 +58,7 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) =
           summaries.length > 0
             ?
             (
-              <VerticalColumnFeeder>
+              <VerticalColumnFeeder animateToken={newestTs}>
                 {summaries.map((summary) => (
                   <SummaryCard
                     key={summary.ts}
@@ -78,4 +78,4 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) =
     )
 }
 
-export default BotSummary
+export default React.memo(BotSummary);

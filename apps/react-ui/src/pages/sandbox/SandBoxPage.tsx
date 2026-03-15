@@ -1,6 +1,7 @@
 // Getting solid on ReactJS. Building classic, non-trivial components by hand.
 
 import SummaryCard from "@/shared-components/SummaryCard";
+import SimpleComponent from "./SimpleComponent";
 
 import { useState } from "react";
 import { TradCarousel, VerticalColumnFeeder } from "./CarouselVariants";
@@ -55,6 +56,10 @@ const SandBoxPage = () => {
           {verticals}
         </VerticalColumnFeeder>
       </div>
+      <SimpleComponent>
+        <div>I am a child</div>
+        <div>I am another child</div>
+      </SimpleComponent>
       <button
         className={s.addVerticalButton}
         onClick={() => setVerticals(genChild('freddy'))}

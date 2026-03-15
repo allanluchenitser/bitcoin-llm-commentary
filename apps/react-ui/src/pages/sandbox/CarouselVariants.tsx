@@ -70,10 +70,11 @@ export const TradCarousel = (
 
 type VerticalColumnFeederParams = {
   className?: string,
-  children?: React.ReactNode
+  children?: React.ReactNode,
+  animateToken: any,
 }
 
-export const VerticalColumnFeeder = ({ children, className }: VerticalColumnFeederParams) => {
+export const VerticalColumnFeeder = ({ children, className, animateToken }: VerticalColumnFeederParams) => {
   const firstRender = useRef(true);
   const viewPortRef = useRef<HTMLDivElement | null>(null);
 
@@ -101,7 +102,7 @@ export const VerticalColumnFeeder = ({ children, className }: VerticalColumnFeed
     node.classList.remove(s.animate);
     void node.offsetWidth;
     node.classList.add(s.animate);
-  }, [children]);
+  }, [animateToken]);
 
   return (
     <div className={clsx(s.verticalColumnFeeder, className || '')}>
