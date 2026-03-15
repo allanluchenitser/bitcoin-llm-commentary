@@ -10,34 +10,17 @@ import { generateLoremIpsum } from "@/plainUtils";
 import clsx from 'clsx';
 import s from './SandboxPage.module.scss';
 
+const addVertical = () => ({
+    key: crypto.randomUUID(),
+    text: generateLoremIpsum(40)
+})
+
 const SandBoxPage = () => {
-  const [verticals, setVerticals] = useState<React.ReactNode[]>(() =>
-    ['Top', 'Of', 'The', 'Morning', 'Mr.', 'Parker']
-    .map((word) => (
-      <SummaryCard
-        key={crypto.randomUUID()}
-        className="p-4 border rounded-lg mb-4"
-        text={word}
-      />
-    ))
+  const [verticals, setVerticals] = useState(() =>
+    Array.from({ length: 6 }).map(addVertical)
   );
 
-  const genChild = (name: string) => {
-    return (prev: React.ReactNode[]): React.ReactNode[] => {
-      const random =  Math.floor(Math.random() * 1000);
-      const key = name + '-' + random;
-      return [
-        <SummaryCard
-          className="p-4 border rounded-lg mb-4"
-          key={crypto.randomUUID()}
-          text={generateLoremIpsum(40)}
-          src={`https://robohash.org/${key}?set=set4`}
-          srcHeight={40}
-        />,
-        ...prev
-      ];
-    }
-  }
+  const token = verticals[0]?.key ?? null;
 
   return (
     <div className={clsx(s.sandBoxPage, 'container flex p-4')}>
@@ -52,8 +35,16 @@ const SandBoxPage = () => {
         </TradCarousel>
       </div>
       <div className="flex-1 flex justify-center">
-        <VerticalColumnFeeder className="w-[80%]">
-          {verticals}
+        <VerticalColumnFeeder animateToken={token} className="w-[80%]">
+          {verticals.map((v) =>
+            <SummaryCard
+              className="p-4 border rounded-lg mb-4"
+              key={v.key}
+              text={v.text}
+              src={`https://robohash.org/${v.key}?set=set4`}
+              srcHeight={40}
+            />
+          )}
         </VerticalColumnFeeder>
       </div>
       <SimpleComponent>
@@ -62,7 +53,7 @@ const SandBoxPage = () => {
       </SimpleComponent>
       <button
         className={s.addVerticalButton}
-        onClick={() => setVerticals(genChild('freddy'))}
+        onClick={() => setVerticals(prev => [addVertical(), ...prev])}
       >
         Add
       </button>
