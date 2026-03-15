@@ -1,7 +1,10 @@
 // Getting solid on ReactJS. Building classic, non-trivial components by hand.
 
+import SummaryCard from "@/shared-components/SummaryCard";
+
 import { useState } from "react";
 import { TradCarousel, VerticalColumnFeeder } from "./CarouselVariants";
+import { generateLoremIpsum } from "@/plainUtils";
 
 import clsx from 'clsx';
 import s from './SandboxPage.module.scss';
@@ -10,7 +13,11 @@ const SandBoxPage = () => {
   const [verticals, setVerticals] = useState<React.ReactNode[]>(() =>
     ['Top', 'Of', 'The', 'Morning', 'Mr.', 'Parker']
     .map((word) => (
-      <div className={s.verticalChild} key={word}>{word}</div>
+      <SummaryCard
+        key={crypto.randomUUID()}
+        className="p-4 border rounded-lg mb-4"
+        text={word}
+      />
     ))
   );
 
@@ -19,7 +26,13 @@ const SandBoxPage = () => {
       const random =  Math.floor(Math.random() * 1000);
       const key = name + '-' + random;
       return [
-        <div className={s.verticalChild} key={key}>{key}</div>,
+        <SummaryCard
+          className="p-4 border rounded-lg mb-4"
+          key={crypto.randomUUID()}
+          text={generateLoremIpsum(40)}
+          src={`https://robohash.org/${key}?set=set4`}
+          srcHeight={40}
+        />,
         ...prev
       ];
     }

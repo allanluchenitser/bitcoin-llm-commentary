@@ -1,8 +1,7 @@
-// Getting more solid on ReactJS via building some classic, non-trivial components by hand.
+// Let's build some classic, non-trivial components by hand.
+  // What better than some carousels.
 
-// What better than some carousels.
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { type CSSPropertiesWithVars } from '@/types/customReactTypes';
 
@@ -44,7 +43,9 @@ export const TradCarousel = (
         onClick={prevPage}
         className={clsx(
           s.stepButton,
-          page === 0 ? s.disabled : ''
+          page === 0
+            ? s.disabled
+            : ''
         )}
       >
         <ChevronLeft />
@@ -72,35 +73,41 @@ type VerticalColumnFeederParams = {
   children?: React.ReactNode
 }
 
-
 export const VerticalColumnFeeder = ({ children, className }: VerticalColumnFeederParams) => {
   const firstRender = useRef(true);
-  const [animate, setAnimate] = useState(false);
-  const count = React.Children.count(children);
+  const viewPortRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if(firstRender.current) {
       firstRender.current = false;
       return;
     }
+    const node = viewPortRef.current;
+    if (!node) return;
 
-    setAnimate(false);
-    requestAnimationFrame(() => {
-      setAnimate(true);
-    })
+    const childElements = Array.from(node.children) as HTMLElement[];
+    let step = 0;
 
-    console.log("Children count:", React.Children.count(children));
+    if (childElements.length >= 2) {
+      const firstRect = childElements[0].getBoundingClientRect();
+      const secondRect = childElements[1].getBoundingClientRect();
+      step = secondRect.top - firstRect.top;
+    } else if (childElements.length === 1) {
+      step = childElements[0].getBoundingClientRect().height;
+    }
+
+    node.style.setProperty('--offset-px', `${Math.max(step, 0) * -1}px`);
+
+    node.classList.remove(s.animate);
+    void node.offsetWidth;
+    node.classList.add(s.animate);
   }, [children]);
-
-  const dynamicStyles: CSSPropertiesWithVars = {
-    '--count': count,
-  }
 
   return (
     <div className={clsx(s.verticalColumnFeeder, className || '')}>
       <div
-        className={clsx(s.viewPort, animate ? s.animate : '')}
-        style={dynamicStyles}
+        ref={viewPortRef}
+        className={s.viewPort}
       >
         { children }
       </div>

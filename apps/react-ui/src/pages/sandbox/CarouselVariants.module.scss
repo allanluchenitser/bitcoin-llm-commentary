@@ -45,22 +45,22 @@
 }
 
 .verticalColumnFeeder {
-
   display: flex;
   flex-direction: column;
   overflow: hidden;
 
   .viewPort {
-    --offset: calc(100% / var(--count) * -1);
+    --offset-px: 0px;
+    transform: translateY(0);
 
     &.animate {
-      animation: slide-in 0.5s ease-in-out;
+      animation: slide-in 0.5s ease-in-out both;
     }
   }
 
   @keyframes slide-in {
     0% {
-      transform: translateY(var(--offset));
+      transform: translateY(var(--offset-px));
     }
 
     100% {
