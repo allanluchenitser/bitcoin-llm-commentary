@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import SummaryCard from '@/shared-components/SummaryCard';
-
-import { motion, AnimatePresence } from "framer-motion";
+import { VerticalColumnFeeder } from '@/pages/sandbox/CarouselVariants';
 import { type LLMCommentary } from '@blc/contracts';
 import { type CSSPropertiesWithVars } from '@/types/customReactTypes';
 
@@ -59,29 +58,18 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) =
           summaries.length > 0
             ?
             (
-              <div>
-              <AnimatePresence initial={false}>
+              <VerticalColumnFeeder>
                 {summaries.map((summary) => (
-                  <motion.div
+                  <SummaryCard
                     key={summary.ts}
-                    className="mb-4"
-                    initial={{ y: -40, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: 40, opacity: 0 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    layout
-                  >
-                    <SummaryCard
-                      text={summary.commentary}
-                      src={srcMapRef.current[summary.ts]}
-                      srcHeight={80}
-                      dateText={new Date(summary.ts).toLocaleString()}
-                      className="text-sm/5 border-b border-gray-300"
-                    />
-                  </motion.div>
+                    text={summary.commentary}
+                    src={srcMapRef.current[summary.ts]}
+                    srcHeight={80}
+                    dateText={new Date(summary.ts).toLocaleString()}
+                    className="text-sm/5 border-b border-gray-300"
+                  />
                 ))}
-              </AnimatePresence>
-              </div>
+              </VerticalColumnFeeder>
             )
             : "Max Hedron is analyzing the market and will provide insights here shortly..."
         }

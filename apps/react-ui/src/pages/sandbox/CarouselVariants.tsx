@@ -1,5 +1,5 @@
 // Let's build some classic, non-trivial components by hand.
-  // What better than some carousels.
+// What better than some carousels.
 
 import React, { useState, useRef, useLayoutEffect } from 'react';
 import { ChevronRight, ChevronLeft } from "lucide-react";
