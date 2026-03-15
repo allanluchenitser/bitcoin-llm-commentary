@@ -2,7 +2,7 @@
 
 // What better than some carousels.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { type CSSPropertiesWithVars } from '@/types/customReactTypes';
 
@@ -72,14 +72,38 @@ type VerticalColumnFeederParams = {
   children?: React.ReactNode
 }
 
+
 export const VerticalColumnFeeder = ({ children, className }: VerticalColumnFeederParams) => {
+  const firstRender = useRef(true);
+  const [animate, setAnimate] = useState(false);
+  const count = React.Children.count(children);
+
   useEffect(() => {
-    console.log('Number of children' + React.Children.count(children))
+    if(firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+
+    setAnimate(false);
+    requestAnimationFrame(() => {
+      setAnimate(true);
+    })
+
+    console.log("Children count:", React.Children.count(children));
   }, [children]);
 
+  const dynamicStyles: CSSPropertiesWithVars = {
+    '--count': count,
+  }
+
   return (
-    <div className={`${s.verticalColumnFeeder} ${className || ''}`}>
-      { children }
+    <div className={clsx(s.verticalColumnFeeder, className || '')}>
+      <div
+        className={clsx(s.viewPort, animate ? s.animate : '')}
+        style={dynamicStyles}
+      >
+        { children }
+      </div>
     </div>
   )
 }

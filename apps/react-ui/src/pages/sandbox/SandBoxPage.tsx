@@ -1,39 +1,27 @@
+// Getting solid on ReactJS. Building classic, non-trivial components by hand.
 
 import { useState } from "react";
 import { TradCarousel, VerticalColumnFeeder } from "./CarouselVariants";
 
 import clsx from 'clsx';
 import s from './SandboxPage.module.scss';
-// import { type SummaryCardProps } from "@/shared-components/SummaryCard";
-// import { generateLoremIpsum } from "@/plainUtils";
-// import { v4 as uuidv4 } from "uuid";
-
-// const TOTAL_CARDS = 5;
-
-// function generateCard() {
-//   return {
-//     id: uuidv4(),
-//     text: generateLoremIpsum(20),
-//     src: "https://placehold.co/80x80/png",
-//     srcHeight: 80,
-//   }
-// }
 
 const SandBoxPage = () => {
-  const [verticals, setVerticals] = useState<React.ReactNode[]>([
-    <div className={s.verticalChild} key="Top">Top</div>,
-    <div className={s.verticalChild} key="Of">Of</div>,
-    <div className={s.verticalChild} key="The">The</div>,
-    <div className={s.verticalChild} key="Morning">Morning</div>,
-    <div className={s.verticalChild} key="Mr.">Mr.</div>,
-    <div className={s.verticalChild} key="Parker">Parker</div>,
-  ]);
+  const [verticals, setVerticals] = useState<React.ReactNode[]>(() =>
+    ['Top', 'Of', 'The', 'Morning', 'Mr.', 'Parker']
+    .map((word) => (
+      <div className={s.verticalChild} key={word}>{word}</div>
+    ))
+  );
 
   const genChild = (name: string) => {
     return (prev: React.ReactNode[]): React.ReactNode[] => {
-      const random =  Math.floor(Math.random() * 1000)
+      const random =  Math.floor(Math.random() * 1000);
       const key = name + '-' + random;
-      return [<div className={s.verticalChild} key={key}>{key}</div>, ...prev];
+      return [
+        <div className={s.verticalChild} key={key}>{key}</div>,
+        ...prev
+      ];
     }
   }
 
@@ -55,7 +43,7 @@ const SandBoxPage = () => {
         </VerticalColumnFeeder>
       </div>
       <button
-        className="absolute top-5 right-5 cursor-pointer px-4 py-2 border rounded"
+        className={s.addVerticalButton}
         onClick={() => setVerticals(genChild('freddy'))}
       >
         Add
