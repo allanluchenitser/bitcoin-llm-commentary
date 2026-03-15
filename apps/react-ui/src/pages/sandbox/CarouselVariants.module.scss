@@ -43,3 +43,12 @@
     }
   }
 }
+
+.verticalColumnFeeder {
+  display: flex;
+  flex-direction: column;
+
+  .child {
+
+  }
+}

@@ -1,7 +1,8 @@
-// Getting more solid on ReactJS by building some classic, non-trivial components.
+// Getting more solid on ReactJS via building some classic, non-trivial components by hand.
+
 // What better than some carousels.
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { type CSSPropertiesWithVars } from '@/types/customReactTypes';
 
@@ -41,7 +42,10 @@ export const TradCarousel = (
     <div className={`${s.tradCarousel} ${className}`}>
       <div
         onClick={prevPage}
-        className={clsx(s.stepButton, page === 0 ? s.disabled : '')}
+        className={clsx(
+          s.stepButton,
+          page === 0 ? s.disabled : ''
+        )}
       >
         <ChevronLeft />
       </div>
@@ -50,10 +54,32 @@ export const TradCarousel = (
       </div>
       <div
         onClick={nextPage}
-        className={clsx(s.stepButton, page === numberOfChildren - visible ? s.disabled : '')}
+        className={clsx(
+          s.stepButton,
+          page === numberOfChildren - visible
+            ? s.disabled
+            : ''
+        )}
       >
         <ChevronRight />
       </div>
+    </div>
+  )
+}
+
+type VerticalColumnFeederParams = {
+  className?: string,
+  children?: React.ReactNode
+}
+
+export const VerticalColumnFeeder = ({ children, className }: VerticalColumnFeederParams) => {
+  useEffect(() => {
+    console.log('Number of children' + React.Children.count(children))
+  }, [children]);
+
+  return (
+    <div className={`${s.verticalColumnFeeder} ${className || ''}`}>
+      { children }
     </div>
   )
 }
