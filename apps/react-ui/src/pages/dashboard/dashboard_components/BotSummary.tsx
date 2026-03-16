@@ -5,7 +5,7 @@ import { type LLMCommentary } from '@blc/contracts';
 import { type CSSPropertiesWithVars } from '@/types/customReactTypes';
 
 import clsx from 'clsx';
-import styles from "./BotSummary.module.css";
+import styles from "./BotSummary.module.scss";
 
 import hFireSrc from '@/assets/h_fire.png';
 import hInfoSrc from '@/assets/h_info.png';
@@ -64,7 +64,7 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) =
                     key={summary.ts}
                     text={summary.commentary}
                     src={srcMapRef.current[summary.ts]}
-                    srcHeight={80}
+                    srcHeight={55}
                     dateText={new Date(summary.ts).toLocaleString()}
                     className="text-sm/5 border-b border-gray-300"
                   />

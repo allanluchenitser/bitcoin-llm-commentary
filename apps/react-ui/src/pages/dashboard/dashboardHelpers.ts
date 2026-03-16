@@ -46,6 +46,27 @@ export const fakeCandlestickData: CandlestickData[] = [
   { time: toUTCTimestamp("2026-01-10"), open: 45210, high: 45950, low: 45000, close: 45740 },
 ];
 
+export const fakePriceComment = () => {
+  const comments = [
+    "Bitcoin is showing strong bullish momentum, with a significant increase in trading volume.",
+    "Bitcoin's price has been on a remarkable run, reaching new heights and attracting significant attention from both retail and institutional investors. The surge in price can be attributed to a combination of factors, including increased adoption by major companies, favorable regulatory developments, and a growing recognition of Bitcoin as a store of value. Technical analysis reveals that the current uptrend is robust, with key indicators such as the MACD and RSI showing strong bullish signals. However, it's important for traders to exercise caution, as the rapid price increase has also led to heightened volatility. Setting appropriate stop-loss levels and closely monitoring market conditions can help manage risk in this dynamic environment.",
+    "The price has broken through a key resistance level, indicating potential for further gains.",
+    "Technical indicators are signaling overbought conditions, suggesting a possible short-term pullback.",
+    "Market sentiment is positive, with many traders expressing optimism about Bitcoin's future performance.",
+    "The recent price action of Bitcoin has been characterized by a steady upward trajectory, with the asset breaking through several key resistance levels. This bullish momentum can be attributed to a variety of factors, including increased institutional adoption, favorable regulatory news, and a general shift in market sentiment towards cryptocurrencies. Technical indicators are currently showing strong bullish signals, with the MACD indicating positive momentum and the RSI approaching overbought territory. While the outlook remains positive, traders should remain vigilant for signs of a potential pullback, especially given the heightened volatility that often accompanies rapid price increases.",
+    "Recent news about institutional adoption has contributed to the upward price movement.",
+    "The Relative Strength Index (RSI) is approaching 70, which may indicate that the asset is becoming overvalued.",
+    "Support levels have been holding well, providing a solid foundation for the current uptrend.",
+    "There is increased volatility in the market, which could lead to rapid price fluctuations in the near term.",
+    "Bitcoin has experienced a significant price surge over the past week, breaking through multiple resistance levels and reaching new all-time highs. The surge has been driven by a combination of factors, including increased institutional interest, positive regulatory developments, and growing mainstream adoption. Technical analysis indicates that the current uptrend is strong, with key indicators such as the Moving Average Convergence Divergence (MACD) and the Relative Strength Index (RSI) showing bullish signals. However, traders should be mindful of potential volatility and consider setting stop-loss orders to manage risk in case of a sudden market correction.",
+    "Analysts are closely watching for any signs of a reversal, as the current trend has been quite strong.",
+    "Overall, Bitcoin's price action suggests a bullish outlook, but traders should remain cautious of potential corrections."
+  ];
+
+
+  return comments[Math.floor(Math.random() * comments.length)];
+}
+
 export function formatUtcMonthDayTime(utcIso: string, locale = "en-US") {
   const d = new Date(utcIso);
 

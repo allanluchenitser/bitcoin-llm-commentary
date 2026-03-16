@@ -1,5 +1,4 @@
 import { type JSX } from "react";
-import styles from "./SummaryCard.module.css";
 import clsx from "clsx";
 
 export type SummaryCardProps = {
@@ -25,7 +24,7 @@ export default function SummaryCard({
     <div>
       <Tag
         className={clsx(
-          styles.summaryCard,
+          "font-mono overflow-auto relative pb-[2px]",
           className
         )}
         aria-label={text}
@@ -33,15 +32,15 @@ export default function SummaryCard({
       >
         {src && (
           <img
+            className="float-right mb-[1px] ml-2"
+            style={{ height: srcHeight }}
             src={src}
             alt=""
-            style={{ float: "right", marginLeft: 12, marginBottom: 2, width: srcHeight }}
-            className={`inline-block w-[${srcHeight}px]`}
           />
         )}
         <span>{text}</span>
       </Tag>
-      <div className="text-sm text-gray-600 mb-1 italic text-right">
+      <div className="text-sm text-gray-600 mb-4 italic text-right">
         {dateText}
       </div>
     </div>
