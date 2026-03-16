@@ -83,7 +83,7 @@ const DashboardPage: React.FC = () => {
   }, []);
 
   function onResizeHandlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
-    console.log("Pointer down on resize handle");
+    // console.log("Pointer down on resize handle");
     dragRef.current = { startY: e.clientY, startHeight: liveEventsHeight };
     document.body.style.cursor = "row-resize";
     document.body.style.userSelect = "none";
@@ -151,12 +151,12 @@ const DashboardPage: React.FC = () => {
       const parsedOhlcv = JSON.parse(rawOhlcv);
 
       if (parsedOhlcv.type === "heartbeat") {
-        console.log("Received heartbeat from server");
+        // console.log("Received heartbeat from server");
         return;
       }
       else {
         const mappedOhlcv = ohclvRows2Numbers([parsedOhlcv as OHLCVRow])[0];
-        console.log("Received OHLCV update:", mappedOhlcv);
+        // console.log("Received OHLCV update:", mappedOhlcv);
         setRawOhlcvData(prev => [mappedOhlcv, ...prev]);
       }
     } catch {}

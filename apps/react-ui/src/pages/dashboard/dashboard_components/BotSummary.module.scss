@@ -8,13 +8,13 @@
   line-height: 1;
   text-shadow: 2px 2px 0 #fff, 4px 4px 0 #000;
   display: inline;
+
+  + span {
+    display: inline-block;
+  }
 }
 
 .ellipseAnimation span {
-  display: inline-block;
-}
-
-.active span {
   animation: bounce 2s infinite;
   animation-delay: calc(var(--i, 0) * 0.1s);
 }

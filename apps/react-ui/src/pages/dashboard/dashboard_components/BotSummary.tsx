@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import SummaryCard from '@/shared-components/SummaryCard';
 import { VerticalColumnFeeder } from '@/pages/sandbox/CarouselVariants';
 import { type LLMCommentary } from '@blc/contracts';
@@ -29,8 +29,31 @@ type BotSummaryProps = {
 
 const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) => {
   const srcMapRef = useRef<{ [ts: string]: string }>({});
+  const animateRef = useRef<HTMLSpanElement | null>(null);
 
-  // Ensure each summary.ts gets a src only once
+  useEffect(() => {
+    const el = animateRef.current;
+    if (!el) return;
+
+    if (loading) {
+      console.log('Adding animation class');
+      el.classList.add(styles.ellipseAnimation);
+      return
+    }
+
+    const handleIteration = () => {
+      console.log('Animation iteration completed, removing class');
+      el.classList.remove(styles.ellipseAnimation);
+      el.removeEventListener("animationiteration", handleIteration);
+    }
+    el.addEventListener('animationiteration', handleIteration)
+
+    return () => {
+      el.removeEventListener("animationiteration", handleIteration);
+    }
+  }, [loading]);
+
+  // random image as placeholder
   summaries.forEach((summary) => {
     if (!srcMapRef.current[summary.ts]) {
       srcMapRef.current[summary.ts] = srcOrRandom();
@@ -43,11 +66,7 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) =
     <div className="px-4 pb-2">
       <p className="font-semibold mb-2 italic" >
         <span className={clsx(styles.doombergSmallLogo, "font-bold relative -top-1px")}>Doomberg</span>
-        <span className={clsx("ml-2",
-            styles.ellipseAnimation,
-            loading && styles.active,
-          )}
-        >
+        <span ref={animateRef} className="ml-2">
           {'SAYS...'.split('').map((char, i) => {
             return <span key={i} style={{ '--i': i } as CSSPropertiesWithVars}>{char}</span>
           })}
@@ -71,7 +90,7 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) =
                 ))}
               </VerticalColumnFeeder>
             )
-            : "Max Hedron is analyzing the market and will provide insights here shortly..."
+            : "Doomberg is analyzing the market and will provide insights here shortly..."
         }
       </div>
     </div>
