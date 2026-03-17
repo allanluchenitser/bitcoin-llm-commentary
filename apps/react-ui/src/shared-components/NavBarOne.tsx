@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 
-const NavBar: React.FC = () => (
+const NavBar = () => (
   <nav className="container mx-auto px-4">
     <div className="flex justify-center gap-5">
       <NavLink to="/" className={({ isActive }) => isActive ? 'underline' : ''}>

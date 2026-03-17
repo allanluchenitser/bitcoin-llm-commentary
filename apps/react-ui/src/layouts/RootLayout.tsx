@@ -2,7 +2,7 @@
 // import NavBarTwo from '@/shared-components/NavBarTwo'
 import { Outlet } from 'react-router-dom';
 
-const RootLayout: React.FC = () => {
+function RootLayout() {
   return (
     <>
       {/* <NavBarTwo /> */}

@@ -1,4 +1,4 @@
-const AboutPage: React.FC = () => {
+const AboutPage = () => {
   return (
     <div className="container mx-auto px-4">
       <h2>About Bitcoin LLM Commentary</h2>

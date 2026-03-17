@@ -9,15 +9,24 @@
   text-shadow: 2px 2px 0 #fff, 4px 4px 0 #000;
   display: inline;
 
-  + span {
+  &.colorShuffle span {
+    color: hsl(var(--h, 0) 80% 45%);
+    animation: color-jump 1.4s steps(1, end) infinite;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+}
+
+.waveBox {
+  &.ellipseAnimation span {
+    animation: bounce 2s;
+    animation-delay: calc(var(--i, 0) * 0.1s);
+  }
+
+  span {
     display: inline-block;
   }
 }
 
-.ellipseAnimation span {
-  animation: bounce 2s infinite;
-  animation-delay: calc(var(--i, 0) * 0.1s);
-}
 
 @keyframes bounce {
   0%, 10%, 100% {
@@ -29,4 +38,12 @@
   30%, 100% {
     transform: translateY(0);
   }
+}
+
+@keyframes color-jump {
+  0%   { color: hsl(var(--h, 0) 78% 60%); }
+  25%  { color: hsl(calc(var(--h, 0) + 70) 78% 60%); }
+  50%  { color: hsl(calc(var(--h, 0) + 160) 78% 60%); }
+  75%  { color: hsl(calc(var(--h, 0) + 250) 78% 60%); }
+  100% { color: hsl(var(--h, 0) 78% 60%); }
 }

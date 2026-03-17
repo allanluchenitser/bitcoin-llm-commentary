@@ -27,29 +27,24 @@ type BotSummaryProps = {
   loading?: boolean;
 };
 
-const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) => {
+const BotSummary = ({ summaries, loading = false }: BotSummaryProps) => {
   const srcMapRef = useRef<{ [ts: string]: string }>({});
+
   const animateRef = useRef<HTMLSpanElement | null>(null);
+  const colorShuffleRef = useRef<HTMLSpanElement | null>(null);
 
   useEffect(() => {
-    const el = animateRef.current;
-    if (!el) return;
+    const animateEl = animateRef.current;
+    const colorShuffleEl = colorShuffleRef.current;
+
+    if (!animateEl || !colorShuffleEl) return;
 
     if (loading) {
-      console.log('Adding animation class');
-      el.classList.add(styles.ellipseAnimation);
-      return
-    }
-
-    const handleIteration = () => {
-      console.log('Animation iteration completed, removing class');
-      el.classList.remove(styles.ellipseAnimation);
-      el.removeEventListener("animationiteration", handleIteration);
-    }
-    el.addEventListener('animationiteration', handleIteration)
-
-    return () => {
-      el.removeEventListener("animationiteration", handleIteration);
+      animateEl.classList.add(styles.ellipseAnimation);
+      colorShuffleEl.classList.add(styles.colorShuffle);
+    } else {
+      animateEl.classList.remove(styles.ellipseAnimation);
+      colorShuffleEl.classList.remove(styles.colorShuffle);
     }
   }, [loading]);
 
@@ -61,15 +56,31 @@ const BotSummary: React.FC<BotSummaryProps> = ({ summaries, loading = false }) =
   });
 
   const newestTs = summaries[0]?.ts ?? null;
+  const animatedText = "SAYS...";
+  const colorCycleText = "DOOMBERG";
 
   return (
     <div className="px-4 pb-2">
       <p className="font-semibold mb-2 italic" >
-        <span className={clsx(styles.doombergSmallLogo, "font-bold relative -top-1px")}>Doomberg</span>
-        <span ref={animateRef} className="ml-2">
-          {'SAYS...'.split('').map((char, i) => {
-            return <span key={i} style={{ '--i': i } as CSSPropertiesWithVars}>{char}</span>
+        <span ref={colorShuffleRef} className={clsx(styles.doombergSmallLogo, "font-bold relative -top-1px")}>
+          {colorCycleText.split('').map((char, i) => {
+            const h = Math.floor(Math.random() * 360);
+            return (
+              <span
+                key={i}
+                style={{ "--i": i, "--h": h } as CSSPropertiesWithVars}
+              >
+                {char}
+              </span>
+            );
           })}
+        </span>
+        <span ref={animateRef} className={clsx(styles.waveBox, "ml-2")}>
+          {animatedText.split('').map((char, i) =>
+            <span key={i} style={{ '--i': i } as CSSPropertiesWithVars}>
+              {char}
+            </span>
+          )}
         </span>
       </p>
       <div className="px-4 text-justify">

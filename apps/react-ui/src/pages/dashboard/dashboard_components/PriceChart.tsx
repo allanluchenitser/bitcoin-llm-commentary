@@ -35,14 +35,14 @@ type PriceChartProps = {
   className?: string;
 }
 
-const PriceChart: React.FC<PriceChartProps> = ({
+const PriceChart = ({
   ohlcvData,
   intervalSelection,
   graphType,
   onChangeInterval,
   onChangeGraphType,
   className = "",
-}) => {
+}: PriceChartProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
 

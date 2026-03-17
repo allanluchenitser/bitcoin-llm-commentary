@@ -3,11 +3,13 @@ import { type OHLCV } from '@blc/contracts';
 import { formatUtcMonthDayTime } from "../dashboardHelpers";
 import clsx from "clsx";
 
-const LiveEvents: React.FC<{
+type LiveEventsParams = {
   ohlcvData: OHLCV[],
   className?: string,
   style?: React.CSSProperties
-}> = ({ ohlcvData, className = "", style }) => {
+}
+
+const LiveEvents = ({ ohlcvData, className = "", style }: LiveEventsParams) => {
   const tableMode = true;
 
   const widths = {

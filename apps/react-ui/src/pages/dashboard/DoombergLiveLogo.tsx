@@ -1,8 +1,10 @@
 import styles from "./DoombergLiveLogo.module.css";
 
-const DoombergLiveLogo: React.FC<{ className?: string }> = ({
-  className
-}) => {
+type DoombergLiveParams = {
+  className?: string,
+}
+
+const DoombergLiveLogo = ({ className }: DoombergLiveParams) => {
 
  return (
    <div className={`${styles.logoContainer} ${className || ''}`}>

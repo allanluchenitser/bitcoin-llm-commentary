@@ -17,7 +17,7 @@ import { startRetriedFetch } from './dashboardHelpers';
 
 const MAX_SUMMARIES = 50;
 
-const DashboardPage: React.FC = () => {
+const DashboardPage = () => {
   const [intervalSelection, setIntervalSelection] = useState<"1m" | "15m" | "60m" | "1440m">("1m");
   const [graphType, setGraphType] = useState<"Line" | "Candlestick">("Line");
 
