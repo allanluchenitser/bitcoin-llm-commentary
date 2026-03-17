@@ -1,29 +1,32 @@
 // Getting solid on ReactJS. Building classic, non-trivial components by hand.
 
-import SummaryCard from "@/shared-components/SummaryCard";
-import SimpleComponent from "./TestComponent";
+// import SummaryCard from "@/shared-components/SummaryCard";
+// import SimpleComponent from "./TestComponent";
 import BouncyText from "@/shared-components/BouncyText";
 
 import { useState } from "react";
-import { TradCarousel, VerticalColumnFeeder } from "./CarouselVariants";
-import { generateLoremIpsum } from "@/plainUtils";
+// import {
+//   // TradCarousel,
+//   VerticalColumnFeeder
+// } from "./CarouselVariants";
+// import { generateLoremIpsum } from "@/plainUtils";
 
 import clsx from 'clsx';
 import s from './SandboxPage.module.scss';
 
-const addVertical = () => ({
-    key: crypto.randomUUID(),
-    text: generateLoremIpsum(40)
-})
+// const addVertical = () => ({
+//     key: crypto.randomUUID(),
+//     text: generateLoremIpsum(40)
+// })
 
 const SandBoxPage = () => {
-  const [verticals, setVerticals] = useState(() =>
-    Array.from({ length: 6 }).map(addVertical)
-  );
+  // const [verticals, setVerticals] = useState(() =>
+  //   Array.from({ length: 6 }).map(addVertical)
+  // );
 
   const [loading, setLoading] = useState(false);
 
-  const token = verticals[0]?.key ?? null;
+  // const token = verticals[0]?.key ?? null;
 
   return (
     <div className={clsx(s.sandBoxPage, 'container flex p-4')}>
@@ -37,7 +40,7 @@ const SandBoxPage = () => {
           <div>Go</div>
         </TradCarousel>
       </div> */}
-      <div className="flex-1 flex justify-center">
+      {/* <div className="flex-1 flex justify-center">
         <VerticalColumnFeeder animateToken={token} className="w-[80%]">
           {verticals.map((v) =>
             <SummaryCard
@@ -49,7 +52,7 @@ const SandBoxPage = () => {
             />
           )}
         </VerticalColumnFeeder>
-      </div>
+      </div> */}
       {/* <div className="flex-1">
         <SimpleComponent>
           <div>I am a child</div>
@@ -57,12 +60,12 @@ const SandBoxPage = () => {
         </SimpleComponent>
      </div> */}
      <div className="flex-1">
-        <BouncyText text="Loading... Cool?" loading={loading} className="text-2xl" />
+        <BouncyText text="Says..." loading={loading} className="text-2xl" />
      </div>
      <div className={clsx(s.controls, 'flex flex-col')}>
-      <button onClick={() => setVerticals(prev => [addVertical(), ...prev])}>
+      {/* <button onClick={() => setVerticals(prev => [addVertical(), ...prev])}>
         Add Card
-      </button>
+      </button> */}
       <button onClick={() => setLoading(prev => !prev)}>
         { loading ? "Loading" : "Still" }
       </button>

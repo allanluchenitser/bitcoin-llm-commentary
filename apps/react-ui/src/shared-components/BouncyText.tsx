@@ -9,33 +9,49 @@ type BouncyTextParams = {
   className?: string,
 }
 
+function resetAnimation(el: HTMLDivElement) {
+  if (el.classList.contains(styles.animate)) {
+    el.classList.remove(styles.animate);
+    void el.offsetHeight;
+  }
+  el.classList.add(styles.animate);
+}
+
 const BouncyText = ({ text, loading = false, className}: BouncyTextParams) => {
   const animateRef = useRef<HTMLDivElement | null>(null);
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const textWithNbsp = text.replace(/ /g, '\u00A0');
 
   useEffect(() => {
-    if (loading) {
-      animateRef.current?.classList.add(styles.animate);
+    if (!animateRef.current) return;
+
+    if (timer.current) {
+      clearInterval(timer.current);
+      timer.current = null;
     }
-  }, [loading]);
+
+    if (loading) {
+      resetAnimation(animateRef.current);
+
+      timer.current = setInterval(() => {
+        if (animateRef.current) resetAnimation(animateRef.current);
+      }, textWithNbsp.length * 100 + 2000);
+    }
+
+    return () => {
+      if (timer.current) {
+        clearInterval(timer.current);
+        timer.current = null;
+      }
+    }
+
+  }, [loading, textWithNbsp.length]);
 
   return (
     <div ref={animateRef} className={clsx(styles.bouncyText, className)}>
-      {text.split('').map((char, i) =>
-        <span
-          style={{ '--i': i } as CSSPropertiesWithVars}
-          key={i}
-          data-last-span={i === text.length - 1 ? true : undefined}
-          onAnimationIteration={
-            i === text.length - 1
-              ? () => {
-                console.log('iterated, loading = ', loading);
-                if (loading === false) {
-                  animateRef.current?.classList.remove(styles.animate)
-                }
-              }
-              : undefined
-          }
-        >
+      {textWithNbsp.split('').map((char, i) =>
+        <span style={{ '--i': i } as CSSPropertiesWithVars} key={i}>
           {char}
         </span>
       )}

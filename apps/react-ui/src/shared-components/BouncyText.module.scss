@@ -4,20 +4,25 @@
     display: inline-block;
   }
 
-  &.animate span {
-    animation: bounce 2s infinite;
-    animation-delay: calc(var(--i, 0) * 0.1s);
+  &.animate {
+    border-bottom: 1px dotted green;
+    span {
+      animation: bounce 2s;
+      animation-delay: calc(var(--i, 0) * .1s);
+    }
   }
 }
 
 @keyframes bounce {
-  0%, 10%, 100% {
+  0%, 10% {
     transform: translateY(0);
   }
+
   20% {
-    transform: translateY(-4px);
+    transform: translateY(-15px);
   }
-  30%, 100% {
+
+  100% {
     transform: translateY(0);
   }
 }
