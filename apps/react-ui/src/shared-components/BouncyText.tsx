@@ -7,6 +7,7 @@ type BouncyTextParams = {
   text: string,
   loading: boolean,
   className?: string,
+  length?: number
 }
 
 function resetAnimation(el: HTMLDivElement) {
@@ -17,7 +18,7 @@ function resetAnimation(el: HTMLDivElement) {
   el.classList.add(styles.animate);
 }
 
-const BouncyText = ({ text, loading = false, className}: BouncyTextParams) => {
+const BouncyText = ({ text, loading = false, length = 1000, className}: BouncyTextParams) => {
   const animateRef = useRef<HTMLDivElement | null>(null);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -36,7 +37,7 @@ const BouncyText = ({ text, loading = false, className}: BouncyTextParams) => {
 
       timer.current = setInterval(() => {
         if (animateRef.current) resetAnimation(animateRef.current);
-      }, textWithNbsp.length * 100 + 2000);
+      }, textWithNbsp.length * 100 + length);
     }
 
     return () => {
@@ -46,10 +47,10 @@ const BouncyText = ({ text, loading = false, className}: BouncyTextParams) => {
       }
     }
 
-  }, [loading, textWithNbsp.length]);
+  }, [loading, textWithNbsp.length, length]);
 
   return (
-    <div ref={animateRef} className={clsx(styles.bouncyText, className)}>
+    <div ref={animateRef} className={clsx(styles.bouncyText, className)} style={{ '--length': `${length}ms` } as CSSPropertiesWithVars}>
       {textWithNbsp.split('').map((char, i) =>
         <span style={{ '--i': i } as CSSPropertiesWithVars} key={i}>
           {char}
@@ -59,4 +60,4 @@ const BouncyText = ({ text, loading = false, className}: BouncyTextParams) => {
   )
 }
 
-export default BouncyText
+export default BouncyText;

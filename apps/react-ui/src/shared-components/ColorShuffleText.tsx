@@ -1,22 +1,36 @@
-import { useRef }
+import styles from "./ColorShuffleText.module.scss";
+import clsx from "clsx"
+
+import { useRef, useEffect } from "react"
 import { type CSSPropertiesWithVars } from "@/types/customReactTypes";
 
-const function ColorShuffleText({ text }) {
-  const colorShuffleRef = useRef<HTMLSpanElement | null>(null);
+type ColorShuffleTextParams = {
+  text: string;
+  loading: boolean,
+  className?: string,
+}
 
+export default function ColorShuffleText({ text, loading = false, className }: ColorShuffleTextParams) {
   return (
-    <span ref={colorShuffleRef} className={clsx(styles.doombergSmallLogo, "font-bold relative -top-1px")}>
-    {colorCycleText.split('').map((char, i) => {
-      const h = Math.floor(Math.random() * 360);
-      return (
-        <span
-          key={i}
-          style={{ "--i": i, "--h": h } as CSSPropertiesWithVars}
-        >
-          {char}
-        </span>
-      );
-    })}
-  </span>
+    <span
+      className={
+        clsx(className, styles.colorShuffleText, loading && styles.active)
+      }
+      style={
+        { '--length': '2000ms' } as CSSPropertiesWithVars
+      }
+    >
+      {text.split('').map((char, i) => {
+        const h = Math.floor(Math.random() * 360);
+        return (
+          <span
+            key={i}
+            style={{ "--i": i, "--h": h } as CSSPropertiesWithVars}
+          >
+            {char}
+          </span>
+        );
+      })}
+    </span>
   )
 }

@@ -5,9 +5,8 @@
   }
 
   &.animate {
-    border-bottom: 1px dotted green;
     span {
-      animation: bounce 2s;
+      animation: bounce var(--length, 1000ms);
       animation-delay: calc(var(--i, 0) * .1s);
     }
   }
@@ -18,8 +17,8 @@
     transform: translateY(0);
   }
 
-  20% {
-    transform: translateY(-15px);
+  50% {
+    transform: translateY(-5px);
   }
 
   100% {

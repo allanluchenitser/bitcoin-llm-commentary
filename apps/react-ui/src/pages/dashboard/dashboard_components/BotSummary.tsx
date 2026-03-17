@@ -1,10 +1,11 @@
 import React, { useRef, useEffect } from 'react';
 import SummaryCard from '@/shared-components/SummaryCard';
+
 import BouncyText from '@/shared-components/BouncyText';
+import ColorShuffleText from '@/shared-components/ColorShuffleText';
 
 import { VerticalColumnFeeder } from '@/pages/sandbox/CarouselVariants';
 import { type LLMCommentary } from '@blc/contracts';
-import { type CSSPropertiesWithVars } from '@/types/customReactTypes';
 
 import clsx from 'clsx';
 import styles from "./BotSummary.module.scss";
@@ -31,19 +32,6 @@ type BotSummaryProps = {
 
 const BotSummary = ({ summaries, loading = false }: BotSummaryProps) => {
   const srcMapRef = useRef<{ [ts: string]: string }>({});
-  const colorShuffleRef = useRef<HTMLSpanElement | null>(null);
-
-  useEffect(() => {
-    const colorShuffleEl = colorShuffleRef.current;
-
-    if (!colorShuffleEl) return;
-
-    if (loading) {
-      colorShuffleEl.classList.add(styles.colorShuffle);
-    } else {
-      colorShuffleEl.classList.remove(styles.colorShuffle);
-    }
-  }, [loading]);
 
   // random image as placeholder
   summaries.forEach((summary) => {
@@ -53,25 +41,20 @@ const BotSummary = ({ summaries, loading = false }: BotSummaryProps) => {
   });
 
   const newestTs = summaries[0]?.ts ?? null;
-  const colorCycleText = "DOOMBERG";
 
   return (
     <div className="px-4 pb-2">
-      <div className="font-semibold mb-2 italic" >
-        <span ref={colorShuffleRef} className={clsx(styles.doombergSmallLogo, "font-bold relative -top-1px")}>
-          {colorCycleText.split('').map((char, i) => {
-            const h = Math.floor(Math.random() * 360);
-            return (
-              <span
-                key={i}
-                style={{ "--i": i, "--h": h } as CSSPropertiesWithVars}
-              >
-                {char}
-              </span>
-            );
-          })}
-        </span>
-        <BouncyText text="SAYS..." loading={loading} />
+      <div className="flex gap-2 justify-center items-center font-semibold mb-2 italic mb-2" >
+        <ColorShuffleText
+          className={styles.doombergSmallLogo}
+          loading={loading}
+          text="DOOMBERG"
+        />
+        <BouncyText
+          loading={loading}
+          length={500}
+          text="SAYS..."
+        />
       </div>
       <div className="px-4 text-justify">
         {
