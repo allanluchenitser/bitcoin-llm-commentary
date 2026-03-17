@@ -1,0 +1,23 @@
+
+.bouncyText {
+  span {
+    display: inline-block;
+  }
+
+  &.animate span {
+    animation: bounce 2s infinite;
+    animation-delay: calc(var(--i, 0) * 0.1s);
+  }
+}
+
+@keyframes bounce {
+  0%, 10%, 100% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(-4px);
+  }
+  30%, 100% {
+    transform: translateY(0);
+  }
+}

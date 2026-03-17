@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef } from "react";
-import ButtonOne from "@/shared-components/ButtonOne";
+import ButtonOne from "@/shared-components/buttons/ButtonOne";
 
 import {
   createChart,
