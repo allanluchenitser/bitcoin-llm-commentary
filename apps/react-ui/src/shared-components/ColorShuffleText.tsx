@@ -1,7 +1,5 @@
 import styles from "./ColorShuffleText.module.scss";
 import clsx from "clsx"
-
-import { useRef, useEffect } from "react"
 import { type CSSPropertiesWithVars } from "@/types/customReactTypes";
 
 type ColorShuffleTextParams = {
