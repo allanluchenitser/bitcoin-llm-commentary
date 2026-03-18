@@ -13,6 +13,7 @@ export type NormalizedTrade = {
 };
 
 export type StreamConnectionState = "connecting" | "open" | "closed" | "error";
+export type LiveEventsMode = "table" | "bowl";
 
 export type ExchangeAdapter = {
   id: ExchangeId;

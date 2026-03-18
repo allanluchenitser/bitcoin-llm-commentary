@@ -1,7 +1,7 @@
 import {
   COINBASE_SYMBOL,
   LIVE_EVENTS_SYMBOL_CANONICAL,
-} from "../config";
+} from "../live-events-config";
 import {
   toFiniteNumber,
   toIsoTimestamp,

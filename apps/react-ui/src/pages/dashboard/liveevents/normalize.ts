@@ -1,4 +1,4 @@
-import { BIG_TRADE_NOTIONAL_USD } from "./config";
+import { BIG_TRADE_NOTIONAL_USD } from "./live-events-config";
 import { type NormalizedTrade } from "./types";
 
 export const toFiniteNumber = (value: unknown): number | null => {

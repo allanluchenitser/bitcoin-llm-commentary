@@ -3,7 +3,7 @@ import {
   INITIAL_RECONNECT_DELAY_MS,
   LIVE_EVENTS_MAX_ROWS,
   MAX_RECONNECT_DELAY_MS,
-} from "./config";
+} from "./live-events-config";
 import { exchangeAdapters } from "./exchanges";
 import {
   type ExchangeId,

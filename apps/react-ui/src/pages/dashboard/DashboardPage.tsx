@@ -1,6 +1,6 @@
-import PriceChart from './dashboard_components/PriceChart'
-import BotSummary from './dashboard_components/BotSummary';
-import LiveEvents from './dashboard_components/LiveEvents';
+import PriceChart from './pricechart/PriceChart'
+import BotSummary from './botsummary/BotSummary';
+import LiveEvents from './liveevents/LiveEvents';
 import DoombergLiveLogo from './DoombergLiveLogo';
 
 import {
