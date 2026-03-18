@@ -29,8 +29,8 @@ let pgClient: PostgresClient | null = null;
 let redis: RedisClient | null = null;
 let openaiClient: OpenAI | null = null;
 
-const REGULAR_INTERVAL_CANDLES = process.env.REGULAR_INTERVAL_CANDLES
-  ? Number(process.env.REGULAR_INTERVAL_CANDLES)
+const SUMMARY_INTERVAL_MINUTES = process.env.SUMMARY_INTERVAL_MINUTES
+  ? Number(process.env.SUMMARY_INTERVAL_MINUTES)
   : 30;
 
 console.log('LLM Lambda Worker starting...');
@@ -52,7 +52,7 @@ try {
   /* ------ connect to Postgres to save and serve up LLM commentary ------ */
 
   pgClient = new PostgresClient(pgConfig);
-  const initialCandles = await pgClient.getInstrumentHistory("kraken", "BTC/USD", REGULAR_INTERVAL_CANDLES);
+  const initialCandles = await pgClient.getInstrumentHistory("kraken", "BTC/USD", SUMMARY_INTERVAL_MINUTES);
   candleDataBuffer.push(...ohclvRows2Numbers(initialCandles));
 
   console.log(`LLM Lambda Worker connected to Postgres and loaded initial OHLCV data: ${initialCandles.length} candles.`);
@@ -66,12 +66,12 @@ try {
   openaiClient = new OpenAI({ apiKey });
   console.log('LLM Lambda Worker initialized OpenAI client.');
 
-  if (candleDataBuffer.length >= REGULAR_INTERVAL_CANDLES) {
+  if (candleDataBuffer.length >= SUMMARY_INTERVAL_MINUTES) {
     console.log('Launching initial summary generation upon startup...');
 
     await launchSummary({
       type: "regular",
-      candles: candleDataBuffer.slice(-REGULAR_INTERVAL_CANDLES),
+      candles: candleDataBuffer.slice(-SUMMARY_INTERVAL_MINUTES),
       openaiClient,
       pgClient,
     });
@@ -148,8 +148,8 @@ const scheduledTimer = setInterval(async () => { // summary on scheduled interva
     console.warn("No candle data available yet for regular summary generation.");
     return;
   };
-  const last30 = getIntervalCandles(candleDataBuffer, REGULAR_INTERVAL_CANDLES);
-  if (last30.length === REGULAR_INTERVAL_CANDLES) {
+  const last30 = getIntervalCandles(candleDataBuffer, SUMMARY_INTERVAL_MINUTES);
+  if (last30.length === SUMMARY_INTERVAL_MINUTES) {
     await launchSummary({
       type: "regular",
       candles: last30,
@@ -158,26 +158,26 @@ const scheduledTimer = setInterval(async () => { // summary on scheduled interva
       sseClients
     });
   }
-}, 10000);
+}, SUMMARY_INTERVAL_MINUTES * 60 * 1000);
 
-// const spikeDetectionTimer = setInterval(async () => { // spike detection triggers a special summary
-//   if (!pgClient) return;
-//   if (candleDataBuffer.length === 0) {
-//     console.warn("No candle data available yet for spike detection.");
-//     return;
-//   };
+const spikeDetectionTimer = setInterval(async () => { // spike detection triggers a special summary
+  if (!pgClient) return;
+  if (candleDataBuffer.length === 0) {
+    console.warn("No candle data available yet for spike detection.");
+    return;
+  };
 
-//   const last10 = getIntervalCandles(candleDataBuffer, SPIKE_INTERVAL_MINUTES);
-//   if (last10.length === SPIKE_INTERVAL_MINUTES && detectSpike(last10)) {
-//     await launchSummary({
-//       type: "spike",
-//       candles: last10,
-//       openaiClient,
-//       pgClient,
-//       sseClients
-//     });
-//   }
-// }, 60 * 1000);
+  const last10 = getIntervalCandles(candleDataBuffer, SPIKE_INTERVAL_MINUTES);
+  if (last10.length === SPIKE_INTERVAL_MINUTES && detectSpike(last10)) {
+    await launchSummary({
+      type: "spike",
+      candles: last10,
+      openaiClient,
+      pgClient,
+      sseClients
+    });
+  }
+}, SUMMARY_INTERVAL_MINUTES * 60 * 1000);
 
 /* ------ start web server ------ */
 
@@ -193,7 +193,7 @@ async function shutdown() {
   console.log('LLM Lambda Worker shutting down...');
 
   clearInterval(scheduledTimer);
-  // clearInterval(spikeDetectionTimer);
+  clearInterval(spikeDetectionTimer);
 
   server.close(() => {
     console.log('LLM Lambda Worker server closed.');

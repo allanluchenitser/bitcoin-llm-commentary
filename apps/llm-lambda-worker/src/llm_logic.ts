@@ -14,17 +14,27 @@ import {
 import { promises as fs } from "fs";
 import { format } from "date-fns";
 
-const REGULAR_INTERVAL_CANDLES = process.env.REGULAR_INTERVAL_CANDLES
-  ? Number(process.env.REGULAR_INTERVAL_CANDLES)
-  : 30;
+const REGULAR_INTERVAL_CANDLES = 30;
 
-const DISK_LOG_LLM_RESPONSE = false;
-const FAKE_LLM_RESPONSE = true;
-const DISPLAY_ESTIMATES = false;
-const DISPLAY_ACTUALS = false;
-const SAVE_TO_DB = false;
+type LaunchSummaryRuntimeOptions = {
+  useFakeResponse: boolean;
+  saveToDb: boolean;
+  diskLogLlmResponse: boolean;
+  displayEstimates: boolean;
+  displayActuals: boolean;
+  modelName: string;
+};
 
-function buildUserPrompt(type: "regular" | "spike", candles: OHLCV[]): string {
+const DEFAULT_RUNTIME_OPTIONS: LaunchSummaryRuntimeOptions = {
+  useFakeResponse: true,
+  saveToDb: false,
+  diskLogLlmResponse: false,
+  displayEstimates: false,
+  displayActuals: false,
+  modelName: "gpt-5-mini",
+};
+
+export function buildUserPrompt(type: "regular" | "spike", candles: OHLCV[]): string {
   if (candles.length > REGULAR_INTERVAL_CANDLES) {
     console.warn(`Number of candles (${candles.length}) exceeds the regular interval limit (${REGULAR_INTERVAL_CANDLES}). Consider reducing the number of candles or summarizing the data before sending to LLM.`);
     throw new Error("Too many candles for LLM input.");
@@ -60,7 +70,8 @@ type GenerateSummaryParams = {
   candles: OHLCV[],
   openaiClient: OpenAI,
   pgClient: PostgresClient,
-  sseClients?: SseClients
+  sseClients?: SseClients,
+  runtimeOptions?: Partial<LaunchSummaryRuntimeOptions>;
 }
 
 let recentCandles: OHLCV[] = [];
@@ -70,8 +81,10 @@ export async function launchSummary({
   candles,
   openaiClient,
   pgClient,
-  sseClients
+  sseClients,
+  runtimeOptions
 }: GenerateSummaryParams) {
+  const runtime = { ...DEFAULT_RUNTIME_OPTIONS, ...runtimeOptions };
 
   recentCandles = candles;
 
@@ -84,31 +97,31 @@ Write a concise BTC/USD price action summary.
 `
   /* ------ estimate inference  ------ */
 
-  const estimateGpt5mini = inferenceCounts("gpt-5-mini", userPrompt + developerPrompt);
+  const estimateGpt5mini = inferenceCounts(runtime.modelName, userPrompt + developerPrompt);
 
-  if (DISPLAY_ESTIMATES) {
+  if (runtime.displayEstimates) {
     color.info("INFERENCE COST ESTIMATES:");
     console.log(estimateGpt5mini);
   }
-
-  /* ------ launch LLM inference ------ */
 
   if (estimateGpt5mini.tokens > 4000) {
     console.warn("Prompt token count exceeds typical LLM limits. Consider reducing the number of candles or summarizing the data before sending to LLM.");
     throw new Error("Prompt token count exceeds typical LLM limits.");
   }
 
+  /* ------ launch LLM inference ------ */
+
   // color.info(`launchSummary for ${candles.length} candles`);
   // console.info('prompt ready for payload', { developerPrompt, userPrompt });
 
   let response;
   try {
-    if (FAKE_LLM_RESPONSE) {
+    if (runtime.useFakeResponse) {
       response = makeFakeResponse();
     }
     else {
       response = await openaiClient.responses.create({
-        model: "gpt-5-mini",
+        model: runtime.modelName,
         input: [
           { role: "developer", content: developerPrompt },
           { role: "user", content: userPrompt },
@@ -123,16 +136,16 @@ Write a concise BTC/USD price action summary.
 
   /* ------ log actual token usage ------ */
 
-  if (DISPLAY_ACTUALS && response.usage) {
+  if (runtime.displayActuals && response.usage) {
     color.warn(`ACTUAL LLM usage for model ${response.model}`)
     console.log(response.usage);
-    const actualCents = response.usage.total_tokens / 1000000 * gptPricing["gpt-5-mini"].input / 100;
+    const actualCents = response.usage.total_tokens / 1000000 * gptPricing[runtime.modelName].input / 100;
     console.log(`Actual cost in dollars: ${actualCents.toFixed(10)}`);
   }
 
   // console.log("LLM response object:", response);
 
-  if (DISK_LOG_LLM_RESPONSE) {
+  if (runtime.diskLogLlmResponse) {
     const jsonLine = JSON.stringify(response) + "\n";
 
     try {
@@ -144,7 +157,7 @@ Write a concise BTC/USD price action summary.
     }
   }
 
-  /* ------ save to Postgres, broadcast to SSE ------ */
+  /* ------ final: save to Postgres, broadcast to SSE ------ */
 
   const commentaryObject = {
     summaryType: type,
@@ -155,11 +168,11 @@ Write a concise BTC/USD price action summary.
     commentary: response.output_text
   }
 
-  if (SAVE_TO_DB) {
+  if (runtime.saveToDb) {
     try {
       await pgClient.insertLLMCommentary({
         ...commentaryObject,
-        llmUsed: process.env.LLM_MODEL_NAME || "gpt-5-nano"
+        llmUsed: process.env.LLM_MODEL_NAME || runtime.modelName
       });
     } catch (err) {
       console.error("Error inserting LLM commentary into Postgres:", err);
@@ -179,7 +192,7 @@ Write a concise BTC/USD price action summary.
   }
 }
 
-function aggregateOHLCV(candles: OHLCV[]): AggregatedSummary {
+export function aggregateOHLCV(candles: OHLCV[]): AggregatedSummary {
   if (!candles.length) {
     throw new Error("No candles provided");
   }
@@ -252,6 +265,7 @@ function aggregateOHLCV(candles: OHLCV[]): AggregatedSummary {
     // highlights: undefined as any, // not used, but required by AggregatedSummary type
   };
 }
+
 
 
 

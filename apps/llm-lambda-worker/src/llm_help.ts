@@ -1,6 +1,5 @@
 import { type OHLCV } from "@blc/contracts";
 import { encoding_for_model, type TiktokenModel } from "tiktoken";
-import { color } from "@blc/color-logger";
 
 export type AggregatedSummary = {
   exchange: string;
