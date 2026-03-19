@@ -134,6 +134,9 @@ export function makeFakeResponse(outputText?: string) {
   };
 }
 
+/**
+ * Clears whitespace from beginning of new lines. (for prompt readability in code)
+ */
 export function dedent(text: string): string {
   const lines = text.replace(/^\n/, "").split("\n");
   const indents = lines
@@ -142,4 +145,49 @@ export function dedent(text: string): string {
 
   const minIndent = indents.length ? Math.min(...indents) : 0;
   return lines.map((l) => l.slice(minIndent)).join("\n").trimEnd();
+}
+
+import { type OHLCV } from "@blc/contracts";
+
+export class CandleBuffer {
+  private buf: OHLCV[] = [];
+
+  constructor(private capacity: number) {
+    if (capacity <= 0) throw new Error("capacity must be > 0");
+  }
+
+  push(c: OHLCV): void {
+    this.buf.push(c);
+    if (this.buf.length > this.capacity) this.buf.shift();
+  }
+
+  pushMany(cs: OHLCV[]): void {
+    if (cs.length >= this.capacity) {
+      this.buf = cs.slice(-this.capacity);
+      return;
+    }
+    this.buf.push(...cs);
+    while (this.buf.length > this.capacity) this.buf.shift();
+  }
+
+  last(n: number): OHLCV[] {
+    if (n <= 0) return [];
+    return this.buf.slice(-Math.min(n, this.buf.length));
+  }
+
+  size(): number {
+    return this.buf.length;
+  }
+
+  clear(): void {
+    this.buf.length = 0;
+  }
+
+  toArray(): OHLCV[] {
+    return this.buf.slice();
+  }
+}
+
+export function createCandleBuffer(capacity: number) {
+  return new CandleBuffer(capacity);
 }

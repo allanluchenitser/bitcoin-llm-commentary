@@ -3,14 +3,11 @@ import OpenAI from "openai";
 import express from "express";
 
 import { color } from "@blc/color-logger";
-import { createRedisClient, type RedisClient } from "@blc/redis-client";
+import setupRedis from "./llm_redis.js";
 
 import {
-  CHANNEL_TICKER_OHLCV,
   ohclvRows2Numbers,
-  ohlcvRow2Num,
   type OHLCV,
-  type OHLCVRow
 } from "@blc/contracts";
 
 import { pgConfig } from "./db/config.js";
@@ -22,35 +19,29 @@ import {
 } from "@blc/sse-client";
 
 import { generateSummary } from "./llm_logic.js";
+import { CandleBuffer, createCandleBuffer } from "./llm_help.js";
 import { DEFAULT_INTERVAL_OPTIONS as options } from "./workerConfig.js";
 
-const candleDataBuffer: OHLCV[] = [];
 
 let pgClient: PostgresClient | null = null;
-let redis: RedisClient | null = null;
 let openaiClient: OpenAI | null = null;
 
+let cleanupRedis: (() => void) = () => {};
+const candleBuffer: CandleBuffer = createCandleBuffer(30);
+
 console.log('LLM Lambda Worker starting...');
-
 try {
-  /* ------ connect to redis to receive OHLCV data ------ */
-
-  redis = createRedisClient();
-  await redis.connect();
-
-  await redis.subscribe(CHANNEL_TICKER_OHLCV, (message: string) => {
-    const row = JSON.parse(message) as OHLCVRow;
-    const data = ohlcvRow2Num(row);
-    candleDataBuffer.push(data);
-  });
-
-  console.log('LLM Lambda Worker subscribed to Redis channel for OHLCV data.');
+  /* ------ redis subscription to populate candleBuffer with OHLCV data ------ */
+  cleanupRedis = await setupRedis(candleBuffer);
+  if (!cleanupRedis) {
+    console.warn('Redis setup did not return a cleanup function. Continuing without Redis subscription.');
+    process.exit(1);
+  }
 
   /* ------ connect to Postgres for summaries in DB ------ */
-
   pgClient = new PostgresClient(pgConfig);
   const initialCandles = await pgClient.getInstrumentHistory("kraken", "BTC/USD", options.summaryIntervalMinutes);
-  candleDataBuffer.push(...ohclvRows2Numbers(initialCandles));
+  candleBuffer.pushMany(ohclvRows2Numbers(initialCandles));
 
   console.log(`LLM Lambda Worker connected to Postgres and loaded initial OHLCV data: ${initialCandles.length} candles.`);
 
@@ -63,12 +54,12 @@ try {
   openaiClient = new OpenAI({ apiKey });
   console.log('LLM Lambda Worker initialized OpenAI client.');
 
-  if (candleDataBuffer.length >= options.summaryIntervalMinutes) {
+  if (candleBuffer.size() >= options.summaryIntervalMinutes) {
     console.log('Launching initial summary generation upon startup...');
 
     await generateSummary({
       type: "regular",
-      candles: candleDataBuffer.slice(-options.summaryIntervalMinutes),
+      candles: candleBuffer.last(options.summaryIntervalMinutes),
       openaiClient,
       pgClient,
     });
@@ -126,10 +117,6 @@ app.use((err: unknown, _req: any, res: any, _next: any) => {
   is populated by a redis subscription to the OHLCV data feed.
 */
 
-function getIntervalCandles(buffer: OHLCV[], minutes: number): OHLCV[] {
-  return buffer.slice(-minutes);
-}
-
 function detectSpike(candles: OHLCV[]): boolean {
   if (candles.length === 0) return false;
   const first = candles[0];
@@ -141,11 +128,11 @@ function detectSpike(candles: OHLCV[]): boolean {
 
 const scheduledSummariesTimer = setInterval(async () => { // summary on scheduled intervals
   if (!pgClient) return;
-  if (candleDataBuffer.length === 0) {
+  if (candleBuffer.size() === 0) {
     console.warn("No candle data available yet for regular summary generation.");
     return;
   };
-  const last30 = getIntervalCandles(candleDataBuffer, options.summaryIntervalMinutes);
+  const last30 = candleBuffer.last(options.summaryIntervalMinutes);
   if (last30.length === options.summaryIntervalMinutes) {
     await generateSummary({
       type: "regular",
@@ -159,12 +146,12 @@ const scheduledSummariesTimer = setInterval(async () => { // summary on schedule
 
 const spikeDetectionTimer = setInterval(async () => { // spike detection triggers a special summary
   if (!pgClient) return;
-  if (candleDataBuffer.length === 0) {
+  if (candleBuffer.size() === 0) {
     console.warn("No candle data available yet for spike detection.");
     return;
   };
 
-  const last10 = getIntervalCandles(candleDataBuffer, options.spikeIntervalMinutes);
+  const last10 = candleBuffer.last(options.spikeIntervalMinutes);
   if (last10.length === options.spikeIntervalMinutes && detectSpike(last10)) {
     await generateSummary({
       type: "spike",
@@ -196,8 +183,9 @@ async function shutdown() {
     console.log('LLM Lambda Worker server closed.');
   });
 
+  await cleanupRedis();
+
   Promise.all([
-    redis?.disconnect().catch(err => console.error('Error disconnecting Redis:', err)),
     pgClient?.end().catch(err => console.error('Error closing Postgres client:', err))
   ]).finally(() => {
     process.exit(0);
