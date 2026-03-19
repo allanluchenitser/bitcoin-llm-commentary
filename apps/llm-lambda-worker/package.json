@@ -14,17 +14,18 @@
   "description": "LLM Lambda Worker for subscribing to Redis events and sending to LLMs",
   "dependencies": {
     "@aws-sdk/client-lambda": "^3.992.0",
+    "@blc/color-logger": "^0.0.0",
     "@blc/env": "^0.0.0",
     "@blc/redis-client": "0.0.0",
-    "@blc/color-logger": "^0.0.0",
     "@blc/sse-client": "0.0.0",
     "date-fns": "^4.1.0",
     "openai": "^6.22.0",
     "tiktoken": "^1.0.22"
   },
   "devDependencies": {
+    "@blc/contracts": "0.0.0",
     "@types/node": "^25.0.9",
-    "typescript": "^5.9.3",
-    "@blc/contracts": "0.0.0"
+    "jest": "^30.3.0",
+    "typescript": "^5.9.3"
   }
 }

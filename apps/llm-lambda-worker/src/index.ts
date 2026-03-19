@@ -21,7 +21,7 @@ import {
   createSseRouter,
 } from "@blc/sse-client";
 
-import { launchSummary } from "./llm_logic.js";
+import { generateSummary } from "./llm_logic.js";
 
 const candleDataBuffer: OHLCV[] = [];
 
@@ -49,7 +49,7 @@ try {
 
   console.log('LLM Lambda Worker subscribed to Redis channel for OHLCV data.');
 
-  /* ------ connect to Postgres to save and serve up LLM commentary ------ */
+  /* ------ connect to Postgres for summaries in DB ------ */
 
   pgClient = new PostgresClient(pgConfig);
   const initialCandles = await pgClient.getInstrumentHistory("kraken", "BTC/USD", SUMMARY_INTERVAL_MINUTES);
@@ -69,7 +69,7 @@ try {
   if (candleDataBuffer.length >= SUMMARY_INTERVAL_MINUTES) {
     console.log('Launching initial summary generation upon startup...');
 
-    await launchSummary({
+    await generateSummary({
       type: "regular",
       candles: candleDataBuffer.slice(-SUMMARY_INTERVAL_MINUTES),
       openaiClient,
@@ -81,6 +81,8 @@ catch (error) {
   console.error('Error initializing LLM Lambda Worker:', error);
   process.exit(1);
 }
+
+/* ------ http and middleware setup ------ */
 
 const app = express();
 
@@ -109,7 +111,7 @@ app.get("/llm/history", async (_req, res) => {
   }
 });
 
-/* ------ error routes ------ */
+/* ------ catchall rest routes ------ */
 
 app.use((_req, res) => res.status(404).json({ error: "Not Found" }));
 
@@ -121,8 +123,10 @@ app.use((err: unknown, _req: any, res: any, _next: any) => {
 /* ------ LLM summary intervals ------ */
 
 /*
-  llm summary intervals read and assess from candleDataBuffer,
-  the ever-populating redis subscription buffer.
+  Summary can be called via scheduled intervals or triggered by spike detection logic.
+
+  llm summary intervals read and assess from candleDataBuffer which
+  is populated by a redis subscription to the OHLCV data feed.
 */
 
 const SPIKE_INTERVAL_MINUTES = 10;
@@ -142,7 +146,7 @@ function detectSpike(candles: OHLCV[]): boolean {
   return priceChange > PRICE_SPIKE_THRESHOLD || last.volume > avgVolume * VOLUME_SPIKE_MULTIPLIER;
 }
 
-const scheduledTimer = setInterval(async () => { // summary on scheduled intervals
+const scheduledSummariesTimer = setInterval(async () => { // summary on scheduled intervals
   if (!pgClient) return;
   if (candleDataBuffer.length === 0) {
     console.warn("No candle data available yet for regular summary generation.");
@@ -150,7 +154,7 @@ const scheduledTimer = setInterval(async () => { // summary on scheduled interva
   };
   const last30 = getIntervalCandles(candleDataBuffer, SUMMARY_INTERVAL_MINUTES);
   if (last30.length === SUMMARY_INTERVAL_MINUTES) {
-    await launchSummary({
+    await generateSummary({
       type: "regular",
       candles: last30,
       openaiClient,
@@ -169,7 +173,7 @@ const spikeDetectionTimer = setInterval(async () => { // spike detection trigger
 
   const last10 = getIntervalCandles(candleDataBuffer, SPIKE_INTERVAL_MINUTES);
   if (last10.length === SPIKE_INTERVAL_MINUTES && detectSpike(last10)) {
-    await launchSummary({
+    await generateSummary({
       type: "spike",
       candles: last10,
       openaiClient,
@@ -177,7 +181,7 @@ const spikeDetectionTimer = setInterval(async () => { // spike detection trigger
       sseClients
     });
   }
-}, SUMMARY_INTERVAL_MINUTES * 60 * 1000);
+}, SPIKE_INTERVAL_MINUTES * 60 * 1000);
 
 /* ------ start web server ------ */
 
@@ -192,7 +196,7 @@ const server = app.listen(port, () => {
 async function shutdown() {
   console.log('LLM Lambda Worker shutting down...');
 
-  clearInterval(scheduledTimer);
+  clearInterval(scheduledSummariesTimer);
   clearInterval(spikeDetectionTimer);
 
   server.close(() => {

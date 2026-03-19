@@ -5,34 +5,23 @@ import { SseClients } from "@blc/sse-client";
 import { color } from "@blc/color-logger";
 
 import {
-  type AggregatedSummary,
+  DEFAULT_GENERATE_SUMMARY_OPTIONS,
+  type GenerateSummaryOptions
+} from "./workerConfig.js";
+
+import {
   inferenceCounts,
   gptPricing,
-  makeFakeResponse
+  makeFakeResponse,
+  dedent
 } from "./llm_help.js";
+
+import prompts from "./prompts.js";
 
 import { promises as fs } from "fs";
 import { format } from "date-fns";
 
 const REGULAR_INTERVAL_CANDLES = 30;
-
-type LaunchSummaryRuntimeOptions = {
-  useFakeResponse: boolean;
-  saveToDb: boolean;
-  diskLogLlmResponse: boolean;
-  displayEstimates: boolean;
-  displayActuals: boolean;
-  modelName: string;
-};
-
-const DEFAULT_RUNTIME_OPTIONS: LaunchSummaryRuntimeOptions = {
-  useFakeResponse: true,
-  saveToDb: false,
-  diskLogLlmResponse: false,
-  displayEstimates: false,
-  displayActuals: false,
-  modelName: "gpt-5-mini",
-};
 
 export function buildUserPrompt(type: "regular" | "spike", candles: OHLCV[]): string {
   if (candles.length > REGULAR_INTERVAL_CANDLES) {
@@ -40,30 +29,34 @@ export function buildUserPrompt(type: "regular" | "spike", candles: OHLCV[]): st
     throw new Error("Too many candles for LLM input.");
   }
 
-  const agg = aggregateOHLCV(candles);
-  const aggString = JSON.stringify(agg, null, 2);
+  const report = candleReport(candles);
+  const reportString = JSON.stringify(report, null, 2);
 
-  return `
-Summarize the interval below.
+  switch (type) {
+    case "regular":
+      return dedent(`
+        Summarize the interval below.
 
-Rules:
-- State net direction using price.change and price.changePct.
-- Mention high/low and overall range.
-- Comment on volume. If volume.spikeRatio >= 2 call it a “volume spike”; if >= 1.3 call it “elevated”; otherwise “steady”.
-- Optionally reference candleCounts to describe buying vs selling pressure.
+        Rules:
+        ${prompts.summaryRules}
 
-Data:
-${aggString}
-  `;
+        Data:
+        ${reportString}
+      `);
+    case "spike":
+      return dedent(`
+        Summarize the spike event below.
+
+        Rules:
+        ${prompts.spikeRules}
+
+        Data:
+        ${reportString}
+      `);
+    default:
+      throw new Error(`Unknown summary type: ${type}`);
+  }
 }
-
-/**
- * Generates a BTC/USD price action summary using an LLM, saves the result to Postgres,
- * and optionally broadcasts the summary via SSE.
- *
- * @param {GenerateSummaryParams} params - The parameters for generating the summary.
- * @returns {Promise<void>} Resolves when the summary is generated, saved, and optionally broadcasted.
- */
 
 type GenerateSummaryParams = {
   type: "regular" | "spike",
@@ -71,36 +64,36 @@ type GenerateSummaryParams = {
   openaiClient: OpenAI,
   pgClient: PostgresClient,
   sseClients?: SseClients,
-  runtimeOptions?: Partial<LaunchSummaryRuntimeOptions>;
+  generateSummaryOptions?: Partial<GenerateSummaryOptions>;
 }
 
-let recentCandles: OHLCV[] = [];
-
-export async function launchSummary({
+/**
+  calculates candles, generates a prompt, calls the LLM, saves to Postgres, broadcasts to SSE clients
+*/
+export async function generateSummary({
   type,
   candles,
   openaiClient,
   pgClient,
   sseClients,
-  runtimeOptions
+  generateSummaryOptions
 }: GenerateSummaryParams) {
-  const runtime = { ...DEFAULT_RUNTIME_OPTIONS, ...runtimeOptions };
-
-  recentCandles = candles;
+  const options = { ...DEFAULT_GENERATE_SUMMARY_OPTIONS, ...generateSummaryOptions };
 
   /* ------ build prompts for LLM ------ */
 
+  const developerPrompt = dedent(`
+    Write a concise BTC/USD price action summary.
+    3-5 sentences. No predictions. No advice. Use only provided values.
+  `);
   const userPrompt = buildUserPrompt(type, candles);
-  const developerPrompt = `
-Write a concise BTC/USD price action summary.
-3-5 sentences. No predictions. No advice. Use only provided values.
-`
-  /* ------ estimate inference  ------ */
 
-  const estimateGpt5mini = inferenceCounts(runtime.modelName, userPrompt + developerPrompt);
+  /* ------ estimate token cost  ------ */
 
-  if (runtime.displayEstimates) {
-    color.info("INFERENCE COST ESTIMATES:");
+  const estimateGpt5mini = inferenceCounts(options.modelName, userPrompt + developerPrompt);
+
+  if (options.displayTokenUsageEstimates) {
+    color.info("TOKEN COST ESTIMATES:");
     console.log(estimateGpt5mini);
   }
 
@@ -111,17 +104,17 @@ Write a concise BTC/USD price action summary.
 
   /* ------ launch LLM inference ------ */
 
-  // color.info(`launchSummary for ${candles.length} candles`);
+  // color.info(`generateSummary for ${candles.length} candles`);
   // console.info('prompt ready for payload', { developerPrompt, userPrompt });
 
   let response;
   try {
-    if (runtime.useFakeResponse) {
+    if (options.useFakeResponse) {
       response = makeFakeResponse();
     }
     else {
       response = await openaiClient.responses.create({
-        model: runtime.modelName,
+        model: options.modelName,
         input: [
           { role: "developer", content: developerPrompt },
           { role: "user", content: userPrompt },
@@ -133,19 +126,18 @@ Write a concise BTC/USD price action summary.
     console.error("Error generating LLM summary:", err);
     return;
   }
+  // console.log("LLM response object:", response);
 
   /* ------ log actual token usage ------ */
 
-  if (runtime.displayActuals && response.usage) {
+  if (options.displayTokenUsageActual && response.usage) {
     color.warn(`ACTUAL LLM usage for model ${response.model}`)
     console.log(response.usage);
-    const actualCents = response.usage.total_tokens / 1000000 * gptPricing[runtime.modelName].input / 100;
+    const actualCents = response.usage.total_tokens / 1000000 * gptPricing[options.modelName].input / 100;
     console.log(`Actual cost in dollars: ${actualCents.toFixed(10)}`);
   }
 
-  // console.log("LLM response object:", response);
-
-  if (runtime.diskLogLlmResponse) {
+  if (options.saveLLMResponse) {
     const jsonLine = JSON.stringify(response) + "\n";
 
     try {
@@ -163,16 +155,16 @@ Write a concise BTC/USD price action summary.
     summaryType: type,
     exchange: candles[0].exchange,
     symbol: candles[0].symbol,
-    // ts: candles[candles.length - 1].ts,
+    // ts: candles[candles.length - 1].ts, //
     ts: new Date().toISOString(),
     commentary: response.output_text
   }
 
-  if (runtime.saveToDb) {
+  if (options.saveSummaryToDb) {
     try {
       await pgClient.insertLLMCommentary({
         ...commentaryObject,
-        llmUsed: process.env.LLM_MODEL_NAME || runtime.modelName
+        llmUsed: process.env.LLM_MODEL_NAME || options.modelName
       });
     } catch (err) {
       console.error("Error inserting LLM commentary into Postgres:", err);
@@ -192,8 +184,42 @@ Write a concise BTC/USD price action summary.
   }
 }
 
-export function aggregateOHLCV(candles: OHLCV[]): AggregatedSummary {
-  if (!candles.length) {
+type AggregatedSummary = {
+  exchange: string;
+  symbol: string;
+  start: string;
+  end: string;
+  numCandles: number;
+  price: {
+    open: number;
+    close: number;
+    high: number;
+    low: number;
+    change: number;
+    changePct: number;
+    range: number;
+    rangePct: number;
+  };
+  volume: {
+    total: number;
+    average: number;
+    max1m: number;
+    spikeRatio: number;
+  };
+  candleCounts: {
+    up: number;
+    down: number;
+    flat: number;
+  };
+  highlights?: {
+    maxVolumeCandle: OHLCV;
+    maxRangeCandle: OHLCV;
+    maxBodyCandle: OHLCV;
+  };
+};
+
+export function candleReport(candles: OHLCV[]): AggregatedSummary {
+  if (!candles.length || Array.isArray(candles) === false) {
     throw new Error("No candles provided");
   }
 

@@ -1,39 +1,4 @@
-import { type OHLCV } from "@blc/contracts";
 import { encoding_for_model, type TiktokenModel } from "tiktoken";
-
-export type AggregatedSummary = {
-  exchange: string;
-  symbol: string;
-  start: string;
-  end: string;
-  numCandles: number;
-  price: {
-    open: number;
-    close: number;
-    high: number;
-    low: number;
-    change: number;
-    changePct: number;
-    range: number;
-    rangePct: number;
-  };
-  volume: {
-    total: number;
-    average: number;
-    max1m: number;
-    spikeRatio: number;
-  };
-  candleCounts: {
-    up: number;
-    down: number;
-    flat: number;
-  };
-  highlights?: {
-    maxVolumeCandle: OHLCV;
-    maxRangeCandle: OHLCV;
-    maxBodyCandle: OHLCV;
-  };
-};
 
 // https://developers.openai.com/api/docs/pricing
 
@@ -167,4 +132,14 @@ export function makeFakeResponse(outputText?: string) {
     metadata: {},
     output_text: text
   };
+}
+
+export function dedent(text: string): string {
+  const lines = text.replace(/^\n/, "").split("\n");
+  const indents = lines
+    .filter((l) => l.trim().length > 0)
+    .map((l) => l.match(/^(\s*)/)?.[0].length ?? 0);
+
+  const minIndent = indents.length ? Math.min(...indents) : 0;
+  return lines.map((l) => l.slice(minIndent)).join("\n").trimEnd();
 }
