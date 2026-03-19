@@ -16,7 +16,9 @@ export default function LiveEventsModeSelector({ mode, onChange }: LiveEventsMod
         onClick={() => onChange("table")}
         className={clsx(
           baseButtonClass,
-          mode === "table" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:bg-gray-200"
+          mode === "table"
+            ? "bg-white text-gray-900 shadow-sm"
+            : "text-gray-600 hover:bg-gray-200"
         )}
       >
         Table
@@ -26,7 +28,9 @@ export default function LiveEventsModeSelector({ mode, onChange }: LiveEventsMod
         onClick={() => onChange("bowl")}
         className={clsx(
           baseButtonClass,
-          mode === "bowl" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:bg-gray-200"
+          mode === "bowl"
+            ? "bg-white text-gray-900 shadow-sm"
+            : "text-gray-600 hover:bg-gray-200"
         )}
       >
         Bowl

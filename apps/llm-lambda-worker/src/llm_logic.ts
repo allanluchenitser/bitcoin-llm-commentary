@@ -104,9 +104,6 @@ export async function generateSummary({
 
   /* ------ launch LLM inference ------ */
 
-  // color.info(`generateSummary for ${candles.length} candles`);
-  // console.info('prompt ready for payload', { developerPrompt, userPrompt });
-
   let response;
   try {
     if (options.useFakeResponse) {
@@ -126,7 +123,6 @@ export async function generateSummary({
     console.error("Error generating LLM summary:", err);
     return;
   }
-  // console.log("LLM response object:", response);
 
   /* ------ log actual token usage ------ */
 
@@ -155,7 +151,6 @@ export async function generateSummary({
     summaryType: type,
     exchange: candles[0].exchange,
     symbol: candles[0].symbol,
-    // ts: candles[candles.length - 1].ts, //
     ts: new Date().toISOString(),
     commentary: response.output_text
   }

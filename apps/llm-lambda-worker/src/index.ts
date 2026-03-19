@@ -21,17 +21,15 @@ import {
   createSseRouter,
 } from "@blc/sse-client";
 
+
 import { generateSummary } from "./llm_logic.js";
+import { DEFAULT_INTERVAL_OPTIONS as options } from "./workerConfig.js";
 
 const candleDataBuffer: OHLCV[] = [];
 
 let pgClient: PostgresClient | null = null;
 let redis: RedisClient | null = null;
 let openaiClient: OpenAI | null = null;
-
-const SUMMARY_INTERVAL_MINUTES = process.env.SUMMARY_INTERVAL_MINUTES
-  ? Number(process.env.SUMMARY_INTERVAL_MINUTES)
-  : 30;
 
 console.log('LLM Lambda Worker starting...');
 
@@ -52,7 +50,7 @@ try {
   /* ------ connect to Postgres for summaries in DB ------ */
 
   pgClient = new PostgresClient(pgConfig);
-  const initialCandles = await pgClient.getInstrumentHistory("kraken", "BTC/USD", SUMMARY_INTERVAL_MINUTES);
+  const initialCandles = await pgClient.getInstrumentHistory("kraken", "BTC/USD", options.summaryIntervalMinutes);
   candleDataBuffer.push(...ohclvRows2Numbers(initialCandles));
 
   console.log(`LLM Lambda Worker connected to Postgres and loaded initial OHLCV data: ${initialCandles.length} candles.`);
@@ -66,12 +64,12 @@ try {
   openaiClient = new OpenAI({ apiKey });
   console.log('LLM Lambda Worker initialized OpenAI client.');
 
-  if (candleDataBuffer.length >= SUMMARY_INTERVAL_MINUTES) {
+  if (candleDataBuffer.length >= options.summaryIntervalMinutes) {
     console.log('Launching initial summary generation upon startup...');
 
     await generateSummary({
       type: "regular",
-      candles: candleDataBuffer.slice(-SUMMARY_INTERVAL_MINUTES),
+      candles: candleDataBuffer.slice(-options.summaryIntervalMinutes),
       openaiClient,
       pgClient,
     });
@@ -129,10 +127,6 @@ app.use((err: unknown, _req: any, res: any, _next: any) => {
   is populated by a redis subscription to the OHLCV data feed.
 */
 
-const SPIKE_INTERVAL_MINUTES = 10;
-const PRICE_SPIKE_THRESHOLD = 0.03; // 3%
-const VOLUME_SPIKE_MULTIPLIER = 3;  // 3x average
-
 function getIntervalCandles(buffer: OHLCV[], minutes: number): OHLCV[] {
   return buffer.slice(-minutes);
 }
@@ -143,7 +137,7 @@ function detectSpike(candles: OHLCV[]): boolean {
   const last = candles[candles.length - 1];
   const priceChange = Math.abs(last.close - first.open) / first.open;
   const avgVolume = candles.reduce((sum, c) => sum + c.volume, 0) / candles.length;
-  return priceChange > PRICE_SPIKE_THRESHOLD || last.volume > avgVolume * VOLUME_SPIKE_MULTIPLIER;
+  return priceChange > options.priceSpikeThreshold || last.volume > avgVolume * options.volumeSpikeMultiplier;
 }
 
 const scheduledSummariesTimer = setInterval(async () => { // summary on scheduled intervals
@@ -152,8 +146,8 @@ const scheduledSummariesTimer = setInterval(async () => { // summary on schedule
     console.warn("No candle data available yet for regular summary generation.");
     return;
   };
-  const last30 = getIntervalCandles(candleDataBuffer, SUMMARY_INTERVAL_MINUTES);
-  if (last30.length === SUMMARY_INTERVAL_MINUTES) {
+  const last30 = getIntervalCandles(candleDataBuffer, options.summaryIntervalMinutes);
+  if (last30.length === options.summaryIntervalMinutes) {
     await generateSummary({
       type: "regular",
       candles: last30,
@@ -162,7 +156,7 @@ const scheduledSummariesTimer = setInterval(async () => { // summary on schedule
       sseClients
     });
   }
-}, SUMMARY_INTERVAL_MINUTES * 60 * 1000);
+}, options.summaryIntervalMinutes * 60 * 1000);
 
 const spikeDetectionTimer = setInterval(async () => { // spike detection triggers a special summary
   if (!pgClient) return;
@@ -171,8 +165,8 @@ const spikeDetectionTimer = setInterval(async () => { // spike detection trigger
     return;
   };
 
-  const last10 = getIntervalCandles(candleDataBuffer, SPIKE_INTERVAL_MINUTES);
-  if (last10.length === SPIKE_INTERVAL_MINUTES && detectSpike(last10)) {
+  const last10 = getIntervalCandles(candleDataBuffer, options.spikeIntervalMinutes);
+  if (last10.length === options.spikeIntervalMinutes && detectSpike(last10)) {
     await generateSummary({
       type: "spike",
       candles: last10,
@@ -181,7 +175,7 @@ const spikeDetectionTimer = setInterval(async () => { // spike detection trigger
       sseClients
     });
   }
-}, SPIKE_INTERVAL_MINUTES * 60 * 1000);
+}, options.spikeIntervalMinutes * 60 * 1000);
 
 /* ------ start web server ------ */
 
