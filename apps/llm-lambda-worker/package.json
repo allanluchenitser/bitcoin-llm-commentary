@@ -9,7 +9,8 @@
     "build": "tsc -p tsconfig.json",
     "start": "node ./dist/index.js",
     "dev": "npm run build && npm run start",
-    "dev_bak": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts"
+    "dev_bak": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
+    "test": "npm run build && node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config ./jest.config.cjs"
   },
   "description": "LLM Lambda Worker for subscribing to Redis events and sending to LLMs",
   "dependencies": {

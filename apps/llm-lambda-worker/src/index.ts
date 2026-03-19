@@ -21,7 +21,6 @@ import {
   createSseRouter,
 } from "@blc/sse-client";
 
-
 import { generateSummary } from "./llm_logic.js";
 import { DEFAULT_INTERVAL_OPTIONS as options } from "./workerConfig.js";
 
