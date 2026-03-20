@@ -16,8 +16,8 @@ import hSadSrc from '@/assets/h_sad.png';
 import hUpSrc from '@/assets/h_up.png';
 
 function selectFace(summary: LLMCommentary): string {
-  if (summary.priceWord === "downward") return hSadSrc;
-  if (summary.priceWord === "upward") return hUpSrc;
+  if (summary.priceWord === "price downward") return hSadSrc;
+  if (summary.priceWord === "price upward") return hUpSrc;
   return hInfoSrc;
 }
 type BotSummaryProps = {

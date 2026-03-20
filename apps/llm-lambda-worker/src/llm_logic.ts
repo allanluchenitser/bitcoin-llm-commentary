@@ -164,8 +164,10 @@ export async function generateSummary({
   else if (candleReportData.volume.spikeRatio >= 1.3) { volumeWord = "volume elevated"; }
 
   let priceWord = "price steady";
-  if (candleReportData.price.changePct > 1) { priceWord = "price upward"; }
-  else if (candleReportData.price.changePct < -1) { priceWord = "price downward"; }
+  if (candleReportData.price.changePct > .7) { priceWord = "price upward"; }
+  else if (candleReportData.price.changePct < -.7) { priceWord = "price downward"; }
+
+  console.log('candleReportData', candleReportData);
 
   const commentaryObject = {
     summaryType: type,
@@ -192,7 +194,8 @@ export async function generateSummary({
   if (sseClients) {
     try {
       sseClients?.messageAll("summary", {
-        ...commentaryObject
+        ...commentaryObject,
+        ...candleReportData
       });
     }
     catch (err) {
@@ -238,6 +241,10 @@ type CandleReport = {
 export function candleReport(candles: OHLCV[]): CandleReport {
   if (!candles.length || Array.isArray(candles) === false) {
     throw new Error("No candles provided");
+  }
+
+  for (const c of candles) {
+    console.log(c.ts, c.high, c.volume);
   }
 
   const n = candles.length;
