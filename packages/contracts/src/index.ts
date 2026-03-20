@@ -40,6 +40,8 @@ export type LLMCommentary = {
   commentary: string;
   summaryType: string;
   llmUsed: string;
+  volumeWord?: string;
+  priceWord?: string;
 }
 
 export function ohclvRows2Numbers(rows: OHLCVRow[]): OHLCV[] {

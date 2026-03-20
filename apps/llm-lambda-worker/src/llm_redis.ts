@@ -8,8 +8,6 @@ import {
 
 import { CandleBuffer } from "./llm_help.js";
 
-let redis: RedisClient | null = null;
-
 export default async function setupRedis(candleBuffer: CandleBuffer): Promise<() => void>   {
   const client = createRedisClient();
   await client.connect();
@@ -23,6 +21,8 @@ export default async function setupRedis(candleBuffer: CandleBuffer): Promise<()
   await client.subscribe(CHANNEL_TICKER_OHLCV, handler);
 
   let closed = false;
+
+  // cleanup function to unsubscribe and disconnect
   return async () => {
     if (closed) return;
     closed = true;

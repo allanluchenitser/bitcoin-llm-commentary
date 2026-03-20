@@ -18,8 +18,8 @@ export const DEFAULT_GENERATE_SUMMARY_OPTIONS: GenerateSummaryOptions = {
 };
 
 export const DEFAULT_INTERVAL_OPTIONS = {
-  summaryIntervalMinutes: 30,
-  spikeIntervalMinutes: 10,
+  summaryIntervalSeconds: 30, // 30 seconds
+  spikeIntervalSeconds: 12, // 12 seconds
   priceSpikeThreshold: 0.03, // 3%
   volumeSpikeMultiplier: 3,  // 3x average
 };

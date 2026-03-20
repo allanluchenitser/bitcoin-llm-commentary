@@ -33,14 +33,10 @@ console.log('LLM Lambda Worker starting...');
 try {
   /* ------ redis subscription to populate candleBuffer with OHLCV data ------ */
   cleanupRedis = await setupRedis(candleBuffer);
-  if (!cleanupRedis) {
-    console.warn('Redis setup did not return a cleanup function. Continuing without Redis subscription.');
-    process.exit(1);
-  }
 
   /* ------ connect to Postgres for summaries in DB ------ */
   pgClient = new PostgresClient(pgConfig);
-  const initialCandles = await pgClient.getInstrumentHistory("kraken", "BTC/USD", options.summaryIntervalMinutes);
+  const initialCandles = await pgClient.getInstrumentHistory("kraken", "BTC/USD", options.summaryIntervalSeconds);
   candleBuffer.pushMany(ohclvRows2Numbers(initialCandles));
 
   console.log(`LLM Lambda Worker connected to Postgres and loaded initial OHLCV data: ${initialCandles.length} candles.`);
@@ -50,16 +46,15 @@ try {
     console.error("OPENAI_API_KEY is not set in environment variables.");
     process.exit(1);
   }
-
   openaiClient = new OpenAI({ apiKey });
   console.log('LLM Lambda Worker initialized OpenAI client.');
 
-  if (candleBuffer.size() >= options.summaryIntervalMinutes) {
+  if (candleBuffer.size() >= options.summaryIntervalSeconds) {
     console.log('Launching initial summary generation upon startup...');
 
     await generateSummary({
       type: "regular",
-      candles: candleBuffer.last(options.summaryIntervalMinutes),
+      candles: candleBuffer.last(options.summaryIntervalSeconds),
       openaiClient,
       pgClient,
     });
@@ -91,7 +86,7 @@ app.get("/llm/history", async (_req, res) => {
 
   try {
     const result = await pgClient.getLLMCommentary();
-    console.log('Fetched LLM history:', result);
+    // console.log('Fetched LLM history:', result);
     res.json(result);
   } catch (error) {
     console.error('Error fetching history from Postgres:', error);
@@ -132,8 +127,12 @@ const scheduledSummariesTimer = setInterval(async () => { // summary on schedule
     console.warn("No candle data available yet for regular summary generation.");
     return;
   };
-  const last30 = candleBuffer.last(options.summaryIntervalMinutes);
-  if (last30.length === options.summaryIntervalMinutes) {
+
+
+
+  const last30 = candleBuffer.last(options.summaryIntervalSeconds);
+  if (last30.length === options.summaryIntervalSeconds) {
+    color.info('scheduled gen!');
     await generateSummary({
       type: "regular",
       candles: last30,
@@ -142,7 +141,7 @@ const scheduledSummariesTimer = setInterval(async () => { // summary on schedule
       sseClients
     });
   }
-}, options.summaryIntervalMinutes * 60 * 1000);
+}, options.summaryIntervalSeconds * 1000);
 
 const spikeDetectionTimer = setInterval(async () => { // spike detection triggers a special summary
   if (!pgClient) return;
@@ -151,8 +150,11 @@ const spikeDetectionTimer = setInterval(async () => { // spike detection trigger
     return;
   };
 
-  const last10 = candleBuffer.last(options.spikeIntervalMinutes);
-  if (last10.length === options.spikeIntervalMinutes && detectSpike(last10)) {
+  console.log('spike check');
+
+  const last10 = candleBuffer.last(options.spikeIntervalSeconds);
+  if (last10.length === options.spikeIntervalSeconds && detectSpike(last10)) {
+    color.info('spike gen!');
     await generateSummary({
       type: "spike",
       candles: last10,
@@ -161,7 +163,7 @@ const spikeDetectionTimer = setInterval(async () => { // spike detection trigger
       sseClients
     });
   }
-}, options.spikeIntervalMinutes * 60 * 1000);
+}, options.spikeIntervalSeconds * 1000);
 
 /* ------ start web server ------ */
 

@@ -23,14 +23,14 @@ import { format } from "date-fns";
 
 const REGULAR_INTERVAL_CANDLES = 30;
 
-export function buildUserPrompt(type: "regular" | "spike", candles: OHLCV[]): string {
-  if (candles.length > REGULAR_INTERVAL_CANDLES) {
-    console.warn(`Number of candles (${candles.length}) exceeds the regular interval limit (${REGULAR_INTERVAL_CANDLES}). Consider reducing the number of candles or summarizing the data before sending to LLM.`);
-    throw new Error("Too many candles for LLM input.");
-  }
+export function buildUserPrompt(type: "regular" | "spike", candleReport: CandleReport): string {
+  // if (candles.length > REGULAR_INTERVAL_CANDLES) {
+  //   console.warn(`Number of candles (${candles.length}) exceeds the regular interval limit (${REGULAR_INTERVAL_CANDLES}). Consider reducing the number of candles or summarizing the data before sending to LLM.`);
+  //   throw new Error("Too many candles for LLM input.");
+  // }
 
-  const report = candleReport(candles);
-  const reportString = JSON.stringify(report, null, 2);
+  // const report = candleReport(candles);
+  const reportString = JSON.stringify(candleReport, null, 2);
 
   switch (type) {
     case "regular":
@@ -86,7 +86,18 @@ export async function generateSummary({
     Write a concise BTC/USD price action summary.
     3-5 sentences. No predictions. No advice. Use only provided values.
   `);
-  const userPrompt = buildUserPrompt(type, candles);
+
+  if (candles.length > REGULAR_INTERVAL_CANDLES) {
+    console.warn(`Number of candles (${candles.length}) exceeds the regular interval limit (${REGULAR_INTERVAL_CANDLES}). Consider reducing the number of candles or summarizing the data before sending to LLM.`);
+    throw new Error("Too many candles for LLM input.");
+  }
+
+  const candleReportData = candleReport(candles);
+  const userPrompt = buildUserPrompt(type, candleReportData);
+
+  console.log('developerPrompt', developerPrompt);
+  console.log('userPrompt', userPrompt);
+
 
   /* ------ estimate token cost  ------ */
 
@@ -147,12 +158,32 @@ export async function generateSummary({
 
   /* ------ final: save to Postgres, broadcast to SSE ------ */
 
+
+  // - Comment on volume. If volume.spikeRatio >= 2 call it a “volume spike”; if >= 1.3 call it “elevated”; otherwise “steady”.
+  let volumeWord = "steady";
+  if (candleReportData.volume.spikeRatio >= 2) {
+    volumeWord = "volume spike";
+  }
+  else if (candleReportData.volume.spikeRatio >= 1.3) {
+    volumeWord = "elevated";
+  }
+
+  let priceWord = "steady";
+  if (candleReportData.price.changePct > 1) {
+    priceWord = "upward";
+  }
+  else if (candleReportData.price.changePct < -1) {
+    priceWord = "downward";
+  }
+
   const commentaryObject = {
     summaryType: type,
     exchange: candles[0].exchange,
     symbol: candles[0].symbol,
     ts: new Date().toISOString(),
-    commentary: response.output_text
+    commentary: response.output_text,
+    volumeWord,
+    priceWord,
   }
 
   if (options.saveSummaryToDb) {
@@ -179,7 +210,7 @@ export async function generateSummary({
   }
 }
 
-type AggregatedSummary = {
+type CandleReport = {
   exchange: string;
   symbol: string;
   start: string;
@@ -213,7 +244,7 @@ type AggregatedSummary = {
   };
 };
 
-export function candleReport(candles: OHLCV[]): AggregatedSummary {
+export function candleReport(candles: OHLCV[]): CandleReport {
   if (!candles.length || Array.isArray(candles) === false) {
     throw new Error("No candles provided");
   }
@@ -283,7 +314,7 @@ export function candleReport(candles: OHLCV[]): AggregatedSummary {
       down,
       flat,
     },
-    // highlights: undefined as any, // not used, but required by AggregatedSummary type
+    // highlights: undefined as any, // not used, but required by CandleReport type
   };
 }
 

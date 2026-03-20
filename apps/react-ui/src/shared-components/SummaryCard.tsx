@@ -9,6 +9,8 @@ export type SummaryCardProps = {
   dateText?: string;
   srcHeight?: number;
   as?: keyof JSX.IntrinsicElements;
+  volumeWord?: string;
+  priceWord?: string;
 };
 
 export default function SummaryCard({
@@ -18,6 +20,8 @@ export default function SummaryCard({
   dateText,
   srcHeight = 20,
   as: Tag = "div",
+  volumeWord,
+  priceWord,
 }: SummaryCardProps) {
 
   return (
@@ -42,6 +46,10 @@ export default function SummaryCard({
       </Tag>
       <div className="text-sm text-gray-600 mb-4 italic text-right">
         {dateText}
+      </div>
+      <div className="text-sm text-gray-600 mb-4 italic text-right">
+        {volumeWord && <span className="mr-2">{volumeWord}</span>}
+        {priceWord && <span>{priceWord}</span>}
       </div>
     </div>
   );

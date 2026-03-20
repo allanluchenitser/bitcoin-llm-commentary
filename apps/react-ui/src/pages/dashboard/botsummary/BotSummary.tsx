@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import SummaryCard from '@/shared-components/SummaryCard';
 
 import BouncyText from '@/shared-components/BouncyText';
@@ -69,7 +69,12 @@ const BotSummary = ({ summaries, loading = false }: BotSummaryProps) => {
                     src={srcMapRef.current[summary.ts]}
                     srcHeight={55}
                     dateText={new Date(summary.ts).toLocaleString()}
-                    className="text-sm/5 border-b border-gray-300"
+                    className={clsx(
+                      "text-sm/5 border-b border-gray-300",
+                      summary.summaryType === "spike" && "bg-red-50",
+                    )}
+                    volumeWord={summary.volumeWord}
+                    priceWord={summary.priceWord}
                   />
                 ))}
               </VerticalColumnFeeder>
