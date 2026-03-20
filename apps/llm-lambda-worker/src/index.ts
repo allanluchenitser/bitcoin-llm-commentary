@@ -20,7 +20,7 @@ import {
 
 import { generateSummary } from "./llm_logic.js";
 import { CandleBuffer, createCandleBuffer } from "./llm_help.js";
-import { DEFAULT_INTERVAL_OPTIONS as options } from "./workerConfig.js";
+import { DEFAULT_INTERVAL_OPTIONS as intervalOptions } from "./config.js";
 
 
 let pgClient: PostgresClient | null = null;
@@ -36,7 +36,7 @@ try {
 
   /* ------ connect to Postgres for summaries in DB ------ */
   pgClient = new PostgresClient(pgConfig);
-  const initialCandles = await pgClient.getInstrumentHistory("kraken", "BTC/USD", options.summaryIntervalSeconds);
+  const initialCandles = await pgClient.getInstrumentHistory("kraken", "BTC/USD", intervalOptions.summaryIntervalSeconds);
   candleBuffer.pushMany(ohclvRows2Numbers(initialCandles));
 
   console.log(`LLM Lambda Worker connected to Postgres and loaded initial OHLCV data: ${initialCandles.length} candles.`);
@@ -49,12 +49,12 @@ try {
   openaiClient = new OpenAI({ apiKey });
   console.log('LLM Lambda Worker initialized OpenAI client.');
 
-  if (candleBuffer.size() >= options.summaryIntervalSeconds) {
+  if (candleBuffer.size() >= intervalOptions.summaryIntervalSeconds) {
     console.log('Launching initial summary generation upon startup...');
 
     await generateSummary({
       type: "regular",
-      candles: candleBuffer.last(options.summaryIntervalSeconds),
+      candles: candleBuffer.last(intervalOptions.summaryIntervalSeconds),
       openaiClient,
       pgClient,
     });
@@ -118,7 +118,7 @@ function detectSpike(candles: OHLCV[]): boolean {
   const last = candles[candles.length - 1];
   const priceChange = Math.abs(last.close - first.open) / first.open;
   const avgVolume = candles.reduce((sum, c) => sum + c.volume, 0) / candles.length;
-  return priceChange > options.priceSpikeThreshold || last.volume > avgVolume * options.volumeSpikeMultiplier;
+  return priceChange > intervalOptions.priceSpikeThreshold || last.volume > avgVolume * intervalOptions.volumeSpikeMultiplier;
 }
 
 const scheduledSummariesTimer = setInterval(async () => { // summary on scheduled intervals
@@ -130,8 +130,8 @@ const scheduledSummariesTimer = setInterval(async () => { // summary on schedule
 
 
 
-  const last30 = candleBuffer.last(options.summaryIntervalSeconds);
-  if (last30.length === options.summaryIntervalSeconds) {
+  const last30 = candleBuffer.last(intervalOptions.summaryIntervalSeconds);
+  if (last30.length === intervalOptions.summaryIntervalSeconds) {
     color.info('scheduled gen!');
     await generateSummary({
       type: "regular",
@@ -141,7 +141,7 @@ const scheduledSummariesTimer = setInterval(async () => { // summary on schedule
       sseClients
     });
   }
-}, options.summaryIntervalSeconds * 1000);
+}, intervalOptions.summaryIntervalSeconds * 1000);
 
 const spikeDetectionTimer = setInterval(async () => { // spike detection triggers a special summary
   if (!pgClient) return;
@@ -152,8 +152,8 @@ const spikeDetectionTimer = setInterval(async () => { // spike detection trigger
 
   console.log('spike check');
 
-  const last10 = candleBuffer.last(options.spikeIntervalSeconds);
-  if (last10.length === options.spikeIntervalSeconds && detectSpike(last10)) {
+  const last10 = candleBuffer.last(intervalOptions.spikeIntervalSeconds);
+  if (last10.length === intervalOptions.spikeIntervalSeconds && detectSpike(last10)) {
     color.info('spike gen!');
     await generateSummary({
       type: "spike",
@@ -163,7 +163,7 @@ const spikeDetectionTimer = setInterval(async () => { // spike detection trigger
       sseClients
     });
   }
-}, options.spikeIntervalSeconds * 1000);
+}, intervalOptions.spikeIntervalSeconds * 1000);
 
 /* ------ start web server ------ */
 

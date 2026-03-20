@@ -99,48 +99,51 @@ const LiveEvents = ({ ohlcvData: _ohlcvData, className = "", style }: LiveEvents
         </div>
       </div>
 
-      {mode === "table" ? (
-        trades.length === 0 ? (
-          <div className="px-3 py-4 text-sm text-gray-500">Waiting for trade events...</div>
-        ) : (
-          <ul className="divide-y">
-            {trades.map((trade) => {
-              const big = isBigTrade(trade);
-              return (
-                <li
-                  key={trade.tradeId}
-                  className={clsx(
-                    "px-3 py-1.5 font-mono text-xs",
-                    big ? "bg-amber-50" : "bg-white"
-                  )}
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex min-w-0 items-center gap-2">
-                      <span className="w-20 shrink-0 text-gray-500">{exchangeLabel[trade.exchange]}</span>
-                      <span className="w-20 shrink-0 text-gray-500">{trade.symbol}</span>
-                      <span className={clsx("w-10 shrink-0 font-semibold uppercase", sideClass(trade.side))}>
-                        {trade.side}
-                      </span>
-                      <span className="w-24 shrink-0 text-gray-900">${numberFmt.format(trade.price)}</span>
-                      <span className="w-20 shrink-0 text-gray-700">{sizeFmt.format(trade.size)}</span>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-3">
-                      <span className={clsx("font-semibold", big ? "text-amber-700" : "text-gray-700")}>
-                        {notionalFmt.format(trade.notionalUsd)}
-                      </span>
-                      <span className="w-28 text-right text-gray-500">{formatTradeTime(trade.tsIso)}</span>
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+      {mode === "table"
+        ? (
+          trades.length === 0
+          ? <div className="px-3 py-4 text-sm text-gray-500">Waiting for trade events...</div>
+          : (
+              <ul className="divide-y">
+                {trades.map((trade) => {
+                  const big = isBigTrade(trade);
+                  return (
+                    <li
+                      key={trade.tradeId}
+                      className={clsx(
+                        "px-3 py-1.5 font-mono text-xs",
+                        big ? "bg-amber-50" : "bg-white"
+                      )}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex min-w-0 items-center gap-2">
+                          <span className="w-20 shrink-0 text-gray-500">{exchangeLabel[trade.exchange]}</span>
+                          <span className="w-20 shrink-0 text-gray-500">{trade.symbol}</span>
+                          <span className={clsx("w-10 shrink-0 font-semibold uppercase", sideClass(trade.side))}>
+                            {trade.side}
+                          </span>
+                          <span className="w-24 shrink-0 text-gray-900">${numberFmt.format(trade.price)}</span>
+                          <span className="w-20 shrink-0 text-gray-700">{sizeFmt.format(trade.size)}</span>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-3">
+                          <span className={clsx("font-semibold", big ? "text-amber-700" : "text-gray-700")}>
+                            {notionalFmt.format(trade.notionalUsd)}
+                          </span>
+                          <span className="w-28 text-right text-gray-500">{formatTradeTime(trade.tsIso)}</span>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )
+          )
+        : (
+          <div className="h-[calc(100%-49px)] min-h-[220px] bg-slate-50">
+            <TradeBowlScene trades={trades} />
+          </div>
         )
-      ) : (
-        <div className="h-[calc(100%-49px)] min-h-[220px] bg-slate-50">
-          <TradeBowlScene trades={trades} />
-        </div>
-      )}
+    }
     </div>
   )
 }

@@ -85,7 +85,17 @@ export const useLiveTradeStream = (): LiveTradeStreamState => {
 
           setTrades((prev) => {
             const merged = [...nextTrades.reverse(), ...prev];
-            return merged.slice(0, LIVE_EVENTS_MAX_ROWS);
+            const seen = new Set<string>();
+            const deduped: NormalizedTrade[] = [];
+
+            for (const trade of merged) {
+              if (seen.has(trade.tradeId)) continue;
+              seen.add(trade.tradeId);
+              deduped.push(trade);
+              if (deduped.length >= LIVE_EVENTS_MAX_ROWS) break;
+            }
+
+            return deduped;
           });
         };
 

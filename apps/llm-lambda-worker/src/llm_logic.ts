@@ -7,7 +7,7 @@ import { color } from "@blc/color-logger";
 import {
   DEFAULT_GENERATE_SUMMARY_OPTIONS,
   type GenerateSummaryOptions
-} from "./workerConfig.js";
+} from "./config.js";
 
 import {
   inferenceCounts,
