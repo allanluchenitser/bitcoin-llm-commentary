@@ -1,27 +1,22 @@
 import { type JSX } from "react";
 import clsx from "clsx";
+import { type LLMCommentary } from "@blc/contracts";
 
 export type SummaryCardProps = {
-  id?: string;
-  text: string;
+  summary: LLMCommentary;
   className?: string;
-  src?: string;
-  dateText?: string;
+  src: string | undefined;
   srcHeight?: number;
   as?: keyof JSX.IntrinsicElements;
-  volumeWord?: string;
-  priceWord?: string;
 };
 
 export default function SummaryCard({
-  text,
-  className = "",
+  summary: { commentary, ts, volumeWord, priceWord },
   src,
-  dateText,
-  srcHeight = 20,
+  srcHeight = 40,
+
+  className = "",
   as: Tag = "div",
-  volumeWord,
-  priceWord,
 }: SummaryCardProps) {
 
   return (
@@ -31,8 +26,8 @@ export default function SummaryCard({
           "font-mono overflow-auto relative pb-[2px]",
           className
         )}
-        aria-label={text}
-        title={text}
+        aria-label={commentary}
+        title={commentary}
       >
         {src && (
           <img
@@ -42,10 +37,10 @@ export default function SummaryCard({
             alt=""
           />
         )}
-        <span>{text}</span>
+        <span>{commentary}</span>
       </Tag>
       <div className="text-sm text-gray-600 mb-4 italic text-right">
-        {dateText}
+        {new Date(ts).toLocaleString()}
       </div>
       <div className="text-sm text-gray-600 mb-4 italic text-right">
         {volumeWord && <span className="mr-2">{volumeWord}</span>}

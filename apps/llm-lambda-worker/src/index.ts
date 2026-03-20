@@ -20,7 +20,7 @@ import {
 
 import { generateSummary } from "./llm_logic.js";
 import { CandleBuffer, createCandleBuffer } from "./llm_help.js";
-import { DEFAULT_INTERVAL_OPTIONS as intervalOptions } from "./config.js";
+import { DEFAULT_INTERVAL_OPTIONS as intervalOptions } from "./workerConfig.js";
 
 
 let pgClient: PostgresClient | null = null;

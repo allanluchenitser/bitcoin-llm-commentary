@@ -10,21 +10,16 @@ import { type LLMCommentary } from '@blc/contracts';
 import clsx from 'clsx';
 import styles from "./BotSummary.module.scss";
 
-import hFireSrc from '@/assets/h_fire.png';
+// import hFireSrc from '@/assets/h_fire.png';
 import hInfoSrc from '@/assets/h_info.png';
 import hSadSrc from '@/assets/h_sad.png';
 import hUpSrc from '@/assets/h_up.png';
 
-const summaryIcons = [hFireSrc, hInfoSrc, hSadSrc, hUpSrc];
-
-function srcOrRandom(src: string | undefined = undefined) {
-  return src ?? randomSrc();
+function selectFace(summary: LLMCommentary): string {
+  if (summary.priceWord === "downward") return hSadSrc;
+  if (summary.priceWord === "upward") return hUpSrc;
+  return hInfoSrc;
 }
-
-function randomSrc() {
-  return summaryIcons[Math.floor(Math.random() * summaryIcons.length)];
-}
-
 type BotSummaryProps = {
   summaries: LLMCommentary[];
   loading?: boolean;
@@ -36,7 +31,7 @@ const BotSummary = ({ summaries, loading = false }: BotSummaryProps) => {
   // random image as placeholder
   summaries.forEach((summary) => {
     if (!srcMapRef.current[summary.ts]) {
-      srcMapRef.current[summary.ts] = srcOrRandom();
+      srcMapRef.current[summary.ts] = selectFace(summary);
     }
   });
 
@@ -65,16 +60,15 @@ const BotSummary = ({ summaries, loading = false }: BotSummaryProps) => {
                 {summaries.map((summary) => (
                   <SummaryCard
                     key={summary.ts}
-                    text={summary.commentary}
+
+                    summary={summary}
                     src={srcMapRef.current[summary.ts]}
                     srcHeight={55}
-                    dateText={new Date(summary.ts).toLocaleString()}
+
                     className={clsx(
                       "text-sm/5 border-b border-gray-300",
                       summary.summaryType === "spike" && "bg-red-50",
                     )}
-                    volumeWord={summary.volumeWord}
-                    priceWord={summary.priceWord}
                   />
                 ))}
               </VerticalColumnFeeder>

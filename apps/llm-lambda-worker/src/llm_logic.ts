@@ -7,7 +7,7 @@ import { color } from "@blc/color-logger";
 import {
   DEFAULT_GENERATE_SUMMARY_OPTIONS,
   type GenerateSummaryOptions
-} from "./config.js";
+} from "./workerConfig.js";
 
 import {
   inferenceCounts,
@@ -158,23 +158,14 @@ export async function generateSummary({
 
   /* ------ final: save to Postgres, broadcast to SSE ------ */
 
+  // - Comment on volume. If volume.spikeRatio >= 2 call it a “volume spike”; if >= 1.3 call it “volume elevated”; otherwise “volume steady”.
+  let volumeWord = "volume steady";
+  if (candleReportData.volume.spikeRatio >= 2) { volumeWord = "volume spike"; }
+  else if (candleReportData.volume.spikeRatio >= 1.3) { volumeWord = "volume elevated"; }
 
-  // - Comment on volume. If volume.spikeRatio >= 2 call it a “volume spike”; if >= 1.3 call it “elevated”; otherwise “steady”.
-  let volumeWord = "steady";
-  if (candleReportData.volume.spikeRatio >= 2) {
-    volumeWord = "volume spike";
-  }
-  else if (candleReportData.volume.spikeRatio >= 1.3) {
-    volumeWord = "elevated";
-  }
-
-  let priceWord = "steady";
-  if (candleReportData.price.changePct > 1) {
-    priceWord = "upward";
-  }
-  else if (candleReportData.price.changePct < -1) {
-    priceWord = "downward";
-  }
+  let priceWord = "price steady";
+  if (candleReportData.price.changePct > 1) { priceWord = "price upward"; }
+  else if (candleReportData.price.changePct < -1) { priceWord = "price downward"; }
 
   const commentaryObject = {
     summaryType: type,
