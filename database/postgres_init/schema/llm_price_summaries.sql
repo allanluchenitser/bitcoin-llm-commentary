@@ -1,11 +1,14 @@
 -- Schema for LLM price summaries
 CREATE TABLE IF NOT EXISTS llm_price_summaries (
   summary_id BIGSERIAL PRIMARY KEY,
-  exchange   TEXT NOT NULL,
-  symbol     TEXT NOT NULL,
-  timestamp TIMESTAMPTZ NOT NULL,
   summary TEXT NOT NULL,
   summary_type price_summary_type NOT NULL, -- regular | spike
+  timestamp TIMESTAMPTZ NOT NULL,
+  spike_ratio FLOAT8,
+  change_percent FLOAT8,
+
+  exchange   TEXT NOT NULL,
+  symbol     TEXT NOT NULL,
   llm_used TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 

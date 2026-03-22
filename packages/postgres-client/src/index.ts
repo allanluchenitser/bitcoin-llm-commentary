@@ -83,7 +83,9 @@ export class PostgresClient {
     ts = new Date().toISOString(),
     commentary,
     summaryType = "commentary",
-    llmUsed = "gpt-4"
+    llmUsed = "gpt-4",
+    spikeRatio = 0,
+    changePercent = 0,
   }: LLMCommentaryParams): Promise<void> {
     const queryText = `
       INSERT INTO llm_price_summaries (
@@ -92,11 +94,13 @@ export class PostgresClient {
         timestamp,
         summary,
         summary_type,
-        llm_used
+        llm_used,
+        spike_ratio,
+        change_percent
       )
-      VALUES ($1, $2, $3, $4, $5, $6)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     `;
-    const queryValues = [exchange, symbol, ts, commentary, summaryType, llmUsed];
+    const queryValues = [exchange, symbol, ts, commentary, summaryType, llmUsed, spikeRatio, changePercent];
 
     try {
       await this.query(queryText, queryValues);
@@ -111,7 +115,7 @@ export class PostgresClient {
     limit: number = 10
   ): Promise<LLMCommentary[]> {
     const queryText = `
-      SELECT exchange, symbol, timestamp AS ts, summary AS commentary, summary_type AS "summaryType", llm_used AS "llmUsed"
+      SELECT exchange, symbol, timestamp AS ts, summary AS commentary, summary_type AS "summaryType", llm_used AS "llmUsed", spike_ratio AS "spikeRatio", change_percent AS "changePercent"
       FROM llm_price_summaries
       WHERE exchange = $1 AND symbol = $2
       ORDER BY timestamp DESC

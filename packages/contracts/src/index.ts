@@ -40,8 +40,8 @@ export type LLMCommentary = {
   commentary: string;
   summaryType: string;
   llmUsed: string;
-  volumeWord?: string;
-  priceWord?: string;
+  spikeRatio: number;
+  changePercent: number;
 }
 
 export function processOhlcvRows(rows: OHLCVRow[]): OHLCV[] {

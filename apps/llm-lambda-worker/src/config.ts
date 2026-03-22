@@ -1,3 +1,4 @@
+import { dedent } from "./gen/gen_help.js"
 
 export type GenerateSummaryOptions = {
   useFakeResponse: boolean;
@@ -5,6 +6,7 @@ export type GenerateSummaryOptions = {
   saveLLMResponse: boolean;
   displayTokenUsageEstimates: boolean;
   displayTokenUsageActual: boolean;
+  developerPrompt: string;
   modelName: string;
 };
 
@@ -14,7 +16,12 @@ export const DEFAULT_GENERATE_SUMMARY_OPTIONS: GenerateSummaryOptions = {
   saveLLMResponse: false,
   displayTokenUsageEstimates: false,
   displayTokenUsageActual: false,
+
   modelName: "gpt-5-mini",
+  developerPrompt: dedent(`
+    Write a concise BTC/USD price action summary.
+    3-5 sentences. No predictions. No advice. Use only provided values.
+  `),
 };
 
 export const DEFAULT_INTERVAL_OPTIONS = {
@@ -24,3 +31,4 @@ export const DEFAULT_INTERVAL_OPTIONS = {
   volumeSpikeMultiplier: 3,  // 3x average
 };
 
+export const REGULAR_INTERVAL_CANDLES = 30;

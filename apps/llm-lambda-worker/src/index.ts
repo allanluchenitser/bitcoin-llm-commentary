@@ -19,7 +19,7 @@ import {
   createSseRouter,
 } from "@blc/sse-client";
 
-import { generateSummary } from "./llm_logic.js";
+import { generateSummary } from "./gen/gen_summary.js";
 
 import {
   CandleBuffer,
@@ -29,7 +29,7 @@ import {
 } from "./llm_help.js";
 
 import { detectSpike } from "./llm_intervals.js";
-import { DEFAULT_INTERVAL_OPTIONS as intervalOptions } from "./workerConfig.js";
+import { DEFAULT_INTERVAL_OPTIONS as intervalOptions } from "./config.js";
 
 
 let pgClient: PostgresClient | null = null;
