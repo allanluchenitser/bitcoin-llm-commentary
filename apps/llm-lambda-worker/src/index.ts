@@ -6,8 +6,9 @@ import { color } from "@blc/color-logger";
 import setupRedis from "./llm_redis.js";
 
 import {
-  ohclvRows2Numbers,
+  processOhlcvRows,
   type OHLCV,
+  type OHLCVRow,
 } from "@blc/contracts";
 
 import { pgConfig } from "./db/config.js";
@@ -19,7 +20,15 @@ import {
 } from "@blc/sse-client";
 
 import { generateSummary } from "./llm_logic.js";
-import { CandleBuffer, createCandleBuffer } from "./llm_help.js";
+
+import {
+  CandleBuffer,
+  createCandleBuffer,
+  calculateCandleReport,
+  type CandleReport
+} from "./llm_help.js";
+
+import { detectSpike } from "./llm_intervals.js";
 import { DEFAULT_INTERVAL_OPTIONS as intervalOptions } from "./workerConfig.js";
 
 
@@ -36,10 +45,10 @@ try {
 
   /* ------ connect to Postgres for summaries in DB ------ */
   pgClient = new PostgresClient(pgConfig);
-  const initialCandles = await pgClient.getInstrumentHistory("kraken", "BTC/USD", intervalOptions.summaryIntervalSeconds);
-  candleBuffer.pushMany(ohclvRows2Numbers(initialCandles));
+  const candleRows: OHLCVRow[] = await pgClient.getInstrumentHistory("kraken", "BTC/USD", intervalOptions.summaryIntervalSeconds);
+  candleBuffer.pushMany(processOhlcvRows(candleRows));
 
-  console.log(`LLM Lambda Worker connected to Postgres and loaded initial OHLCV data: ${initialCandles.length} candles.`);
+  console.log(`LLM Lambda Worker connected to Postgres and loaded initial OHLCV data: ${candleRows.length} candles.`);
 
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
@@ -52,9 +61,11 @@ try {
   if (candleBuffer.size() >= intervalOptions.summaryIntervalSeconds) {
     console.log('Launching initial summary generation upon startup...');
 
+    const candleReport = calculateCandleReport(candleBuffer.last(intervalOptions.summaryIntervalSeconds));
+
     await generateSummary({
       type: "regular",
-      candles: candleBuffer.last(intervalOptions.summaryIntervalSeconds),
+      candleReport,
       openaiClient,
       pgClient,
     });
@@ -112,15 +123,6 @@ app.use((err: unknown, _req: any, res: any, _next: any) => {
   is populated by a redis subscription to the OHLCV data feed.
 */
 
-function detectSpike(candles: OHLCV[]): boolean {
-  if (candles.length === 0) return false;
-  const first = candles[0];
-  const last = candles[candles.length - 1];
-  const priceChange = Math.abs(last.close - first.open) / first.open;
-  const avgVolume = candles.reduce((sum, c) => sum + c.volume, 0) / candles.length;
-  return priceChange > intervalOptions.priceSpikeThreshold || last.volume > avgVolume * intervalOptions.volumeSpikeMultiplier;
-}
-
 const scheduledSummariesTimer = setInterval(async () => { // summary on scheduled intervals
   if (!pgClient) return;
   if (candleBuffer.size() === 0) {
@@ -128,14 +130,12 @@ const scheduledSummariesTimer = setInterval(async () => { // summary on schedule
     return;
   };
 
-
-
   const last30 = candleBuffer.last(intervalOptions.summaryIntervalSeconds);
   if (last30.length === intervalOptions.summaryIntervalSeconds) {
     color.info('scheduled gen!');
     await generateSummary({
       type: "regular",
-      candles: last30,
+      candleReport: calculateCandleReport(last30),
       openaiClient,
       pgClient,
       sseClients
@@ -150,14 +150,15 @@ const spikeDetectionTimer = setInterval(async () => { // spike detection trigger
     return;
   };
 
-  console.log('spike check');
-
   const last10 = candleBuffer.last(intervalOptions.spikeIntervalSeconds);
-  if (last10.length === intervalOptions.spikeIntervalSeconds && detectSpike(last10)) {
+  const report = calculateCandleReport(last10);
+  const isSpike = report.volume.spikeRatio >= 1.3 || Math.abs(report.price.changePct) > 0.7;
+
+  if (isSpike) {
     color.info('spike gen!');
     await generateSummary({
       type: "spike",
-      candles: last10,
+      candleReport: report,
       openaiClient,
       pgClient,
       sseClients

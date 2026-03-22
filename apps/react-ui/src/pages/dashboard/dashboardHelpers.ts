@@ -3,8 +3,6 @@ import {
   type CandlestickData
 } from 'lightweight-charts';
 
-import {type OHLCV, type OHLCVRow } from '@blc/contracts';
-
 import pRetry from 'p-retry';
 
 export function toUTCTimestamp(ts: unknown): UTCTimestamp {
@@ -79,19 +77,6 @@ export function formatUtcMonthDayTime(utcIso: string, locale = "en-US") {
     hour12: false,
     timeZone: "UTC",  // interpret/format as UTC
   }).format(d);
-}
-
-export function ohclvRows2Numbers(rows: OHLCVRow[]): OHLCV[] {
-  return rows.map(row => ({
-    ts: row.ts,
-    exchange: row.exchange,
-    symbol: row.symbol,
-    open: Number(row.open),
-    close: Number(row.close),
-    high: Number(row.high),
-    low: Number(row.low),
-    volume: Number(row.volume),
-  }));
 }
 
 const INITIAL_RETRY_DELAY_MS = 1_000;

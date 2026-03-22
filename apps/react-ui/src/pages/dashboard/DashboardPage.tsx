@@ -5,7 +5,7 @@ import DoombergLiveLogo from './DoombergLiveLogo';
 
 import {
   CHANNEL_TICKER_OHLCV,
-  ohclvRows2Numbers,
+  processOhlcvRows,
   type OHLCVRow,
   type OHLCV,
   type LLMCommentary
@@ -102,7 +102,7 @@ const DashboardPage = () => {
         return res.json() as Promise<OHLCVRow[]>;
       },
       onSuccess: (history) => {
-        const mapped: OHLCV[] = ohclvRows2Numbers(history);
+        const mapped: OHLCV[] = processOhlcvRows(history);
         setRawOhlcvData(mapped);
       },
       onFailure: (error) => {
@@ -155,7 +155,7 @@ const DashboardPage = () => {
         return;
       }
       else {
-        const mappedOhlcv = ohclvRows2Numbers([parsedOhlcv as OHLCVRow])[0];
+        const mappedOhlcv = processOhlcvRows([parsedOhlcv as OHLCVRow])[0];
         // console.log("Received OHLCV update:", mappedOhlcv);
         setRawOhlcvData(prev => [mappedOhlcv, ...prev]);
       }

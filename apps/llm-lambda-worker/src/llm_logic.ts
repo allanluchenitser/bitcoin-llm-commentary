@@ -19,7 +19,7 @@ import {
 import prompts from "./prompts.js";
 
 import { promises as fs } from "fs";
-import { format } from "date-fns";
+import { type CandleReport } from "./llm_help.js";
 
 const REGULAR_INTERVAL_CANDLES = 30;
 
@@ -60,7 +60,7 @@ export function buildUserPrompt(type: "regular" | "spike", candleReport: CandleR
 
 type GenerateSummaryParams = {
   type: "regular" | "spike",
-  candles: OHLCV[],
+  candleReport: CandleReport,
   openaiClient: OpenAI,
   pgClient: PostgresClient,
   sseClients?: SseClients,
@@ -72,7 +72,7 @@ type GenerateSummaryParams = {
 */
 export async function generateSummary({
   type,
-  candles,
+  candleReport,
   openaiClient,
   pgClient,
   sseClients,
@@ -87,17 +87,15 @@ export async function generateSummary({
     3-5 sentences. No predictions. No advice. Use only provided values.
   `);
 
-  if (candles.length > REGULAR_INTERVAL_CANDLES) {
-    console.warn(`Number of candles (${candles.length}) exceeds the regular interval limit (${REGULAR_INTERVAL_CANDLES}). Consider reducing the number of candles or summarizing the data before sending to LLM.`);
+  if (candleReport.length > REGULAR_INTERVAL_CANDLES) {
+    console.warn(`Number of candles (${candleReport.length}) exceeds the regular interval limit (${REGULAR_INTERVAL_CANDLES}). Consider reducing the number of candles or summarizing the data before sending to LLM.`);
     throw new Error("Too many candles for LLM input.");
   }
 
-  const candleReportData = candleReport(candles);
-  const userPrompt = buildUserPrompt(type, candleReportData);
+  const userPrompt = buildUserPrompt(type, candleReport);
 
-  console.log('developerPrompt', developerPrompt);
-  console.log('userPrompt', userPrompt);
-
+  // console.log('developerPrompt', developerPrompt);
+  // console.log('userPrompt', userPrompt);
 
   /* ------ estimate token cost  ------ */
 
@@ -160,19 +158,19 @@ export async function generateSummary({
 
   // - Comment on volume. If volume.spikeRatio >= 2 call it a “volume spike”; if >= 1.3 call it “volume elevated”; otherwise “volume steady”.
   let volumeWord = "volume steady";
-  if (candleReportData.volume.spikeRatio >= 2) { volumeWord = "volume spike"; }
-  else if (candleReportData.volume.spikeRatio >= 1.3) { volumeWord = "volume elevated"; }
+  if (candleReport.volume.spikeRatio >= 2) { volumeWord = "volume spike"; }
+  else if (candleReport.volume.spikeRatio >= 1.3) { volumeWord = "volume elevated"; }
 
   let priceWord = "price steady";
-  if (candleReportData.price.changePct > .7) { priceWord = "price upward"; }
-  else if (candleReportData.price.changePct < -.7) { priceWord = "price downward"; }
+  if (candleReport.price.changePct > .7) { priceWord = "price upward"; }
+  else if (candleReport.price.changePct < -.7) { priceWord = "price downward"; }
 
-  console.log('candleReportData', candleReportData);
+  console.log('candleReport', candleReport);
 
   const commentaryObject = {
     summaryType: type,
-    exchange: candles[0].exchange,
-    symbol: candles[0].symbol,
+    exchange: candleReport.exchange,
+    symbol: candleReport.symbol,
     ts: new Date().toISOString(),
     commentary: response.output_text,
     volumeWord,
@@ -195,7 +193,7 @@ export async function generateSummary({
     try {
       sseClients?.messageAll("summary", {
         ...commentaryObject,
-        ...candleReportData
+        ...candleReport
       });
     }
     catch (err) {
@@ -204,117 +202,119 @@ export async function generateSummary({
   }
 }
 
-type CandleReport = {
-  exchange: string;
-  symbol: string;
-  start: string;
-  end: string;
-  numCandles: number;
-  price: {
-    open: number;
-    close: number;
-    high: number;
-    low: number;
-    change: number;
-    changePct: number;
-    range: number;
-    rangePct: number;
-  };
-  volume: {
-    total: number;
-    average: number;
-    max1m: number;
-    spikeRatio: number;
-  };
-  candleCounts: {
-    up: number;
-    down: number;
-    flat: number;
-  };
-  highlights?: {
-    maxVolumeCandle: OHLCV;
-    maxRangeCandle: OHLCV;
-    maxBodyCandle: OHLCV;
-  };
-};
+// type CandleReport = {
+//   length: number; // how many candles were there?
+//   exchange: string;
+//   symbol: string;
+//   start: string;
+//   end: string;
+//   numCandles: number;
+//   price: {
+//     open: number;
+//     close: number;
+//     high: number;
+//     low: number;
+//     change: number;
+//     changePct: number;
+//     range: number;
+//     rangePct: number;
+//   };
+//   volume: {
+//     total: number;
+//     average: number;
+//     max1m: number;
+//     spikeRatio: number;
+//   };
+//   candleCounts: {
+//     up: number;
+//     down: number;
+//     flat: number;
+//   };
+//   highlights?: {
+//     maxVolumeCandle: OHLCV;
+//     maxRangeCandle: OHLCV;
+//     maxBodyCandle: OHLCV;
+//   };
+// };
 
-export function candleReport(candles: OHLCV[]): CandleReport {
-  if (!candles.length || Array.isArray(candles) === false) {
-    throw new Error("No candles provided");
-  }
+// export function candleReport(candles: OHLCV[]): CandleReport {
+//   if (!candles.length || Array.isArray(candles) === false) {
+//     throw new Error("No candles provided");
+//   }
 
-  for (const c of candles) {
-    console.log(c.ts, c.high, c.volume);
-  }
+//   for (const c of candles) {
+//     console.log(c.ts, c.high, c.volume);
+//   }
 
-  const n = candles.length;
-  const first = candles[0];
-  const last = candles[n - 1];
+//   const n = candles.length;
+//   const first = candles[0];
+//   const last = candles[n - 1];
 
-  let hi = -Infinity;
-  let lo = Infinity;
-  let volTotal = 0;
-  let volMax = -Infinity;
+//   let hi = -Infinity;
+//   let lo = Infinity;
+//   let volTotal = 0;
+//   let volMax = -Infinity;
 
-  let up = 0;
-  let down = 0;
-  let flat = 0;
+//   let up = 0;
+//   let down = 0;
+//   let flat = 0;
 
-  for (const c of candles) {
-    if (c.high > hi) hi = c.high;
-    if (c.low < lo) lo = c.low;
-    volTotal += c.volume;
-    if (c.volume > volMax) volMax = c.volume;
-    if (c.close > c.open) up++;
-    else if (c.close < c.open) down++;
-    else flat++;
-  }
+//   for (const c of candles) {
+//     if (c.high > hi) hi = c.high;
+//     if (c.low < lo) lo = c.low;
+//     volTotal += c.volume;
+//     if (c.volume > volMax) volMax = c.volume;
+//     if (c.close > c.open) up++;
+//     else if (c.close < c.open) down++;
+//     else flat++;
+//   }
 
-  volTotal = Number(volTotal.toFixed(4));
+//   volTotal = Number(volTotal.toFixed(4));
 
-  const o0 = Number(first.open.toFixed(2));
-  const cn = Number(last.close.toFixed(2));
-  const chg = Number((cn - o0).toFixed(2));
-  const chg_pct = Number(((cn - o0) / o0 * 100).toFixed(2));
-  const rangeTotal = Number((hi - lo).toFixed(2));
-  const range_pct = Number(((hi - lo) / o0 * 100).toFixed(2));
-  const volAvg = Number((volTotal / n).toFixed(4));
-  const spike_ratio = Number((volMax / volAvg).toFixed(4));
+//   const o0 = Number(first.open.toFixed(2));
+//   const cn = Number(last.close.toFixed(2));
+//   const chg = Number((cn - o0).toFixed(2));
+//   const chg_pct = Number(((cn - o0) / o0 * 100).toFixed(2));
+//   const rangeTotal = Number((hi - lo).toFixed(2));
+//   const range_pct = Number(((hi - lo) / o0 * 100).toFixed(2));
+//   const volAvg = Number((volTotal / n).toFixed(4));
+//   const spike_ratio = Number((volMax / volAvg).toFixed(4));
 
-  // Add human-readable date strings using date-fns
-  const startHuman = format(new Date(first.ts), "MMM dd, HH:mm 'UTC'");
-  const endHuman = format(new Date(last.ts), "MMM dd, HH:mm 'UTC'");
+//   // Add human-readable date strings using date-fns
+//   const startHuman = format(new Date(first.ts), "MMM dd, HH:mm 'UTC'");
+//   const endHuman = format(new Date(last.ts), "MMM dd, HH:mm 'UTC'");
 
-  return {
-    exchange: first.exchange,
-    symbol: first.symbol,
-    start: startHuman,
-    end: endHuman,
-    numCandles: n,
-    price: {
-      open: o0,
-      close: cn,
-      high: hi,
-      low: lo,
-      change: chg,
-      changePct: chg_pct,
-      range: rangeTotal,
-      rangePct: range_pct,
-    },
-    volume: {
-      total: volTotal,
-      average: volAvg,
-      spikeRatio: spike_ratio,
-      max1m: volMax,
-    },
-    candleCounts: {
-      up,
-      down,
-      flat,
-    },
-    // highlights: undefined as any, // not used, but required by CandleReport type
-  };
-}
+//   return {
+//     length: n,
+//     exchange: first.exchange,
+//     symbol: first.symbol,
+//     start: startHuman,
+//     end: endHuman,
+//     numCandles: n,
+//     price: {
+//       open: o0,
+//       close: cn,
+//       high: hi,
+//       low: lo,
+//       change: chg,
+//       changePct: chg_pct,
+//       range: rangeTotal,
+//       rangePct: range_pct,
+//     },
+//     volume: {
+//       total: volTotal,
+//       average: volAvg,
+//       spikeRatio: spike_ratio,
+//       max1m: volMax,
+//     },
+//     candleCounts: {
+//       up,
+//       down,
+//       flat,
+//     },
+//     // highlights: undefined as any, // not used, but required by CandleReport type
+//   };
+// }
 
 
 

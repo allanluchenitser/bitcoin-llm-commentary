@@ -44,7 +44,7 @@ export type LLMCommentary = {
   priceWord?: string;
 }
 
-export function ohclvRows2Numbers(rows: OHLCVRow[]): OHLCV[] {
+export function processOhlcvRows(rows: OHLCVRow[]): OHLCV[] {
   return rows.map(row => ({
     ts: row.ts,
     exchange: row.exchange,
