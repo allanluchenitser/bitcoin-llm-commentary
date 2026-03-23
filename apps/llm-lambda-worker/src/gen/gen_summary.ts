@@ -87,7 +87,7 @@ function buildPrompts(type: "regular" | "spike", candleReport: CandleReport): { 
 async function runLLMInference(
   developerPrompt: string,
   userPrompt: string,
-  options: Partial<GenerateSummaryOptions>,
+  options: GenerateSummaryOptions,
   openaiClient: OpenAI
 ): Promise<OpenAI.Responses.Response> {
   try {
@@ -116,7 +116,9 @@ function logTokenUsage(options: GenerateSummaryOptions, response: OpenAI.Respons
     console.log(response.usage);
     const actualCents = response.usage.total_tokens / 1000000 * gptPricing[options.modelName].input / 100;
     console.log(`Actual cost in dollars: ${actualCents.toFixed(10)}`);
+    return true;
   }
+  return false;
 }
 
 async function saveLLMResponseToFile(options: GenerateSummaryOptions, response: OpenAI.Responses.Response) {
@@ -126,11 +128,14 @@ async function saveLLMResponseToFile(options: GenerateSummaryOptions, response: 
     try {
       await fs.appendFile("./openai_responses.jsonl", jsonLine, "utf-8");
       console.log('LLM line saved to openai_responses.jsonl');
+      return true;
     }
     catch (err) {
       console.error("Error writing OpenAI response to file:", err);
+      return false;
     }
   }
+  return false;
 }
 
 type BuildCommentaryObjectParams = {
@@ -167,7 +172,7 @@ type GenerateSummaryParams = {
 /**
   calculates candles, generates a prompt, calls the LLM, saves to Postgres, broadcasts to SSE clients
 */
-export async function generateSummary({
+export async function executeSummaryWorkFlow({
   type,
   candleReport,
   openaiClient,
@@ -177,17 +182,24 @@ export async function generateSummary({
 }: GenerateSummaryParams) {
   const options = { ...DEFAULT_GENERATE_SUMMARY_OPTIONS, ...generateSummaryOptions };
 
+  // throws if report.length is too big
   validateCandleCount(candleReport);
 
+  // throws if the prompt type is not recognized
   const { developerPrompt, userPrompt } = buildPrompts(type, candleReport);
 
+  // throws if token count is too high
   estimateTokenUsage(developerPrompt + userPrompt, options)
 
+  // throws if the LLM inference fails
   const response = await runLLMInference(developerPrompt, userPrompt, options, openaiClient)
 
   logTokenUsage(options, response);
-  saveLLMResponseToFile(options, response);
 
+  // catches if the file write fails
+  await saveLLMResponseToFile(options, response);
+
+  // no error checking
   const commentaryObject = buildCommentaryObject({ type, candleReport, response, options })
 
   /* --- broadcast to SSE. send to database --- */
@@ -210,10 +222,8 @@ export async function generateSummary({
     }
     catch (err) {
       console.error("Error inserting LLM commentary into Postgres:", err);
-      return;
     }
   }
-
 }
 
 

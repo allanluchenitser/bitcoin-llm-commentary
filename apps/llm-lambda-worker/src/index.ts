@@ -7,7 +7,6 @@ import setupRedis from "./llm_redis.js";
 
 import {
   processOhlcvRows,
-  type OHLCV,
   type OHLCVRow,
 } from "@blc/contracts";
 
@@ -19,181 +18,193 @@ import {
   createSseRouter,
 } from "@blc/sse-client";
 
-import { generateSummary } from "./gen/gen_summary.js";
+import { executeSummaryWorkFlow } from "./gen/gen_summary.js";
 
 import {
   CandleBuffer,
   createCandleBuffer,
   calculateCandleReport,
-  type CandleReport
 } from "./llm_help.js";
 
-import { detectSpike } from "./llm_intervals.js";
 import { DEFAULT_INTERVAL_OPTIONS as intervalOptions } from "./config.js";
 
-
-let pgClient: PostgresClient | null = null;
-let openaiClient: OpenAI | null = null;
-
-let cleanupRedis: (() => void) = () => {};
-const candleBuffer: CandleBuffer = createCandleBuffer(30);
-
-console.log('LLM Lambda Worker starting...');
-try {
-  /* ------ redis subscription to populate candleBuffer with OHLCV data ------ */
-  cleanupRedis = await setupRedis(candleBuffer);
-
-  /* ------ connect to Postgres for summaries in DB ------ */
-  pgClient = new PostgresClient(pgConfig);
-  const candleRows: OHLCVRow[] = await pgClient.getInstrumentHistory("kraken", "BTC/USD", intervalOptions.summaryIntervalSeconds);
-  candleBuffer.pushMany(processOhlcvRows(candleRows));
-
-  console.log(`LLM Lambda Worker connected to Postgres and loaded initial OHLCV data: ${candleRows.length} candles.`);
-
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    console.error("OPENAI_API_KEY is not set in environment variables.");
-    process.exit(1);
-  }
-  openaiClient = new OpenAI({ apiKey });
-  console.log('LLM Lambda Worker initialized OpenAI client.');
-
-  if (candleBuffer.size() >= intervalOptions.summaryIntervalSeconds) {
-    console.log('Launching initial summary generation upon startup...');
-
-    const candleReport = calculateCandleReport(candleBuffer.last(intervalOptions.summaryIntervalSeconds));
-
-    await generateSummary({
-      type: "regular",
-      candleReport,
-      openaiClient,
-      pgClient,
-    });
-  }
-}
-catch (error) {
-  console.error('Error initializing LLM Lambda Worker:', error);
-  process.exit(1);
-}
-
-/* ------ http and middleware setup ------ */
-
-const app = express();
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-/* ------ sse setup, for web client ------ */
-
-const sseClients = new SseClients();
-app.use("/sse", createSseRouter('/summaries', sseClients));
-
-/* ------ rest routes ------ */
-
-app.get("/llm/history", async (_req, res) => {
-  if (!pgClient) {
-    return res.status(500).json({ error: "Postgres client not initialized" });
-  }
+async function main() {
+  const runtime = await bootstrap();
+  const { pgClient, openaiClient, cleanupRedis, candleBuffer } = runtime;
 
   try {
-    const result = await pgClient.getLLMCommentary();
-    // console.log('Fetched LLM history:', result);
-    res.json(result);
-  } catch (error) {
-    console.error('Error fetching history from Postgres:', error);
-    res.status(500).json({ error: "Failed to fetch history" });
+    if (candleBuffer.size() >= intervalOptions.summaryIntervalSeconds) {
+      console.log('Launching initial summary generation upon startup...');
+
+      const candleReport = calculateCandleReport(candleBuffer.last(intervalOptions.summaryIntervalSeconds));
+
+      await executeSummaryWorkFlow({
+        type: "regular",
+        candleReport,
+        openaiClient,
+        pgClient,
+      });
+    }
   }
-});
-
-/* ------ catchall rest routes ------ */
-
-app.use((_req, res) => res.status(404).json({ error: "Not Found" }));
-
-app.use((err: unknown, _req: any, res: any, _next: any) => {
-  console.error(err);
-  res.status(500).json({ error: "Internal Server Error" });
-});
-
-/* ------ LLM summary intervals ------ */
-
-/*
-  Summary can be called via scheduled intervals or triggered by spike detection logic.
-
-  llm summary intervals read and assess from candleDataBuffer which
-  is populated by a redis subscription to the OHLCV data feed.
-*/
-
-const scheduledSummariesTimer = setInterval(async () => { // summary on scheduled intervals
-  if (!pgClient) return;
-  if (candleBuffer.size() === 0) {
-    console.warn("No candle data available yet for regular summary generation.");
-    return;
-  };
-
-  const last30 = candleBuffer.last(intervalOptions.summaryIntervalSeconds);
-  if (last30.length === intervalOptions.summaryIntervalSeconds) {
-    color.info('scheduled gen!');
-    await generateSummary({
-      type: "regular",
-      candleReport: calculateCandleReport(last30),
-      openaiClient,
-      pgClient,
-      sseClients
-    });
+  catch (error) {
+    console.error('Error initializing LLM Lambda Worker:', error);
+    process.exit(1);
   }
-}, intervalOptions.summaryIntervalSeconds * 1000);
 
-const spikeDetectionTimer = setInterval(async () => { // spike detection triggers a special summary
-  if (!pgClient) return;
-  if (candleBuffer.size() === 0) {
-    console.warn("No candle data available yet for spike detection.");
-    return;
-  };
+  /* ------ http, rest, SSE ------ */
 
-  const last10 = candleBuffer.last(intervalOptions.spikeIntervalSeconds);
-  const report = calculateCandleReport(last10);
-  const isSpike = report.volume.spikeRatio >= 1.3 || Math.abs(report.price.changePct) > 0.7;
+  const app = express();
 
-  if (isSpike) {
-    color.info('spike gen!');
-    await generateSummary({
-      type: "spike",
-      candleReport: report,
-      openaiClient,
-      pgClient,
-      sseClients
-    });
-  }
-}, intervalOptions.spikeIntervalSeconds * 1000);
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
 
-/* ------ start web server ------ */
+  const sseClients = new SseClients();
+  app.use("/sse", createSseRouter('/summaries', sseClients));
 
-const port = Number(process.env.LLM_EXPRESS_PORT ?? 3002);
+  app.get("/llm/history", async (_req, res) => {
+    if (!pgClient) {
+      return res.status(500).json({ error: "Postgres client not initialized" });
+    }
 
-const server = app.listen(port, () => {
-  color.info(`lambda-server listening on http://localhost:${port}`);
-});
-
-/* ------ cleanup ------ */
-
-async function shutdown() {
-  console.log('LLM Lambda Worker shutting down...');
-
-  clearInterval(scheduledSummariesTimer);
-  clearInterval(spikeDetectionTimer);
-
-  server.close(() => {
-    console.log('LLM Lambda Worker server closed.');
+    try {
+      const result = await pgClient.getLLMCommentary();
+      // console.log('Fetched LLM history:', result);
+      res.json(result);
+    } catch (error) {
+      console.error('Error fetching history from Postgres:', error);
+      res.status(500).json({ error: "Failed to fetch history" });
+    }
   });
 
-  await cleanupRedis();
+  app.use((_req, res) => res.status(404).json({ error: "Not Found" }));
 
-  Promise.all([
-    pgClient?.end().catch(err => console.error('Error closing Postgres client:', err))
-  ]).finally(() => {
-    process.exit(0);
+  app.use((err: unknown, _req: any, res: any, _next: any) => {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
   });
-}
 
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
+  /* ------ LLM summary intervals ------ */
+
+  const scheduledSummariesTimer = startScheduledSummaryInterval(pgClient, openaiClient, candleBuffer);
+  const spikeDetectionTimer = startScheduledSpikeDetectionInterval(pgClient, openaiClient, candleBuffer);
+
+  /* ------ start web server ------ */
+
+  const port = Number(process.env.LLM_EXPRESS_PORT ?? 3002);
+
+  const server = app.listen(port, () => {
+    color.info(`lambda-server listening on http://localhost:${port}`);
+  });
+
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+
+  /* ------ HELPERS HELPERS HELPERS HELPERS HELPERS HELPERS HELPERS  ------ */
+
+  type Runtime = {
+    pgClient: PostgresClient;
+    openaiClient: OpenAI;
+    cleanupRedis: () => void;
+    candleBuffer: CandleBuffer;
+  };
+
+  async function bootstrap(): Promise<Runtime> {
+    const candleBuffer = createCandleBuffer(30);
+    const cleanupRedis = await setupRedis(candleBuffer);
+
+    const pgClient = new PostgresClient(pgConfig);
+    const candleRows: OHLCVRow[] = await pgClient.getInstrumentHistory(
+      "kraken",
+      "BTC/USD",
+      intervalOptions.summaryIntervalSeconds
+    );
+    candleBuffer.pushMany(processOhlcvRows(candleRows));
+
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) throw new Error("OPENAI_API_KEY is not set in environment variables.");
+    const openaiClient = new OpenAI({ apiKey });
+
+    return { pgClient, openaiClient, cleanupRedis, candleBuffer };
+  }
+
+  async function shutdown() {
+    console.log('LLM Lambda Worker shutting down...');
+
+    clearInterval(scheduledSummariesTimer);
+    clearInterval(spikeDetectionTimer);
+
+    server.close(() => {
+      console.log('LLM Lambda Worker server closed.');
+    });
+
+    await cleanupRedis();
+
+    Promise.all([
+      pgClient?.end().catch(err => console.error('Error closing Postgres client:', err))
+    ]).finally(() => {
+      process.exit(0);
+    });
+  }
+
+  function startScheduledSummaryInterval(pgClient: PostgresClient, openaiClient: OpenAI, candleBuffer: CandleBuffer) {
+    return setInterval(async () => { // summary on scheduled intervals
+      try {
+        if (!pgClient) return;
+        if (candleBuffer.size() === 0) {
+          console.warn("No candle data available yet for regular summary generation.");
+          return;
+        };
+
+        const last30 = candleBuffer.last(intervalOptions.summaryIntervalSeconds);
+        if (last30.length === intervalOptions.summaryIntervalSeconds) {
+          color.info('scheduled gen!');
+          await executeSummaryWorkFlow({
+            type: "regular",
+            candleReport: calculateCandleReport(last30),
+            openaiClient,
+            pgClient,
+            sseClients
+          });
+        }
+      }
+      catch (err) {
+        console.error("Error in scheduled summary generation:", err);
+      }
+    }, intervalOptions.summaryIntervalSeconds * 1000);
+  }
+
+  function startScheduledSpikeDetectionInterval(pgClient: PostgresClient, openaiClient: OpenAI, candleBuffer: CandleBuffer) {
+    return setInterval(async () => { // spike detection triggers a special summary
+      try {
+        if (!pgClient) return;
+        if (candleBuffer.size() === 0) {
+          console.warn("No candle data available yet for spike detection.");
+          return;
+        };
+
+        const last10 = candleBuffer.last(intervalOptions.spikeIntervalSeconds);
+        const report = calculateCandleReport(last10);
+        const isSpike = report.volume.spikeRatio >= 1.3 || Math.abs(report.price.changePct) > 0.7;
+
+        if (isSpike) {
+          color.info('spike gen!');
+          await executeSummaryWorkFlow({
+            type: "spike",
+            candleReport: report,
+            openaiClient,
+            pgClient,
+            sseClients
+          });
+        }
+      } catch (err) {
+        console.error("Error in scheduled spike detection:", err);
+      }
+    }, intervalOptions.spikeIntervalSeconds * 1000);
+  }
+}; // end of main
+
+main().catch(err => {
+  console.error('Error starting LLM Lambda Worker:', err);
+  process.exit(1);
+});
+

@@ -11,7 +11,7 @@ export type SummaryCardProps = {
 };
 
 export default function SummaryCard({
-  summary: { commentary, ts, volumeWord, priceWord },
+  summary: { commentary, ts },
   src,
   srcHeight = 40,
 
@@ -41,10 +41,6 @@ export default function SummaryCard({
       </Tag>
       <div className="text-sm text-gray-600 mb-4 italic text-right">
         {new Date(ts).toLocaleString()}
-      </div>
-      <div className="text-sm text-gray-600 mb-4 italic text-right">
-        {volumeWord && <span className="mr-2">{volumeWord}</span>}
-        {priceWord && <span>{priceWord}</span>}
       </div>
     </div>
   );
