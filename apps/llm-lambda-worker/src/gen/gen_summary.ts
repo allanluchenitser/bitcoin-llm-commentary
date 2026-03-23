@@ -119,7 +119,7 @@ function logTokenUsage(options: GenerateSummaryOptions, response: OpenAI.Respons
   }
 }
 
-async function safeLLMResponseToFile(options: GenerateSummaryOptions, response: OpenAI.Responses.Response) {
+async function saveLLMResponseToFile(options: GenerateSummaryOptions, response: OpenAI.Responses.Response) {
   if (options.saveLLMResponse) {
     const jsonLine = JSON.stringify(response) + "\n";
 
@@ -134,7 +134,7 @@ async function safeLLMResponseToFile(options: GenerateSummaryOptions, response: 
 }
 
 type BuildCommentaryObjectParams = {
-  type: string,
+  type: "regular" | "spike",
   candleReport: CandleReport,
   response: OpenAI.Responses.Response,
   options: GenerateSummaryOptions
@@ -186,19 +186,11 @@ export async function generateSummary({
   const response = await runLLMInference(developerPrompt, userPrompt, options, openaiClient)
 
   logTokenUsage(options, response);
-  safeLLMResponseToFile(options, response);
+  saveLLMResponseToFile(options, response);
 
   const commentaryObject = buildCommentaryObject({ type, candleReport, response, options })
 
-  if (options.saveSummaryToDb) {
-    try {
-      await pgClient.insertLLMCommentary(commentaryObject);
-    }
-    catch (err) {
-      console.error("Error inserting LLM commentary into Postgres:", err);
-      return;
-    }
-  }
+  /* --- broadcast to SSE. send to database --- */
 
   if (sseClients) {
     try {
@@ -211,6 +203,17 @@ export async function generateSummary({
       console.error("Error sending SSE summary message:", err);
     }
   }
+
+  if (options.saveSummaryToDb) {
+    try {
+      await pgClient.insertLLMCommentary(commentaryObject);
+    }
+    catch (err) {
+      console.error("Error inserting LLM commentary into Postgres:", err);
+      return;
+    }
+  }
+
 }
 
 
