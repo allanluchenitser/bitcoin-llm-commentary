@@ -50,6 +50,10 @@ async function main() {
     console.error('Error initializing LLM Lambda Worker:', error);
     process.exit(1);
   }
+ /* ------ LLM summary intervals ------ */
+
+  const scheduledSummariesTimer = startScheduledSummaryInterval(pgClient, openaiClient, candleBuffer);
+  const spikeDetectionTimer = startScheduledSpikeDetectionInterval(pgClient, openaiClient, candleBuffer);
 
   /* ------ http, rest, SSE ------ */
 
@@ -68,7 +72,6 @@ async function main() {
 
     try {
       const result = await pgClient.getLLMCommentary();
-      // console.log('Fetched LLM history:', result);
       res.json(result);
     } catch (error) {
       console.error('Error fetching history from Postgres:', error);
@@ -82,11 +85,6 @@ async function main() {
     console.error(err);
     res.status(500).json({ error: "Internal Server Error" });
   });
-
-  /* ------ LLM summary intervals ------ */
-
-  const scheduledSummariesTimer = startScheduledSummaryInterval(pgClient, openaiClient, candleBuffer);
-  const spikeDetectionTimer = startScheduledSpikeDetectionInterval(pgClient, openaiClient, candleBuffer);
 
   /* ------ start web server ------ */
 
@@ -133,7 +131,7 @@ async function main() {
     clearInterval(scheduledSummariesTimer);
     clearInterval(spikeDetectionTimer);
 
-    server.close(() => {
+    await server.close(() => {
       console.log('LLM Lambda Worker server closed.');
     });
 
