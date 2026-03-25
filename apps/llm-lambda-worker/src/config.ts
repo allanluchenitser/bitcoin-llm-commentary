@@ -6,6 +6,7 @@ export type GenerateSummaryOptions = {
   saveLLMResponse: boolean;
   displayTokenUsageEstimates: boolean;
   displayTokenUsageActual: boolean;
+  maxSummaryCandles: number;
   developerPrompt: string;
   modelName: string;
 };
@@ -17,6 +18,8 @@ export const DEFAULT_GENERATE_SUMMARY_OPTIONS: GenerateSummaryOptions = {
   displayTokenUsageEstimates: false,
   displayTokenUsageActual: false,
 
+  maxSummaryCandles: 30,
+
   modelName: "gpt-5-mini",
   developerPrompt: dedent(`
     Write a concise BTC/USD price action summary.
@@ -25,10 +28,12 @@ export const DEFAULT_GENERATE_SUMMARY_OPTIONS: GenerateSummaryOptions = {
 };
 
 export const DEFAULT_INTERVAL_OPTIONS = {
-  summaryIntervalSeconds: 30, // 30 seconds
-  spikeIntervalSeconds: 12, // 12 seconds
+  summaryEverySeconds: 30, // 30 seconds
+  checkSpikeEverySeconds: 10, // 10 seconds
+  summaryLookbackCandles: 30, // 30 candles (5 minutes of 10s candles)
+  spikeLookbackCandles: 10, // 10 candles (1.5 minutes of 10s candles)
   priceSpikeThreshold: 0.03, // 3%
   volumeSpikeMultiplier: 3,  // 3x average
 };
 
-export const REGULAR_INTERVAL_CANDLES = 30;
+export const LLM_INTERVAL_CANDLES_SIZE = 30;

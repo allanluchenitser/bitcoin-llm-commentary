@@ -21,11 +21,9 @@ import prompts from "../prompts.js";
 import { promises as fs } from "fs";
 import { type CandleReport } from "../llm_help.js";
 
-const REGULAR_INTERVAL_CANDLES = 30;
-
-function validateCandleCount(candleReport: CandleReport) {
-  if (candleReport.length > REGULAR_INTERVAL_CANDLES) {
-    console.warn(`Number of candles (${candleReport.length}) exceeds the regular interval limit (${REGULAR_INTERVAL_CANDLES}). Consider reducing the number of candles or summarizing the data before sending to LLM.`);
+function validateCandleCount(candleReport: CandleReport, maxSummaryCandles: number = DEFAULT_GENERATE_SUMMARY_OPTIONS.maxSummaryCandles) {
+  if (candleReport.length > maxSummaryCandles) {
+    console.warn(`Number of candles (${candleReport.length}) exceeds the regular interval limit (${maxSummaryCandles}). Consider reducing the number of candles or summarizing the data before sending to LLM.`);
     throw new Error("Too many candles for LLM input.");
   }
 }

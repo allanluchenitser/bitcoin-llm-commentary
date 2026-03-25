@@ -33,14 +33,15 @@ async function main() {
   const { pgClient, openaiClient, cleanupRedis, candleBuffer } = runtime;
 
   try {
-    if (candleBuffer.size() >= intervalOptions.summaryIntervalSeconds) {
+    if (candleBuffer.size() >= intervalOptions.summaryLookbackCandles) {
       console.log('Launching initial summary generation upon startup...');
 
-      const candleReport = calculateCandleReport(candleBuffer.last(intervalOptions.summaryIntervalSeconds));
+      const lastN = candleBuffer.last(intervalOptions.summaryLookbackCandles);
+      const report = calculateCandleReport(lastN);
 
       await executeSummaryWorkFlow({
         type: "regular",
-        candleReport,
+        candleReport: report,
         openaiClient,
         pgClient,
       });
@@ -114,7 +115,7 @@ async function main() {
     const candleRows: OHLCVRow[] = await pgClient.getInstrumentHistory(
       "kraken",
       "BTC/USD",
-      intervalOptions.summaryIntervalSeconds
+      intervalOptions.summaryLookbackCandles
     );
     candleBuffer.pushMany(processOhlcvRows(candleRows));
 
@@ -144,6 +145,7 @@ async function main() {
     });
   }
 
+  let scheduleInFlight = false;
   function startScheduledSummaryInterval(pgClient: PostgresClient, openaiClient: OpenAI, candleBuffer: CandleBuffer) {
     return setInterval(async () => { // summary on scheduled intervals
       try {
@@ -153,38 +155,45 @@ async function main() {
           return;
         };
 
-        const last30 = candleBuffer.last(intervalOptions.summaryIntervalSeconds);
-        if (last30.length === intervalOptions.summaryIntervalSeconds) {
+        const lastN = candleBuffer.last(intervalOptions.summaryLookbackCandles);
+        if (lastN.length === intervalOptions.summaryLookbackCandles && !scheduleInFlight) {
+          scheduleInFlight = true;
           color.info('scheduled gen!');
+
+          const report = calculateCandleReport(lastN);
+
           await executeSummaryWorkFlow({
             type: "regular",
-            candleReport: calculateCandleReport(last30),
+            candleReport: report,
             openaiClient,
             pgClient,
             sseClients
           });
+          scheduleInFlight = false;
         }
       }
       catch (err) {
         console.error("Error in scheduled summary generation:", err);
       }
-    }, intervalOptions.summaryIntervalSeconds * 1000);
+    }, intervalOptions.summaryEverySeconds * 1000);
   }
 
+  let spikeInFlight = false;
   function startScheduledSpikeDetectionInterval(pgClient: PostgresClient, openaiClient: OpenAI, candleBuffer: CandleBuffer) {
     return setInterval(async () => { // spike detection triggers a special summary
       try {
-        if (!pgClient) return;
+        if (!pgClient || candleBuffer.size() === 0) return;
         if (candleBuffer.size() === 0) {
           console.warn("No candle data available yet for spike detection.");
           return;
         };
 
-        const last10 = candleBuffer.last(intervalOptions.spikeIntervalSeconds);
-        const report = calculateCandleReport(last10);
+        const lastN = candleBuffer.last(intervalOptions.spikeLookbackCandles);
+        const report = calculateCandleReport(lastN);
         const isSpike = report.volume.spikeRatio >= 1.3 || Math.abs(report.price.changePct) > 0.7;
 
-        if (isSpike) {
+        if (isSpike && !spikeInFlight) {
+          spikeInFlight = true;
           color.info('spike gen!');
           await executeSummaryWorkFlow({
             type: "spike",
@@ -193,11 +202,12 @@ async function main() {
             pgClient,
             sseClients
           });
+          spikeInFlight = false;
         }
       } catch (err) {
         console.error("Error in scheduled spike detection:", err);
       }
-    }, intervalOptions.spikeIntervalSeconds * 1000);
+    }, intervalOptions.checkSpikeEverySeconds * 1000);
   }
 }; // end of main
 

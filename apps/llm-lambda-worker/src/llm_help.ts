@@ -19,7 +19,9 @@ export class CandleBuffer {
       return;
     }
     this.buf.push(...cs);
-    while (this.buf.length > this.capacity) this.buf.shift();
+    if (this.buf.length > this.capacity) {
+      this.buf = this.buf.slice(-this.capacity);
+    }
   }
 
   last(n: number): OHLCV[] {
