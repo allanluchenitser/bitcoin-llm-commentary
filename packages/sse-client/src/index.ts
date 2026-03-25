@@ -41,8 +41,18 @@ export class SseClients {
 
   messageAll(event: string, data: unknown) {
     const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
-    for (const c of this.clients.values()) {
-      c.res.write(payload);
+
+    for (const [id, c] of this.clients.entries()) {
+      if (c.res.destroyed || c.res.writableEnded) {
+        this.clients.delete(id);
+        continue;
+      }
+
+      try {
+        c.res.write(payload); // returns boolean; ignore or track if desired
+      } catch {
+        this.clients.delete(id);
+      }
     }
   }
 
